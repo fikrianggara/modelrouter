@@ -7,39 +7,59 @@
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-    /* Firecrawl Light Mode Tokens */
-    --fc-bg-base: #f9f9f9;
+    /* Firecrawl Light Mode Tokens (Paper & Graphite) */
+    --fc-heat-100: #fa5d19;
+    --fc-heat-cta: #fa4500;
+    --fc-heat-hover: #e04814;
+    --fc-canvas-paper: #f9f9f9;
     --fc-bg-lighter: #fbfbfb;
-    --fc-surface: #ffffff;
+    --fc-surface-soft: #fdfdfd;
+    --fc-surface-white: #ffffff;
     --fc-surface-raised: #ffffff;
+    --fc-ink-strong: #111827;
+    --fc-graphite: #262626;
+    --fc-body: #374151;
+    --fc-body-soft: #4b5563;
+    --fc-muted: #6b7280;
+    --fc-muted-soft: #9ca3af;
     --fc-border-faint: #ededed;
     --fc-border-muted: #e8e8e8;
     --fc-border-loud: #e6e6e6;
-    --fc-accent-black: #262626;
-    --fc-alpha-4: rgba(0, 0, 0, 0.04);
-    --fc-alpha-8: rgba(0, 0, 0, 0.08);
-    --fc-alpha-12: rgba(0, 0, 0, 0.12);
+
+    /* Shadows & Halos */
+    --fc-shadow-halo: 0 0 0 6px rgba(0, 0, 0, 0.025), 0 4px 20px rgba(0, 0, 0, 0.04);
+    --fc-shadow-heat-btn: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 1px 2px 0 rgba(250, 69, 0, 0.35), 0 0 0 1px #fa4500;
   }
 
   .dark {
     /* Firecrawl Dark Mode Tokens */
-    --fc-bg-base: #0a0a0a;
+    --fc-heat-100: #fa5d19;
+    --fc-heat-cta: #fa4500;
+    --fc-heat-hover: #e04814;
+    --fc-canvas-paper: #0a0a0a;
     --fc-bg-lighter: #141414;
-    --fc-surface: #171717;
-    --fc-surface-raised: #1f1f1f;
-    --fc-border-faint: #2a2a2a;
-    --fc-border-muted: #333333;
-    --fc-border-loud: #404040;
-    --fc-accent-black: #f5f5f5;
-    --fc-alpha-4: rgba(255, 255, 255, 0.04);
-    --fc-alpha-8: rgba(255, 255, 255, 0.08);
-    --fc-alpha-12: rgba(255, 255, 255, 0.12);
+    --fc-surface-soft: #171717;
+    --fc-surface-white: #1c1c1c;
+    --fc-surface-raised: #222222;
+    --fc-ink-strong: #f9f9f9;
+    --fc-graphite: #f5f5f5;
+    --fc-body: #d1d5db;
+    --fc-body-soft: #9ca3af;
+    --fc-muted: #737373;
+    --fc-muted-soft: #525252;
+    --fc-border-faint: #222222;
+    --fc-border-muted: #2e2e2e;
+    --fc-border-loud: #3d3d3d;
+
+    /* Shadows & Halos in Dark */
+    --fc-shadow-halo: 0 0 0 6px rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
+    --fc-shadow-heat-btn: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 1px 2px 0 rgba(250, 69, 0, 0.45), 0 0 0 1px #fa4500;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--fc-bg-base);
-    color: var(--fc-accent-black);
+    background-color: var(--fc-canvas-paper);
+    color: var(--fc-graphite);
     @apply antialiased transition-colors duration-150;
     letter-spacing: -0.01em;
   }
@@ -50,24 +70,74 @@
 }
 
 /* Firecrawl signature buttons & components */
-.btn-heat-primary {
-  background-color: #fa5d19;
+.btn-heat-cta {
+  background-color: var(--fc-heat-cta);
   color: #ffffff;
-  box-shadow:
-    inset 0 -6px 12px 0 rgba(255, 0, 0, 0.2),
-    0 0.6px 0.8px 0 rgba(255, 139, 0, 0.22),
-    0 1.3px 1.7px 0 rgba(255, 139, 0, 0.19),
-    0 2.5px 3.1px 0 rgba(255, 139, 0, 0.16),
-    0 4.4px 5.5px 0 rgba(255, 139, 0, 0.13),
-    0 8.3px 10.3px 0 rgba(255, 139, 0, 0.1),
-    0 2px 4px 0 rgba(250, 93, 25, 0.3);
+  box-shadow: var(--fc-shadow-heat-btn);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.btn-heat-cta:hover {
+  background-color: var(--fc-heat-hover);
+  filter: brightness(1.02);
+}
+.btn-heat-cta:active {
+  transform: scale(0.985);
+}
+
+.btn-heat-primary {
+  background-color: var(--fc-heat-100);
+  color: #ffffff;
+  box-shadow: var(--fc-shadow-heat-btn);
   transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .btn-heat-primary:hover {
-  filter: brightness(1.04);
+  background-color: var(--fc-heat-hover);
 }
 .btn-heat-primary:active {
-  transform: scale(0.992);
+  transform: scale(0.985);
+}
+
+.btn-graphite {
+  background-color: var(--fc-graphite);
+  color: var(--fc-canvas-paper);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.btn-graphite:hover {
+  opacity: 0.92;
+}
+.btn-graphite:active {
+  transform: scale(0.985);
+}
+
+.btn-ghost-outline {
+  background-color: var(--fc-surface-white);
+  border: 1px solid var(--fc-border-muted);
+  color: var(--fc-graphite);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+.btn-ghost-outline:hover {
+  background-color: var(--fc-bg-lighter);
+}
+.btn-ghost-outline:active {
+  transform: scale(0.985);
+}
+
+/* Halo ring for floating interactive console */
+.widget-halo {
+  box-shadow: var(--fc-shadow-halo);
+}
+
+/* Precision blueprint corner ticks */
+.corner-crosshair {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  color: #c2c2c2;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 7px;
+  user-select: none;
+  pointer-events: none;
 }
 
 /* Precision scrollbars */

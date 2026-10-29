@@ -19,4 +19,4 @@
 | TKT-017 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-017-refactor-layout-spacing | false | 2026-10-29 | 2026-10-29 | Refactor Layout Spacing to Bordered Filler Grid Cells, Top-Right Hero ASCII Flame, and Bottom-Right Playground Presets |
 | TKT-018 | feature | small | P2 | — | merged | jarvis | feature-TKT-018-refactor-hero-flame-comp | false | 2026-10-29 | 2026-10-29 | Refactor Hero Flame, Complexity Colors, Registry UI Density, and Remove Filler Spacers |
 | TKT-019 | bug | small | P2 | — | merged | jarvis | bug-TKT-019-fix-registry-text-overfl | false | 2026-10-29 | 2026-10-29 | Fix Registry Text Overflow, Restore Progress Bars, Theme-Aware Complexity Card, and Clean Pipeline Spacing |
-| TKT-020 | feature | medium | P1 | frontend | ongoing | jarvis | feature-TKT-020-implement-architectural | false | 2026-10-29 | 2026-10-29 | Implement Architectural Bento Grid with Full-Bleed 3-Column Layout |
+| TKT-020 | feature | medium | P1 | frontend | done | jarvis | feature-TKT-020-implement-architectural | true | 2026-10-29 | 2026-10-29 | Implement Architectural Bento Grid with Full-Bleed 3-Column Layout |

@@ -6,6 +6,8 @@
   :root {
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-ascii: 'Roboto Mono', 'JetBrains Mono', monospace;
+    --fc-font-ascii: 'Roboto Mono', 'JetBrains Mono', monospace;
 
     /* Firecrawl Light Mode Tokens (Paper & Graphite) */
     --fc-heat-100: #fa5d19;
@@ -178,13 +180,63 @@
   top: 10px;
   right: 12px;
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--fc-font-ascii, var(--font-mono));
   font-size: 10px;
   line-height: 12px;
-  color: #fa5d19;
-  opacity: 0.22;
   pointer-events: none;
   user-select: none;
+}
+
+/* Firecrawl Exposed Grid & Blueprint Utilities */
+.inside-border {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--fc-border-faint);
+  pointer-events: none;
+}
+
+.mask-border {
+  mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+}
+
+.fc-mono-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fc-muted);
+}
+
+.fc-latency-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background-color: var(--fc-bg-lighter);
+  border: 1px solid var(--fc-border-faint);
+  color: var(--fc-graphite);
+}
+
+/* Strict Monochrome Statistic Cards (Paper, White, Graphite, Muted) */
+.fc-stat-mono {
+  color: var(--fc-graphite);
+}
+.fc-stat-mono .stat-icon {
+  color: var(--fc-graphite);
+}
+.fc-stat-mono .stat-value {
+  color: var(--fc-graphite);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.fc-stat-mono .stat-label {
+  color: var(--fc-muted);
+  font-family: var(--font-mono);
+}
+.fc-stat-mono .stat-badge {
+  background-color: var(--fc-bg-lighter);
+  border: 1px solid var(--fc-border-faint);
+  color: var(--fc-muted);
 }
 
 /* Precision scrollbars */

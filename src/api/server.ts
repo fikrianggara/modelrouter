@@ -203,6 +203,7 @@ export function createApp(options?: ServerOptions): Hono {
         domain: result.evalResult.domain,
         requiresTools: result.evalResult.requiresTools,
         requiresVision: result.evalResult.requiresVision,
+        isFallback: Boolean(result.evalResult.isFallback),
         fallbackReason: result.evalResult.fallbackReason,
         selectedModel: result.selectedModel,
         routingLatencyMs: parseFloat(result.latencyMs),
@@ -274,13 +275,25 @@ export function createApp(options?: ServerOptions): Hono {
     c.header('X-D1-Domain', evalResult.domain);
     c.header('X-D1-Selected-Model', selectedModel.id);
     c.header('X-D1-Routing-Latency-Ms', latencyMs);
+    if (evalResult.isFallback) {
+      c.header('X-D1-Fallback', 'true');
+      if (evalResult.fallbackReason) {
+        c.header('X-D1-Fallback-Reason', evalResult.fallbackReason);
+      }
+    }
 
-    const telemetryHeaders = {
+    const telemetryHeaders: Record<string, string> = {
       'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),
       'X-D1-Domain': evalResult.domain,
       'X-D1-Selected-Model': selectedModel.id,
       'X-D1-Routing-Latency-Ms': latencyMs,
     };
+    if (evalResult.isFallback) {
+      telemetryHeaders['X-D1-Fallback'] = 'true';
+      if (evalResult.fallbackReason) {
+        telemetryHeaders['X-D1-Fallback-Reason'] = evalResult.fallbackReason;
+      }
+    }
 
     // Route to Anthropic upstream if model provider is Anthropic
     if (selectedModel.provider === 'anthropic') {
@@ -477,13 +490,25 @@ export function createApp(options?: ServerOptions): Hono {
     c.header('X-D1-Domain', evalResult.domain);
     c.header('X-D1-Selected-Model', selectedModel.id);
     c.header('X-D1-Routing-Latency-Ms', latencyMs);
+    if (evalResult.isFallback) {
+      c.header('X-D1-Fallback', 'true');
+      if (evalResult.fallbackReason) {
+        c.header('X-D1-Fallback-Reason', evalResult.fallbackReason);
+      }
+    }
 
-    const telemetryHeaders = {
+    const telemetryHeaders: Record<string, string> = {
       'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),
       'X-D1-Domain': evalResult.domain,
       'X-D1-Selected-Model': selectedModel.id,
       'X-D1-Routing-Latency-Ms': latencyMs,
     };
+    if (evalResult.isFallback) {
+      telemetryHeaders['X-D1-Fallback'] = 'true';
+      if (evalResult.fallbackReason) {
+        telemetryHeaders['X-D1-Fallback-Reason'] = evalResult.fallbackReason;
+      }
+    }
 
     // If upstream is Anthropic, forward directly
     if (selectedModel.provider === 'anthropic') {

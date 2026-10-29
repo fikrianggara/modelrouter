@@ -1,0 +1,51 @@
+version: "1.0"
+models:
+  - id: "local-chat"
+    display_name: "Local Chat"
+    provider: "ollama"
+    upstream_model: "lfm3:latest"
+    base_url: "http://localhost:11434/v1"
+    complexity_range: [0.0, 1.8]
+    tags: ["local", "chat"]
+    capabilities:
+      tools: false
+      vision: false
+      max_context: 32768
+      streaming: true
+    cost:
+      input_per_mtoken: 0.0
+      output_per_mtoken: 0.0
+
+  - id: "cloud-coder"
+    display_name: "Claude Sonnet"
+    provider: "anthropic"
+    upstream_model: "claude-3-5-sonnet-20241022"
+    base_url: "https://api.anthropic.com/v1"
+    api_key_env: "ANTHROPIC_API_KEY"
+    complexity_range: [3.0, 5.0]
+    tags: ["coding", "frontier", "tools"]
+    capabilities:
+      tools: true
+      vision: true
+      max_context: 200000
+      streaming: true
+    cost:
+      input_per_mtoken: 3.0
+      output_per_mtoken: 15.0
+
+  - id: "openai-gpt4o"
+    display_name: "OpenAI GPT-4o"
+    provider: "openai"
+    upstream_model: "gpt-4o"
+    base_url: "https://api.openai.com/v1"
+    api_key_env: "OPENAI_API_KEY"
+    complexity_range: [2.5, 5.0]
+    tags: ["cloud", "frontier", "tools", "vision"]
+    capabilities:
+      tools: true
+      vision: true
+      max_context: 128000
+      streaming: true
+    cost:
+      input_per_mtoken: 2.5
+      output_per_mtoken: 10.0

@@ -1,3 +1,8 @@
+# Dependencies & Build
+node_modules/
+dist/
+coverage/
+
 # Python & Virtual Environments
 .venv/
 venv/

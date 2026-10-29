@@ -444,21 +444,16 @@ export function PlaygroundPage() {
   const scorePercent = Math.min(100, Math.max(0, (score / 5) * 100));
 
   const getScoreColor = (val: number) => {
-    if (val < 2.0)
+    if (val < 3.0) {
       return {
-        text: 'text-fc-graphite',
-        bg: 'bg-fc-graphite',
-        tier: 'Tier 1 · Local Engine (d1 Free)',
+        text: 'text-white',
+        bg: 'bg-white',
+        tier: val < 2.0 ? 'Tier 1 · Local Engine (d1 Free)' : 'Tier 2 · Mid-Tier Engine',
       };
-    if (val < 3.5)
-      return {
-        text: 'text-fc-graphite',
-        bg: 'bg-fc-graphite',
-        tier: 'Tier 2 · Mid-Tier Engine',
-      };
+    }
     return {
-      text: 'text-fc-graphite',
-      bg: 'bg-fc-graphite',
+      text: 'text-heat-100',
+      bg: 'bg-heat-100',
       tier: 'Tier 3 · Frontier Engine',
     };
   };
@@ -474,14 +469,19 @@ export function PlaygroundPage() {
         <span className="corner-crosshair bottom-2 left-2">+</span>
         <span className="corner-crosshair bottom-2 right-2">+</span>
 
-        {/* Flame ASCII Animation in Top-Right of Hero Section */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none select-none flex flex-col items-end">
-          <span className="text-[10px] font-mono text-fc-muted-soft mb-1 hidden sm:inline">[ ASCII // PLAYGROUND ]</span>
-          <AsciiFlame className="text-heat-100" opacity={0.65} variant="flame" />
+        {/* Repeatable ASCII Flame Watermark in Background of Hero Section */}
+        <div className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0" aria-hidden="true">
+          <AsciiFlame
+            className="text-fc-muted-soft dark:text-fc-muted"
+            opacity={0.16}
+            variant="flame"
+            repeatRows={3}
+            repeatCols={3}
+          />
         </div>
 
         {/* Section Metadata */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2">
+        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2 relative z-10">
           <span className="text-heat-100 font-bold">[ 01 / 02 ]</span>
           <span>·</span>
           <span>Decision Workbench</span>
@@ -491,7 +491,7 @@ export function PlaygroundPage() {
         </div>
 
         {/* Workbench Header */}
-        <div className="max-w-2xl">
+        <div className="max-w-2xl relative z-10">
           <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-1">
             Decision Intelligence <span className="text-heat-100">Playground</span>.
           </h1>
@@ -500,12 +500,6 @@ export function PlaygroundPage() {
           </p>
         </div>
       </section>
-
-      {/* Filler Grid Spacer Row */}
-      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
 
       {/* Blueprint Exposed Grid: Monochromatic Statistic Cards with Nested Rounded Cards & ASCII Flame */}
       <section className="fc-blueprint-grid border-b border-fc-border-faint">
@@ -593,12 +587,6 @@ export function PlaygroundPage() {
           </div>
         </div>
       </section>
-
-      {/* Filler Grid Spacer Row */}
-      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
 
       {/* Main Dual-Pane Blueprint Grid: Left = Execution Workbench, Right = Decision Inspector */}
       <div className="fc-blueprint-grid grid-cols-1 lg:grid-cols-12 border-b border-fc-border-faint">
@@ -940,47 +928,49 @@ export function PlaygroundPage() {
             )}
           </div>
 
-          {/* Calibrated Complexity Spectrum Card (Monochromatic) */}
-          <div className="fc-nested-card fc-stat-mono p-5 space-y-3">
+          {/* Calibrated Complexity Spectrum Card */}
+          <div className="fc-nested-card p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
               <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
-                <Gauge className="w-3.5 h-3.5 text-fc-graphite stat-icon" />
+                <Gauge className={`w-3.5 h-3.5 ${score < 3.0 ? 'text-fc-graphite dark:text-white' : 'text-heat-100'}`} />
                 <span>Complexity Spectrum</span>
               </h2>
               <span className="text-[11px] font-mono text-fc-muted">
-                Score: <strong>{score.toFixed(2)}</strong> / 5.0
+                Score: <strong className={score < 3.0 ? 'text-fc-graphite dark:text-white' : 'text-heat-100'}>{score.toFixed(2)}</strong> / 5.0
               </span>
             </div>
 
-            {/* Readout & Meter */}
-            <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint p-4 flex flex-col items-center justify-center space-y-2.5">
+            {/* Readout & Meter: White for < 3, Heat Orange for >= 3 */}
+            <div className="rounded-fc-6 bg-neutral-900 border border-neutral-800 p-4 flex flex-col items-center justify-center space-y-2.5 shadow-xs">
               <div className="text-center space-y-0.5">
-                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+                <div className={`text-3xl font-bold font-mono tracking-tight ${score < 3.0 ? 'text-white' : 'text-heat-100'}`}>
                   {score.toFixed(2)}
-                  <span className="text-sm text-fc-muted font-sans font-normal ml-1">/ 5.0</span>
+                  <span className="text-sm text-neutral-400 font-sans font-normal ml-1">/ 5.0</span>
                 </div>
-                <div className="text-xs text-fc-muted font-medium">
+                <div className="text-xs text-neutral-400 font-medium">
                   {scoreStyle.tier}
                 </div>
               </div>
 
-              {/* Calibrated Bar with Ticks */}
+              {/* Calibrated Bar with Ticks: White fill for < 3, Heat Orange for >= 3 */}
               <div className="w-full space-y-1 pt-1">
-                <div className="w-full h-2 rounded-fc-full bg-fc-surface border border-fc-border-faint overflow-hidden">
+                <div className="w-full h-2.5 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
                   <div
-                    className="h-full rounded-fc-full transition-all duration-300 bg-fc-graphite"
+                    className={`h-full rounded-fc-full transition-all duration-300 ${
+                      score < 3.0 ? 'bg-white shadow-xs' : 'bg-heat-100 shadow-fc-heat-btn'
+                    }`}
                     style={{ width: `${scorePercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] font-mono text-fc-muted">
-                  <span>1.0 Local</span>
-                  <span>3.0 Mid-Tier</span>
-                  <span>5.0 Frontier</span>
+                <div className="flex justify-between text-[10px] font-mono text-neutral-400">
+                  <span className={score < 3.0 ? 'text-white font-medium' : ''}>1.0 Local</span>
+                  <span className="text-neutral-400">3.0 Threshold</span>
+                  <span className={score >= 3.0 ? 'text-heat-100 font-medium' : ''}>5.0 Frontier</span>
                 </div>
               </div>
             </div>
 
-            {/* Classified Capabilities (Monochrome) */}
+            {/* Classified Capabilities */}
             <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
               <div className="p-2.5 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-fc-graphite">
                 <div className="text-fc-muted text-[10px]">Domain</div>
@@ -1005,12 +995,6 @@ export function PlaygroundPage() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom Spacer Row */}
-      <div className="h-8 sm:h-12 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
       </div>
     </div>
   );

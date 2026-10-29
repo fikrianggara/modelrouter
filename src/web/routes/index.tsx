@@ -159,14 +159,19 @@ export function DashboardPage() {
         <span className="corner-crosshair bottom-2 left-2">+</span>
         <span className="corner-crosshair bottom-2 right-2">+</span>
 
-        {/* Flame ASCII Animation in Top-Right of Hero Section */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none select-none flex flex-col items-end">
-          <span className="text-[10px] font-mono text-fc-muted-soft mb-1 hidden sm:inline">[ ASCII // ENGINE ]</span>
-          <AsciiFlame className="text-heat-100" opacity={0.65} variant="flame" />
+        {/* Repeatable ASCII Flame Watermark in Background of Hero Section */}
+        <div className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0" aria-hidden="true">
+          <AsciiFlame
+            className="text-fc-muted-soft dark:text-fc-muted"
+            opacity={0.16}
+            variant="flame"
+            repeatRows={3}
+            repeatCols={3}
+          />
         </div>
 
         {/* Firecrawl Section Metadata */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-4">
+        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-4 relative z-10">
           <span className="text-heat-100 font-bold">[ 01 / 04 ]</span>
           <span>·</span>
           <span>Core Architecture</span>
@@ -176,7 +181,7 @@ export function DashboardPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="max-w-2xl">
+        <div className="max-w-2xl relative z-10">
           <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12] mb-3">
             Fast, reliable, token-efficient <br />
             <span className="text-heat-100">model routing</span>.
@@ -211,12 +216,6 @@ export function DashboardPage() {
           </div>
         </div>
       </section>
-
-      {/* Filler Grid Spacer Row */}
-      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
 
       {/* Blueprint Exposed Grid: Monochromatic Statistic Cards with Nested Rounded Cards & ASCII Layer */}
       <section className="fc-blueprint-grid border-b border-fc-border-faint">
@@ -306,12 +305,6 @@ export function DashboardPage() {
             </div>
           </div>
       </section>
-
-      {/* Filler Grid Spacer Row */}
-      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
 
       {/* Section 02: Execution Pipeline Topology Map */}
       <section className="border-b border-fc-border-faint bg-fc-canvas-paper">
@@ -412,12 +405,6 @@ export function DashboardPage() {
         </div>
       </section>
 
-      {/* Filler Grid Spacer Row */}
-      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
-
       {/* Section 03: Live Decision Stream & Complexity Benchmarks */}
       <section className="border-b border-fc-border-faint bg-fc-canvas-paper">
         {/* Section Header */}
@@ -457,38 +444,38 @@ export function DashboardPage() {
                 </div>
 
                 <div className="space-y-3.5">
-                  {/* Level 1: Low */}
+                  {/* Level 1: Low (< 3: White) */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
                       <span className="text-fc-body font-medium">1.0 – 1.8 (Local Ollama)</span>
-                      <span className="font-mono text-fc-graphite font-bold">{p1}%</span>
+                      <span className="font-mono text-fc-graphite dark:text-white font-bold">{p1}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
-                      <div className="h-full bg-fc-graphite rounded-fc-full" style={{ width: `${p1}%` }} />
+                    <div className="w-full h-2 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
+                      <div className="h-full bg-white rounded-fc-full shadow-xs" style={{ width: `${p1}%` }} />
                     </div>
                     <p className="text-[10px] text-fc-muted font-mono">Zero token egress ($0.00)</p>
                   </div>
 
-                  {/* Level 2: Medium */}
+                  {/* Level 2: Medium (< 3: White) */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-fc-body font-medium">1.9 – 3.5 (Mid-tier / 9router)</span>
-                      <span className="font-mono text-fc-graphite font-bold">{p2}%</span>
+                      <span className="text-fc-body font-medium">1.9 – 2.9 (Mid-tier / 9router)</span>
+                      <span className="font-mono text-fc-graphite dark:text-white font-bold">{p2}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
-                      <div className="h-full bg-fc-muted rounded-fc-full" style={{ width: `${p2}%` }} />
+                    <div className="w-full h-2 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
+                      <div className="h-full bg-white rounded-fc-full shadow-xs" style={{ width: `${p2}%` }} />
                     </div>
                     <p className="text-[10px] text-fc-muted font-mono">Frugal code & structured data</p>
                   </div>
 
-                  {/* Level 3: Frontier */}
+                  {/* Level 3: Frontier (>= 3: Firecrawl Heat Orange) */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-fc-body font-medium">3.6 – 5.0 (Frontier Cloud)</span>
-                      <span className="font-mono text-fc-graphite font-bold">{p3}%</span>
+                      <span className="text-fc-body font-medium">3.0 – 5.0 (Frontier Cloud)</span>
+                      <span className="font-mono text-heat-100 font-bold">{p3}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
-                      <div className="h-full bg-heat-100 rounded-fc-full" style={{ width: `${p3}%` }} />
+                    <div className="w-full h-2 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
+                      <div className="h-full bg-heat-100 rounded-fc-full shadow-xs" style={{ width: `${p3}%` }} />
                     </div>
                     <p className="text-[10px] text-fc-muted font-mono">Formal reasoning & architecture</p>
                   </div>
@@ -593,12 +580,6 @@ export function DashboardPage() {
           </div>
         </div>
       </section>
-
-      {/* Bottom Spacer Row */}
-      <div className="h-8 sm:h-12 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
     </div>
   );
 }

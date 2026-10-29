@@ -2,6 +2,7 @@
 node_modules/
 dist/
 coverage/
+.tanstack/
 
 # Python & Virtual Environments
 .venv/

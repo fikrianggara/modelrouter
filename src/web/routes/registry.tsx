@@ -244,53 +244,48 @@ export function RegistryPage() {
   };
 
   return (
-    <div className="flex flex-col bg-fc-canvas-paper">
-      {/* Section Metadata & Header with ASCII Flame */}
-      <section className="relative border-b border-fc-border-faint p-6 sm:p-8 bg-fc-canvas-paper">
-        <span className="corner-crosshair top-2 left-2">+</span>
-        <span className="corner-crosshair top-2 right-2">+</span>
-        <span className="corner-crosshair bottom-2 left-2">+</span>
-        <span className="corner-crosshair bottom-2 right-2">+</span>
+    <div className="min-h-screen bg-fc-paper text-fc-graphite font-sans">
+      <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
+        {/* ================= BARIS 1: SPACER KOSONG TOP ================= */}
+        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
+        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
+        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
 
-        {/* Repeatable ASCII Flame Watermark in Background of Hero Section */}
-        <div
-          className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0"
-          aria-hidden="true"
-        >
-          <AsciiFlame
-            className="text-fc-muted-soft dark:text-fc-muted"
-            opacity={0.16}
-            variant="flame"
-            repeatRows={3}
-            repeatCols={3}
-          />
+        {/* ================= BARIS 2: SECTION HEADER [ 01 / 01 ] ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+          <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
+            <span>[ <strong className="text-heat-100 font-bold">01</strong> / 01 ]</span>
+            <span>·</span>
+            <span className="text-fc-graphite font-semibold">MODEL REGISTRY</span>
+            <span className="text-fc-muted-soft">//</span>
+            <span>EXECUTION FLEET MATRIX</span>
+          </div>
+          <span className="hidden sm:inline-block font-mono text-[11px] text-fc-muted">
+            {models.length} ENGINES REGISTERED
+          </span>
         </div>
+        <div className="border-b border-l border-fc-border-faint" />
 
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2 relative z-10">
-          <span className="text-heat-100 font-bold">[ 01 / 01 ]</span>
-          <span>·</span>
-          <span>Model Registry</span>
-          <span className="text-fc-muted-soft">//</span>
-          <span className="text-fc-muted-soft">Execution Fleet Matrix</span>
-          <span className="text-fc-muted-soft">//</span>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between relative z-10">
-          <div>
-            <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-1">
+        {/* ================= BARIS 3: HERO BANNER & ACTIONS ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint p-8 sm:p-12 relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="max-w-2xl relative z-10">
+            <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-2">
               Registered{' '}
-              <span className="text-heat-100">execution engines</span>.
+              <span className="text-heat-100 font-semibold">execution engines</span>.
             </h1>
-            <p className="text-xs sm:text-sm text-fc-body-soft">
+            <p className="text-sm sm:text-base text-fc-body-soft">
               Configure upstream models, active status, complexity intervals,
               and pricing metrics.
             </p>
           </div>
 
-          <div className="flex items-center space-x-2.5">
+          <div className="flex items-center space-x-2.5 relative z-10">
             <button
               onClick={openAddModal}
-              className="btn-heat-cta px-4 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn w-36"
+              className="btn-heat-cta px-4 py-2.5 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn w-36"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Model</span>
@@ -298,72 +293,79 @@ export function RegistryPage() {
 
             <button
               onClick={() => setShowRawYaml(!showRawYaml)}
-              className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer w-36"
+              className="btn-ghost-outline px-3.5 py-2.5 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer w-36"
             >
               <FileText className="w-3.5 h-3.5 text-heat-100" />
               <span>{showRawYaml ? 'Hide YAML' : 'View [ .YAML ]'}</span>
             </button>
           </div>
         </div>
-      </section>
+        <div className="border-b border-l border-fc-border-faint" />
 
-      {/* Architecture Clarification Note with Halo */}
-      <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
-        <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-5 text-xs text-fc-muted flex items-start space-x-3.5 widget-halo">
-          <span className="corner-crosshair top-2 left-2">+</span>
-          <span className="corner-crosshair top-2 right-2">+</span>
-          <Info className="w-4 h-4 text-heat-100 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <div className="font-semibold text-fc-graphite text-xs">
-              Architecture Blueprint: Evaluator Head vs. Upstream Execution
-              Engines
+        {/* ================= BARIS 4: NOTE BANNER ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint p-6 sm:p-8 bg-fc-bg-lighter">
+          <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-5 text-xs text-fc-muted flex items-start space-x-3.5 widget-halo">
+            <span className="corner-crosshair top-2 left-2">+</span>
+            <span className="corner-crosshair top-2 right-2">+</span>
+            <Info className="w-4 h-4 text-heat-100 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <div className="font-semibold text-fc-graphite text-xs">
+                Architecture Blueprint: Evaluator Head vs. Upstream Execution
+                Engines
+              </div>
+              <p className="leading-relaxed text-[11px] text-fc-body">
+                <strong>Liquid AI d1</strong> is our dedicated System One Decision
+                Model running locally in Ollama (
+                <code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">
+                  /v1/systemone
+                </code>
+                ). It consumes zero output tokens to classify task complexity
+                (1–5). The entries below represent the{' '}
+                <strong>Upstream Execution Engines</strong> that receive the
+                request payload once routing is resolved.
+              </p>
             </div>
-            <p className="leading-relaxed text-[11px] text-fc-body">
-              <strong>Liquid AI d1</strong> is our dedicated System One Decision
-              Model running locally in Ollama (
-              <code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">
-                /v1/systemone
-              </code>
-              ). It consumes zero output tokens to classify task complexity
-              (1–5). The entries below represent the{' '}
-              <strong>Upstream Execution Engines</strong> that receive the
-              request payload once routing is resolved.
-            </p>
           </div>
         </div>
-      </div>
+        <div className="border-b border-l border-fc-border-faint" />
 
       {/* Raw YAML Drawer */}
       {showRawYaml && (
-        <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
-          <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-6 space-y-3 animate-in fade-in duration-150 widget-halo">
-            <span className="corner-crosshair top-2 left-2">+</span>
-            <span className="corner-crosshair top-2 right-2">+</span>
-            <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
-              <span className="text-heat-100 font-bold">
-                [ config/registry.yaml ]
-              </span>
-              <button
-                onClick={copyYaml}
-                className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
-              >
-                {copiedYaml ? (
-                  <Check className="w-3.5 h-3.5 text-fc-forest" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-                <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
-              </button>
+        <>
+          <div className="border-b border-r border-fc-border-faint" />
+          <div className="p-6 sm:p-8 border-b border-fc-border-faint bg-fc-bg-lighter">
+            <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-6 space-y-3 animate-in fade-in duration-150 widget-halo">
+              <span className="corner-crosshair top-2 left-2">+</span>
+              <span className="corner-crosshair top-2 right-2">+</span>
+              <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
+                <span className="text-heat-100 font-bold">
+                  [ config/registry.yaml ]
+                </span>
+                <button
+                  onClick={copyYaml}
+                  className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
+                >
+                  {copiedYaml ? (
+                    <Check className="w-3.5 h-3.5 text-fc-forest" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5" />
+                  )}
+                  <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
+                </button>
+              </div>
+              <pre className="text-xs font-mono text-fc-graphite overflow-x-auto p-4 bg-fc-bg-lighter border border-fc-border-faint rounded-fc-6 leading-relaxed">
+                {rawYamlContent}
+              </pre>
             </div>
-            <pre className="text-xs font-mono text-fc-graphite overflow-x-auto p-4 bg-fc-bg-lighter border border-fc-border-faint rounded-fc-6 leading-relaxed">
-              {rawYamlContent}
-            </pre>
           </div>
-        </div>
+          <div className="border-b border-l border-fc-border-faint" />
+        </>
       )}
 
-      {/* Search & Provider Filter Toolbar with Corner Markers */}
-      <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
+      {/* ================= BARIS 5: SEARCH & FILTER TOOLBAR ================= */}
+      <div className="border-b border-r border-fc-border-faint" />
+      <div className="p-6 sm:p-8 border-b border-fc-border-faint">
         <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-4 sm:p-5 space-y-3.5 shadow-xs">
           <span className="corner-crosshair top-2 left-2">+</span>
           <span className="corner-crosshair top-2 right-2">+</span>
@@ -432,9 +434,12 @@ export function RegistryPage() {
           </div>
         </div>
       </div>
+      <div className="border-b border-l border-fc-border-faint" />
 
-      {/* Blueprint Exposed Grid: Recessed Tray Cells with Nested Rounded Cards */}
-      <div className="fc-blueprint-grid border-b border-fc-border-faint">
+      {/* ================= BARIS 6: MODEL CARDS GRID ================= */}
+      <div className="border-b border-r border-fc-border-faint" />
+      <div className="border-b border-fc-border-faint">
+        <div className="fc-blueprint-grid">
         {filteredModels.map((model) => {
           const isEnabled = model.enabled !== false;
           const [minComp, maxComp] = model.complexity_range;
@@ -619,7 +624,15 @@ export function RegistryPage() {
             </div>
           );
         })}
+        </div>
       </div>
+      <div className="border-b border-l border-fc-border-faint" />
+
+      {/* ================= BARIS 7: BOTTOM SPACER ================= */}
+      <div className="border-b border-r border-fc-border-faint h-16 sm:h-20" />
+      <div className="border-b border-fc-border-faint h-16 sm:h-20" />
+      <div className="border-b border-l border-fc-border-faint h-16 sm:h-20" />
+    </div>
 
       {/* Add / Edit Modal Drawer */}
       {isModalOpen && (

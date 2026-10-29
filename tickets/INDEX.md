@@ -15,3 +15,4 @@
 | TKT-013 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-013-implement-firecrawl-desi | false | 2026-10-29 | 2026-10-29 | Implement Firecrawl Design System Tokens and Theme |
 | TKT-014 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-014-rework-modelrouter-to-ma | false | 2026-10-29 | 2026-10-29 | Rework ModelRouter to match Firecrawl.dev Blueprint Design System |
 | TKT-015 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-015-implement-exposed-grid-n | false | 2026-10-29 | 2026-10-29 | Implement Exposed Grid, Nested Rounded Cards, and ASCII Flame Animations (Firecrawl Design System v2) |
+| TKT-016 | feature | medium | P2 | frontend | backlog | null | null | false | 2026-10-29 | 2026-10-29 | Firecrawl Design System Alignment: Monochrome Stat Cards, Exposed Blueprint Grid, Nested Rounded Cards, and ASCII Animations |

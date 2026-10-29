@@ -18,3 +18,4 @@
 | TKT-016 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-016-firecrawl-design-system | false | 2026-10-29 | 2026-10-29 | Firecrawl Design System Alignment: Monochrome Stat Cards, Exposed Blueprint Grid, Nested Rounded Cards, and ASCII Animations |
 | TKT-017 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-017-refactor-layout-spacing | false | 2026-10-29 | 2026-10-29 | Refactor Layout Spacing to Bordered Filler Grid Cells, Top-Right Hero ASCII Flame, and Bottom-Right Playground Presets |
 | TKT-018 | feature | small | P2 | — | merged | jarvis | feature-TKT-018-refactor-hero-flame-comp | false | 2026-10-29 | 2026-10-29 | Refactor Hero Flame, Complexity Colors, Registry UI Density, and Remove Filler Spacers |
+| TKT-019 | bug | small | P2 | — | backlog | null | null | false | 2026-10-29 | 2026-10-29 | Fix Registry Text Overflow, Restore Progress Bars, Theme-Aware Complexity Card, and Clean Pipeline Spacing |

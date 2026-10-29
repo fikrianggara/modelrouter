@@ -48,13 +48,15 @@ interface EvaluationResult {
 const PRESET_PROMPTS = [
   {
     label: 'Simple Greeting',
-    prompt: 'Hello! Can you give me a quick definition of idempotent operations?',
+    prompt:
+      'Hello! Can you give me a quick definition of idempotent operations?',
     expectedScore: 1.2,
     domain: 'general',
   },
   {
     label: 'Node.js Event Loop',
-    prompt: 'Explain the phases of the Node.js libuv event loop and how setImmediate differs from setTimeout(fn, 0).',
+    prompt:
+      'Explain the phases of the Node.js libuv event loop and how setImmediate differs from setTimeout(fn, 0).',
     expectedScore: 2.6,
     domain: 'coding',
   },
@@ -70,6 +72,13 @@ const PRESET_PROMPTS = [
     prompt:
       'Synthesize Cartesian mind-body dualism with modern functionalist theories of consciousness. Highlight hard problems of consciousness vs physicalism.',
     expectedScore: 3.8,
+    domain: 'analysis',
+  },
+  {
+    label: 'Distributed Systems Analysis',
+    prompt:
+      'analyze an e commerce apps that has machine learning system recommendation based on users and other users purchase, resource caching using redis, payment processing using message broker like rabbit mq, and real time notification. the search filtering should be hybrid search using lexical and semantic search.',
+    expectedScore: 4.5,
     domain: 'analysis',
   },
 ];
@@ -168,7 +177,12 @@ export function PlaygroundPage() {
       upstream_model: 'lfm3:latest',
       complexity_range: [0.0, 1.8] as [number, number],
       cost: { input_per_mtoken: 0, output_per_mtoken: 0 },
-      capabilities: { tools: false, vision: false, max_context: 32768, streaming: true },
+      capabilities: {
+        tools: false,
+        vision: false,
+        max_context: 32768,
+        streaming: true,
+      },
     };
 
     if (score > 3.0) {
@@ -179,7 +193,12 @@ export function PlaygroundPage() {
         upstream_model: 'claude-3-5-sonnet-20241022',
         complexity_range: [3.0, 5.0] as [number, number],
         cost: { input_per_mtoken: 3.0, output_per_mtoken: 15.0 },
-        capabilities: { tools: true, vision: true, max_context: 200000, streaming: true },
+        capabilities: {
+          tools: true,
+          vision: true,
+          max_context: 200000,
+          streaming: true,
+        },
       };
     } else if (score > 1.8) {
       selectedModel = {
@@ -189,7 +208,12 @@ export function PlaygroundPage() {
         upstream_model: 'gpt-4o',
         complexity_range: [2.5, 5.0] as [number, number],
         cost: { input_per_mtoken: 2.5, output_per_mtoken: 10.0 },
-        capabilities: { tools: true, vision: true, max_context: 128000, streaming: true },
+        capabilities: {
+          tools: true,
+          vision: true,
+          max_context: 128000,
+          streaming: true,
+        },
       };
     }
 
@@ -266,7 +290,8 @@ export function PlaygroundPage() {
                   setStreamStats({
                     tokens: tokenCount,
                     elapsedMs: Math.round(elapsed),
-                    tokensPerSec: Math.round((tokenCount / (elapsed / 1000)) * 10) / 10,
+                    tokensPerSec:
+                      Math.round((tokenCount / (elapsed / 1000)) * 10) / 10,
                   });
                 }
               } catch {
@@ -284,14 +309,21 @@ export function PlaygroundPage() {
         setStreamStats({
           tokens: estimatedTokens,
           elapsedMs: Math.round(elapsed),
-          tokensPerSec: Math.round((estimatedTokens / (elapsed / 1000)) * 10) / 10,
+          tokensPerSec:
+            Math.round((estimatedTokens / (elapsed / 1000)) * 10) / 10,
         });
       } else {
         // If upstream endpoint is unreachable, simulate realistic streaming response
-        await simulateStreamingResponse(prompt, evaluation?.selectedModel?.display_name || 'Selected Model');
+        await simulateStreamingResponse(
+          prompt,
+          evaluation?.selectedModel?.display_name || 'Selected Model',
+        );
       }
     } catch {
-      await simulateStreamingResponse(prompt, evaluation?.selectedModel?.display_name || 'Selected Model');
+      await simulateStreamingResponse(
+        prompt,
+        evaluation?.selectedModel?.display_name || 'Selected Model',
+      );
     } finally {
       setIsGenerating(false);
       abortControllerRef.current = null;
@@ -299,7 +331,10 @@ export function PlaygroundPage() {
   };
 
   // Realistic fallback streamer if upstream model is offline
-  const simulateStreamingResponse = async (userPrompt: string, modelName: string) => {
+  const simulateStreamingResponse = async (
+    userPrompt: string,
+    modelName: string,
+  ) => {
     const startTime = performance.now();
     let text = '';
 
@@ -359,7 +394,8 @@ export function PlaygroundPage() {
       setStreamStats({
         tokens: tokenCount,
         elapsedMs: Math.round(elapsed),
-        tokensPerSec: Math.round((tokenCount / (Math.max(1, elapsed) / 1000)) * 10) / 10,
+        tokensPerSec:
+          Math.round((tokenCount / (Math.max(1, elapsed) / 1000)) * 10) / 10,
       });
       await new Promise((r) => setTimeout(r, 22));
     }
@@ -376,9 +412,23 @@ export function PlaygroundPage() {
 
   // Determine badge colors based on complexity score
   const getScoreColor = (val: number) => {
-    if (val < 2.0) return { text: 'text-emerald-400', bg: 'bg-emerald-500', tier: 'Low / Local' };
-    if (val < 3.5) return { text: 'text-amber-400', bg: 'bg-amber-500', tier: 'Medium / Standard' };
-    return { text: 'text-indigo-400', bg: 'bg-indigo-500', tier: 'High / Frontier' };
+    if (val < 2.0)
+      return {
+        text: 'text-emerald-400',
+        bg: 'bg-emerald-500',
+        tier: 'Low / Local',
+      };
+    if (val < 3.5)
+      return {
+        text: 'text-amber-400',
+        bg: 'bg-amber-500',
+        tier: 'Medium / Standard',
+      };
+    return {
+      text: 'text-indigo-400',
+      bg: 'bg-indigo-500',
+      tier: 'High / Frontier',
+    };
   };
 
   const scoreStyle = getScoreColor(score);
@@ -393,13 +443,16 @@ export function PlaygroundPage() {
             <span>Interactive Complexity Playground</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Test prompt evaluation in real-time, inspect D1 decision routing, and observe token-by-token streaming.
+            Test prompt evaluation in real-time, inspect D1 decision routing,
+            and observe token-by-token streaming.
           </p>
         </div>
 
         {/* Preset Prompt Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-slate-500 mr-1 font-mono">Presets:</span>
+          <span className="text-xs text-slate-500 mr-1 font-mono">
+            Presets:
+          </span>
           {PRESET_PROMPTS.map((p) => (
             <button
               key={p.label}
@@ -503,7 +556,11 @@ export function PlaygroundPage() {
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-1">
               <div className="text-xs text-slate-500 hidden sm:block">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">⌘+Enter</kbd> to execute
+                Press{' '}
+                <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                  ⌘+Enter
+                </kbd>{' '}
+                to execute
               </div>
 
               <div className="flex items-center space-x-2.5 w-full sm:w-auto justify-end">
@@ -522,7 +579,9 @@ export function PlaygroundPage() {
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 disabled:opacity-50 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>{isGenerating ? 'Streaming...' : 'Route & Execute'}</span>
+                  <span>
+                    {isGenerating ? 'Streaming...' : 'Route & Execute'}
+                  </span>
                 </button>
               </div>
             </div>
@@ -533,7 +592,9 @@ export function PlaygroundPage() {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center space-x-2 text-xs font-mono">
                 <Terminal className="w-4 h-4 text-cyan-400" />
-                <span className="font-semibold text-slate-200">Streaming Output</span>
+                <span className="font-semibold text-slate-200">
+                  Streaming Output
+                </span>
                 {isGenerating && (
                   <span className="flex items-center space-x-1 text-emerald-400 text-[11px] animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-emerald-400" />
@@ -579,7 +640,8 @@ export function PlaygroundPage() {
                 </span>
               ) : (
                 <span className="text-slate-600 italic">
-                  Run prompt to view real-time token stream and latency breakdown...
+                  Run prompt to view real-time token stream and latency
+                  breakdown...
                 </span>
               )}
             </div>
@@ -605,10 +667,15 @@ export function PlaygroundPage() {
               <div className="text-center space-y-1">
                 <div className="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-white flex items-center justify-center space-x-1">
                   <span className={scoreStyle.text}>{score.toFixed(2)}</span>
-                  <span className="text-lg text-slate-600 font-sans">/ 5.0</span>
+                  <span className="text-lg text-slate-600 font-sans">
+                    / 5.0
+                  </span>
                 </div>
                 <div className="text-xs font-medium text-slate-400">
-                  Tier: <span className={`font-semibold ${scoreStyle.text}`}>{scoreStyle.tier}</span>
+                  Tier:{' '}
+                  <span className={`font-semibold ${scoreStyle.text}`}>
+                    {scoreStyle.tier}
+                  </span>
                 </div>
               </div>
 
@@ -630,15 +697,22 @@ export function PlaygroundPage() {
               {/* Confidence Rating */}
               <div className="flex items-center space-x-2 text-xs font-mono text-slate-400 pt-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-                <span>Confidence: {Math.round((evaluation?.confidence || 0.95) * 100)}%</span>
+                <span>
+                  Confidence:{' '}
+                  {Math.round((evaluation?.confidence || 0.95) * 100)}%
+                </span>
                 <span>•</span>
-                <span>Evaluated in {evaluation?.routingLatencyMs || 14} ms</span>
+                <span>
+                  Evaluated in {evaluation?.routingLatencyMs || 14} ms
+                </span>
               </div>
             </div>
 
             {/* Domain & Capability Classification Badges */}
             <div className="space-y-2">
-              <span className="text-xs font-mono text-slate-400">Classified Attributes:</span>
+              <span className="text-xs font-mono text-slate-400">
+                Classified Attributes:
+              </span>
               <div className="flex flex-wrap gap-2">
                 <div className="px-3 py-1 rounded-lg bg-blue-950/50 border border-blue-500/30 text-blue-300 text-xs font-mono flex items-center space-x-1.5">
                   <Cpu className="w-3.5 h-3.5" />
@@ -653,7 +727,10 @@ export function PlaygroundPage() {
                   }`}
                 >
                   <Wrench className="w-3.5 h-3.5" />
-                  <span>Tools: {evaluation?.requiresTools ? 'Required' : 'Not Needed'}</span>
+                  <span>
+                    Tools:{' '}
+                    {evaluation?.requiresTools ? 'Required' : 'Not Needed'}
+                  </span>
                 </div>
 
                 <div
@@ -664,7 +741,10 @@ export function PlaygroundPage() {
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5" />
-                  <span>Vision: {evaluation?.requiresVision ? 'Required' : 'Not Needed'}</span>
+                  <span>
+                    Vision:{' '}
+                    {evaluation?.requiresVision ? 'Required' : 'Not Needed'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -701,25 +781,41 @@ export function PlaygroundPage() {
 
               {/* Upstream Info */}
               <div className="text-xs text-slate-400 font-mono bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 space-y-1">
-                <div>Upstream: {evaluation?.selectedModel?.upstream_model || 'lfm3:latest'}</div>
                 <div>
-                  Range: [{evaluation?.selectedModel?.complexity_range?.[0]?.toFixed(1) || '0.0'},{' '}
-                  {evaluation?.selectedModel?.complexity_range?.[1]?.toFixed(1) || '1.8'}]
+                  Upstream:{' '}
+                  {evaluation?.selectedModel?.upstream_model || 'lfm3:latest'}
+                </div>
+                <div>
+                  Range: [
+                  {evaluation?.selectedModel?.complexity_range?.[0]?.toFixed(
+                    1,
+                  ) || '0.0'}
+                  ,{' '}
+                  {evaluation?.selectedModel?.complexity_range?.[1]?.toFixed(
+                    1,
+                  ) || '1.8'}
+                  ]
                 </div>
               </div>
 
               {/* Cost & Capabilities Specs */}
               <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                 <div className="p-2 rounded bg-slate-900/60 border border-slate-800/60 space-y-0.5">
-                  <span className="text-[10px] text-slate-500 uppercase font-mono">Input Cost</span>
+                  <span className="text-[10px] text-slate-500 uppercase font-mono">
+                    Input Cost
+                  </span>
                   <div className="font-mono text-slate-200 font-bold">
-                    ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0.00} / 1M
+                    ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0.0}{' '}
+                    / 1M
                   </div>
                 </div>
                 <div className="p-2 rounded bg-slate-900/60 border border-slate-800/60 space-y-0.5">
-                  <span className="text-[10px] text-slate-500 uppercase font-mono">Output Cost</span>
+                  <span className="text-[10px] text-slate-500 uppercase font-mono">
+                    Output Cost
+                  </span>
                   <div className="font-mono text-slate-200 font-bold">
-                    ${evaluation?.selectedModel?.cost?.output_per_mtoken || 0.00} / 1M
+                    ${evaluation?.selectedModel?.cost?.output_per_mtoken || 0.0}{' '}
+                    / 1M
                   </div>
                 </div>
               </div>
@@ -728,7 +824,9 @@ export function PlaygroundPage() {
               <div className="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/20 text-xs text-emerald-300 flex items-start space-x-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>
-                  Policy <strong>{policy}</strong> matched score {score.toFixed(2)} to {evaluation?.selectedModel?.display_name || 'Local Chat'}.
+                  Policy <strong>{policy}</strong> matched score{' '}
+                  {score.toFixed(2)} to{' '}
+                  {evaluation?.selectedModel?.display_name || 'Local Chat'}.
                 </span>
               </div>
             </div>

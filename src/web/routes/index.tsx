@@ -201,20 +201,20 @@ export function DashboardPage() {
         </div>
       </section>
 
-      {/* Blueprint Exposed Grid: Recessed Tray Cells with Nested Rounded Cards & ASCII Layer */}
+      {/* Blueprint Exposed Grid: Monochromatic Statistic Cards with Nested Rounded Cards & ASCII Layer */}
       <section className="space-y-3">
         <div className="fc-blueprint-grid">
           {/* Cell 1: Total Routed Requests */}
           <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <div className="fc-nested-card">
-              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
               <div className="flex items-center justify-between text-fc-muted">
-                <span className="text-xs font-mono uppercase tracking-wider font-medium">Routed Requests</span>
-                <Activity className="w-4 h-4 text-heat-100" />
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Routed Requests</span>
+                <Activity className="w-4 h-4 text-fc-graphite stat-icon" />
               </div>
               <div className="space-y-0.5 pt-2">
-                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
                   {stats?.totalRequests ? stats.totalRequests.toLocaleString() : '0'}
                 </div>
                 <div className="text-xs font-mono text-fc-muted">
@@ -227,19 +227,19 @@ export function DashboardPage() {
           {/* Cell 2: Decision Latency */}
           <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <div className="fc-nested-card">
-              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
               <div className="flex items-center justify-between text-fc-muted">
-                <span className="text-xs font-mono uppercase tracking-wider font-medium">Mean Decision Latency</span>
-                <Clock className="w-4 h-4 text-fc-forest" />
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Mean Decision Latency</span>
+                <Clock className="w-4 h-4 text-fc-graphite stat-icon" />
               </div>
               <div className="space-y-0.5 pt-2">
-                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
                   {stats?.avgRoutingLatencyMs ? stats.avgRoutingLatencyMs.toFixed(1) : '<15.0'}{' '}
                   <span className="text-base font-sans font-normal text-fc-muted">ms</span>
                 </div>
-                <div className="text-xs text-fc-forest font-mono flex items-center space-x-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <div className="text-xs text-fc-muted font-mono flex items-center space-x-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-fc-graphite" />
                   <span>P95 &lt;30 ms SLA</span>
                 </div>
               </div>
@@ -249,18 +249,18 @@ export function DashboardPage() {
           {/* Cell 3: Cost Savings */}
           <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <div className="fc-nested-card">
-              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
               <div className="flex items-center justify-between text-fc-muted">
-                <span className="text-xs font-mono uppercase tracking-wider font-medium">Cost Saved vs Frontier</span>
-                <Coins className="w-4 h-4 text-fc-honey" />
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Cost Saved vs Frontier</span>
+                <Coins className="w-4 h-4 text-fc-graphite stat-icon" />
               </div>
               <div className="space-y-0.5 pt-2">
-                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
                   ${stats?.totalSavedUsd ? stats.totalSavedUsd.toFixed(3) : '0.000'}
                 </div>
-                <div className="text-xs text-heat-100 font-mono flex items-center space-x-1 font-medium">
-                  <TrendingDown className="w-3.5 h-3.5" />
+                <div className="text-xs text-fc-muted font-mono flex items-center space-x-1 font-medium">
+                  <TrendingDown className="w-3.5 h-3.5 text-fc-graphite" />
                   <span>{stats?.costReductionPercent ? `${stats.costReductionPercent}% saved` : '0% baseline'}</span>
                 </div>
               </div>
@@ -270,14 +270,14 @@ export function DashboardPage() {
           {/* Cell 4: Active Fleet */}
           <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <div className="fc-nested-card">
-              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
               <div className="flex items-center justify-between text-fc-muted">
-                <span className="text-xs font-mono uppercase tracking-wider font-medium">Active Fleet</span>
-                <Server className="w-4 h-4 text-fc-amethyst" />
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Active Fleet</span>
+                <Server className="w-4 h-4 text-fc-graphite stat-icon" />
               </div>
               <div className="space-y-0.5 pt-2">
-                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
                   {stats?.activeModels ?? 0}{' '}
                   <span className="text-base font-sans font-normal text-fc-muted">
                     / {stats?.registeredModels ?? 0}

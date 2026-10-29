@@ -19,6 +19,8 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  Clock,
+  Activity,
 } from 'lucide-react';
 import { AsciiFlame } from '../components/AsciiFlame';
 
@@ -444,79 +446,182 @@ export function PlaygroundPage() {
   const getScoreColor = (val: number) => {
     if (val < 2.0)
       return {
-        text: 'text-fc-forest',
-        bg: 'bg-fc-forest',
-        tier: 'Low Complexity (Local Free Tier)',
+        text: 'text-fc-graphite',
+        bg: 'bg-fc-graphite',
+        tier: 'Tier 1 · Local Engine (d1 Free)',
       };
     if (val < 3.5)
       return {
-        text: 'text-fc-honey',
-        bg: 'bg-fc-honey',
-        tier: 'Standard Complexity (Mid-tier Engine)',
+        text: 'text-fc-graphite',
+        bg: 'bg-fc-graphite',
+        tier: 'Tier 2 · Mid-Tier Engine',
       };
     return {
-      text: 'text-heat-100',
-      bg: 'bg-heat-100',
-      tier: 'Advanced Complexity (Frontier Engine)',
+      text: 'text-fc-graphite',
+      bg: 'bg-fc-graphite',
+      tier: 'Tier 3 · Frontier Engine',
     };
   };
 
   const scoreStyle = getScoreColor(score);
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Workbench Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-fc-border-muted pb-4">
-        <div>
-          <h1 className="text-xl font-medium tracking-tight text-fc-accent-black flex items-center space-x-2">
-            <Gauge className="w-5 h-5 text-heat-100" />
-            <span>Decision Intelligence Playground</span>
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
-          </p>
+    <div className="space-y-8 pb-16">
+      {/* Section Metadata & Header */}
+      <section className="space-y-3">
+        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted">
+          <span className="text-heat-100 font-bold">[ 01 / 02 ]</span>
+          <span>·</span>
+          <span>Decision Workbench</span>
+          <span className="text-fc-muted-soft">//</span>
+          <span className="text-fc-muted-soft">Real-time Telemetry</span>
+          <span className="text-fc-muted-soft">//</span>
         </div>
 
-        {/* Preset Prompt Pills */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-slate-400 font-mono mr-1">Presets:</span>
-          {PRESET_PROMPTS.map((p) => (
-            <button
-              key={p.label}
-              onClick={() => {
-                setPrompt(p.prompt);
-                handleEvaluate(p.prompt);
-              }}
-              className="px-2.5 py-1 rounded-fc-sm text-xs font-mono bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-accent-black transition-colors cursor-pointer"
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
+        {/* Workbench Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite">
+              Decision Intelligence <span className="text-heat-100">Playground</span>.
+            </h1>
+            <p className="text-xs sm:text-sm text-fc-body-soft mt-1">
+              Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
+            </p>
+          </div>
 
-      {/* Main Dual-Pane Grid: Left = Execution Workbench, Right = Decision Inspector */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Preset Prompt Pills */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-xs text-fc-muted font-mono mr-1">Presets:</span>
+            {PRESET_PROMPTS.map((p) => (
+              <button
+                key={p.label}
+                onClick={() => {
+                  setPrompt(p.prompt);
+                  handleEvaluate(p.prompt);
+                }}
+                className="px-2.5 py-1 rounded-fc-6 text-xs font-mono bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-graphite transition-colors cursor-pointer"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Blueprint Exposed Grid: Monochromatic Statistic Cards with Nested Rounded Cards & ASCII Flame */}
+      <section className="space-y-3">
+        <div className="fc-blueprint-grid">
+          {/* Stat Cell 1: Calibrated Complexity Score */}
+          <div className="fc-grid-cell">
+            <span className="corner-crosshair top-1 left-1.5">+</span>
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Task Complexity</span>
+                <Gauge className="w-4 h-4 text-fc-graphite stat-icon" />
+              </div>
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+                  {score.toFixed(2)}{' '}
+                  <span className="text-sm font-sans font-normal text-fc-muted">/ 5.0</span>
+                </div>
+                <div className="text-xs font-mono text-fc-muted truncate">
+                  {score < 2.0 ? 'Tier 1 · Local Engine' : score < 3.5 ? 'Tier 2 · Mid-Tier Engine' : 'Tier 3 · Frontier Engine'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stat Cell 2: Decision Latency */}
+          <div className="fc-grid-cell">
+            <span className="corner-crosshair top-1 left-1.5">+</span>
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Decision Latency</span>
+                <Clock className="w-4 h-4 text-fc-graphite stat-icon" />
+              </div>
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+                  {evaluation?.routingLatencyMs ? evaluation.routingLatencyMs.toFixed(1) : '14.0'}{' '}
+                  <span className="text-base font-sans font-normal text-fc-muted">ms</span>
+                </div>
+                <div className="text-xs text-fc-muted font-mono flex items-center space-x-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-fc-graphite" />
+                  <span>Liquid d1 Neural Pass</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stat Cell 3: Target Execution Engine */}
+          <div className="fc-grid-cell">
+            <span className="corner-crosshair top-1 left-1.5">+</span>
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Target Engine</span>
+                <Cpu className="w-4 h-4 text-fc-graphite stat-icon" />
+              </div>
+              <div className="space-y-0.5 pt-2">
+                <div className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-fc-graphite stat-value truncate">
+                  {evaluation?.selectedModel?.display_name || 'Local Chat'}
+                </div>
+                <div className="text-xs font-mono text-fc-muted truncate">
+                  {evaluation?.selectedModel?.provider || 'ollama'} • ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0}/1M
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stat Cell 4: Stream Execution Telemetry */}
+          <div className="fc-grid-cell">
+            <span className="corner-crosshair top-1 left-1.5">+</span>
+            <div className="fc-nested-card fc-stat-mono">
+              <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Stream Telemetry</span>
+                <Terminal className="w-4 h-4 text-fc-graphite stat-icon" />
+              </div>
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+                  {streamStats.tokens}{' '}
+                  <span className="text-sm font-sans font-normal text-fc-muted">tokens</span>
+                </div>
+                <div className="text-xs font-mono text-fc-muted">
+                  {streamStats.tokensPerSec} tok/sec • {streamStats.elapsedMs} ms
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Dual-Pane Blueprint Grid: Left = Execution Workbench, Right = Decision Inspector */}
+      <div className="fc-blueprint-grid grid-cols-1 lg:grid-cols-12">
         {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="fc-grid-cell lg:col-span-7 space-y-4">
+          <span className="corner-crosshair top-1 left-1.5">+</span>
+          <span className="corner-crosshair top-1 right-1.5">+</span>
+
           {/* Prompt Editor Card */}
-          <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-5 sm:p-6 space-y-4 widget-halo">
+          <div className="fc-nested-card p-5 sm:p-6 space-y-4 widget-halo">
             <span className="corner-crosshair top-2 left-2">+</span>
             <span className="corner-crosshair top-2 right-2">+</span>
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
               {/* Policy Segmented Control */}
               <div className="flex items-center space-x-1.5">
-                <span className="text-slate-500 font-medium">Policy:</span>
-                <div className="flex bg-fc-bg-lighter p-0.5 rounded-fc-sm border border-fc-border-faint font-mono text-[11px]">
+                <span className="text-fc-muted font-medium">Policy:</span>
+                <div className="flex bg-fc-bg-lighter p-0.5 rounded-fc-6 border border-fc-border-faint font-mono text-[11px]">
                   {(['balanced', 'cost_optimized', 'quality_max', 'local_first'] as const).map((p) => (
                     <button
                       key={p}
                       onClick={() => setPolicy(p)}
-                      className={`px-2.5 py-0.5 rounded-fc-sm transition-all cursor-pointer ${
+                      className={`px-2.5 py-0.5 rounded-fc-4 transition-all cursor-pointer ${
                         policy === p
                           ? 'bg-heat-100 text-white font-medium shadow-xs'
-                          : 'text-slate-500 hover:text-fc-accent-black'
+                          : 'text-fc-muted hover:text-fc-graphite'
                       }`}
                     >
                       {p === 'balanced'
@@ -542,7 +647,7 @@ export function PlaygroundPage() {
                     else if (e.target.value === 'd1-router-local') setPolicy('local_first');
                     else if (e.target.value === 'd1-router-auto') setPolicy('balanced');
                   }}
-                  className="bg-fc-bg-lighter border border-fc-border-muted rounded-fc-sm px-2 py-1 text-fc-accent-black text-xs focus:outline-none focus:border-heat-100 font-mono"
+                  className="bg-fc-bg-lighter border border-fc-border-muted rounded-fc-6 px-2 py-1 text-fc-graphite text-xs focus:outline-none focus:border-heat-100 font-mono"
                 >
                   <option value="d1-router-auto">d1-router-auto</option>
                   <option value="d1-router-cost">d1-router-cost</option>
@@ -550,7 +655,7 @@ export function PlaygroundPage() {
                   <option value="d1-router-local">d1-router-local</option>
                 </select>
 
-                <label className="flex items-center space-x-1 cursor-pointer text-slate-600 dark:text-slate-300 select-none">
+                <label className="flex items-center space-x-1 cursor-pointer text-fc-body select-none">
                   <input
                     type="checkbox"
                     checked={isStreaming}
@@ -566,7 +671,7 @@ export function PlaygroundPage() {
                     setChatResponse('');
                     setEvaluation(null);
                   }}
-                  className="text-slate-400 hover:text-fc-accent-black flex items-center space-x-1 cursor-pointer"
+                  className="text-fc-muted hover:text-fc-graphite flex items-center space-x-1 cursor-pointer"
                   title="Clear Prompt"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -590,24 +695,24 @@ export function PlaygroundPage() {
                 }}
                 rows={4}
                 placeholder="Type or paste prompt to analyze (e.g. code generation, greeting, architecture)..."
-                className="w-full bg-fc-bg-base border border-fc-border-muted rounded-fc-sm p-3 text-xs sm:text-sm text-fc-accent-black placeholder-slate-400 focus:outline-none focus:border-heat-100 resize-y transition-colors font-sans leading-relaxed"
+                className="w-full bg-fc-bg-lighter border border-fc-border-muted rounded-fc-6 p-3 text-xs sm:text-sm text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 resize-y transition-colors font-sans leading-relaxed"
               />
-              <div className="absolute right-2.5 bottom-2.5 text-[10px] font-mono text-slate-400 pointer-events-none">
+              <div className="absolute right-2.5 bottom-2.5 text-[10px] font-mono text-fc-muted pointer-events-none">
                 {prompt.length} chars • ~{Math.round(prompt.length / 4)} tokens
               </div>
             </div>
 
             {/* Execute Buttons */}
             <div className="flex items-center justify-between pt-0.5">
-              <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
-                Press <kbd className="px-1.5 py-0.5 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint text-slate-500">⌘+Enter</kbd> to execute
+              <div className="text-[11px] text-fc-muted font-mono hidden sm:block">
+                Press <kbd className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-fc-body">⌘+Enter</kbd> to execute
               </div>
 
               <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleEvaluate()}
                   disabled={isEvaluating || !prompt.trim()}
-                  className="px-3.5 py-2 rounded-fc-sm bg-fc-bg-lighter hover:bg-fc-surface disabled:opacity-50 text-fc-accent-black font-medium text-xs flex items-center space-x-1.5 border border-fc-border-muted transition-colors cursor-pointer"
+                  className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 disabled:opacity-50 text-fc-graphite font-medium text-xs flex items-center space-x-1.5 cursor-pointer"
                 >
                   <Gauge className="w-3.5 h-3.5 text-heat-100" />
                   <span>{isEvaluating ? 'Evaluating...' : 'Score Prompt'}</span>
@@ -616,7 +721,7 @@ export function PlaygroundPage() {
                 <button
                   onClick={handleSendPrompt}
                   disabled={isGenerating || !prompt.trim()}
-                  className="btn-heat-primary px-4 py-2 rounded-fc-sm disabled:opacity-50 font-medium text-xs flex items-center space-x-1.5 cursor-pointer shadow-heat-button"
+                  className="btn-heat-primary px-4 py-2 rounded-fc-6 disabled:opacity-50 font-medium text-xs flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isGenerating ? 'Streaming...' : 'Route & Execute'}</span>
@@ -627,20 +732,20 @@ export function PlaygroundPage() {
 
           {/* Upstream Notice Banner (if any) */}
           {upstreamNotice && (
-            <div className="p-3 rounded-fc-sm bg-heat-4 border border-heat-20 text-xs text-heat-100 flex items-center space-x-2 transition-all">
+            <div className="p-3 rounded-fc-6 bg-heat-4 border border-heat-20 text-xs text-heat-100 flex items-center space-x-2 transition-all">
               <Info className="w-4 h-4 text-heat-100 shrink-0" />
               <span>{upstreamNotice}</span>
             </div>
           )}
 
           {/* Streaming Output Card */}
-          <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-5 space-y-3.5 widget-halo">
+          <div className="fc-nested-card p-5 space-y-3.5 widget-halo">
             <span className="corner-crosshair top-2 left-2">+</span>
             <span className="corner-crosshair top-2 right-2">+</span>
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-2.5">
               <div className="flex items-center space-x-2 text-xs font-mono">
                 <Terminal className="w-3.5 h-3.5 text-heat-100" />
-                <span className="font-semibold text-fc-accent-black">Execution Output</span>
+                <span className="font-semibold text-fc-graphite">Execution Output</span>
                 {isGenerating && (
                   <span className="flex items-center space-x-1 text-heat-100 text-[11px]">
                     <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse" />
@@ -650,7 +755,7 @@ export function PlaygroundPage() {
               </div>
 
               {/* Streaming Stats & Copy */}
-              <div className="flex items-center space-x-2.5 text-[11px] font-mono text-slate-400">
+              <div className="flex items-center space-x-2.5 text-[11px] font-mono text-fc-muted">
                 <span>{streamStats.tokens} tokens</span>
                 <span>•</span>
                 <span>{streamStats.tokensPerSec} t/s</span>
@@ -659,7 +764,7 @@ export function PlaygroundPage() {
                 {chatResponse && (
                   <button
                     onClick={copyToClipboard}
-                    className="p-1 rounded-fc-sm hover:bg-fc-bg-lighter text-slate-400 hover:text-fc-accent-black transition-colors cursor-pointer"
+                    className="p-1 rounded-fc-4 hover:bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
                     title="Copy output"
                   >
                     {copied ? <Check className="w-3 h-3 text-fc-forest" /> : <Copy className="w-3 h-3" />}
@@ -671,20 +776,20 @@ export function PlaygroundPage() {
             {/* Output Text View */}
             <div
               ref={chatOutputRef}
-              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-fc-sm bg-fc-bg-base border border-fc-border-muted p-3.5 text-xs font-mono text-fc-accent-black whitespace-pre-wrap leading-relaxed select-text transition-colors"
+              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-fc-6 bg-fc-bg-lighter border border-fc-border-muted p-3.5 text-xs font-mono text-fc-graphite whitespace-pre-wrap leading-relaxed select-text transition-colors"
             >
               {chatResponse ? (
                 <span>{chatResponse}</span>
               ) : isGenerating ? (
                 <div className="flex flex-col items-center justify-center py-6 space-y-3">
                   <AsciiFlame opacity={0.7} />
-                  <span className="text-slate-500 font-mono text-xs flex items-center space-x-2">
+                  <span className="text-fc-muted font-mono text-xs flex items-center space-x-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse" />
                     <span>Streaming tokens via Liquid d1 & upstream model...</span>
                   </span>
                 </div>
               ) : (
-                <span className="text-slate-400 italic">
+                <span className="text-fc-muted-soft italic">
                   Run prompt to view token-by-token output and decision rationale...
                 </span>
               )}
@@ -693,24 +798,27 @@ export function PlaygroundPage() {
         </div>
 
         {/* Right Column: Decision Intelligence Console (5 Cols) */}
-        <div className="lg:col-span-5 space-y-4">
+        <div className="fc-grid-cell lg:col-span-5 space-y-4">
+          <span className="corner-crosshair top-1 left-1.5">+</span>
+          <span className="corner-crosshair top-1 right-1.5">+</span>
+
           {/* Decision Fallback / Status Alert */}
           {Boolean(evaluation?.isFallback || evaluation?.fallbackReason) ? (
-            <div className="rounded-fc-sm bg-fc-honey/10 border border-fc-honey/30 p-3.5 text-xs text-fc-honey flex items-start space-x-2.5 shadow-xs">
-              <AlertTriangle className="w-4 h-4 text-fc-honey shrink-0 mt-0.5" />
+            <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-muted p-3.5 text-xs text-fc-graphite flex items-start space-x-2.5">
+              <AlertTriangle className="w-4 h-4 text-fc-graphite shrink-0 mt-0.5" />
               <div className="space-y-0.5">
-                <div className="font-semibold text-fc-honey text-xs">
+                <div className="font-semibold text-fc-graphite text-xs">
                   Deterministic Fallback Active
                 </div>
-                <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-snug">
+                <p className="text-fc-body text-[11px] leading-snug">
                   {evaluation?.fallbackReason ||
                     'Liquid d1 unreachable or exceeded 10s timeout. Complexity and model choice calculated via heuristic rules.'}
                 </p>
               </div>
             </div>
           ) : evaluation ? (
-            <div className="rounded-fc-sm bg-fc-forest/10 border border-fc-forest/20 p-2.5 text-xs text-fc-forest flex items-center space-x-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-fc-forest shrink-0" />
+            <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint p-2.5 text-xs text-fc-graphite flex items-center space-x-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-fc-graphite shrink-0" />
               <span className="font-mono text-[11px]">
                 Liquid d1 Neural Forward Pass: <strong>{evaluation.routingLatencyMs || 14} ms</strong>
               </span>
@@ -718,15 +826,15 @@ export function PlaygroundPage() {
           ) : null}
 
           {/* Interactive Decision Pipeline Node Graph */}
-          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3 shadow-xs transition-colors">
+          <div className="fc-nested-card p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
-              <h2 className="font-medium text-fc-accent-black text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
+              <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
                 <GitBranch className="w-3.5 h-3.5 text-heat-100" />
                 <span>Decision Flow Pipeline</span>
               </h2>
               <button
                 onClick={() => setShowGraph(!showGraph)}
-                className="text-[11px] font-mono text-slate-400 hover:text-fc-accent-black flex items-center space-x-1 cursor-pointer"
+                className="text-[11px] font-mono text-fc-muted hover:text-fc-graphite flex items-center space-x-1 cursor-pointer"
               >
                 <span>{showGraph ? 'Collapse' : 'Expand'}</span>
                 {showGraph ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -736,74 +844,74 @@ export function PlaygroundPage() {
             {showGraph && (
               <div className="space-y-1.5 pt-0.5 font-mono text-xs">
                 {/* Node 1: Ingestion */}
-                <div className="p-3 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint space-y-1">
-                  <div className="flex items-center justify-between text-slate-500">
-                    <span className="font-medium text-fc-accent-black">1. Prompt State Ingestion</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-sm bg-fc-surface border border-fc-border-faint text-fc-accent-black">
+                <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1">
+                  <div className="flex items-center justify-between text-fc-muted">
+                    <span className="font-medium text-fc-graphite">1. Prompt State Ingestion</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-4 bg-fc-surface border border-fc-border-faint text-fc-graphite">
                       ~{Math.round(prompt.length / 4)} tokens
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 truncate">
+                  <div className="text-[11px] text-fc-muted truncate">
                     Input: {prompt.slice(0, 48) || 'Waiting for prompt...'}
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-400">
+                <div className="flex justify-center text-fc-muted">
                   <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 2: D1 System One Evaluation */}
-                <div className="p-3 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint space-y-1">
+                <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-fc-forest">2. Liquid d1 Evaluation</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-sm bg-fc-forest/10 text-fc-forest font-bold border border-fc-forest/20">
+                    <span className="font-medium text-fc-graphite">2. Liquid d1 Evaluation</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-4 bg-fc-surface text-fc-graphite font-bold border border-fc-border-faint">
                       Score: {score.toFixed(2)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-500">
-                    <div>Domain: <span className="text-fc-accent-black font-bold">{evaluation?.domain || 'general'}</span></div>
-                    <div>Latency: <span className="text-fc-accent-black font-bold">{evaluation?.routingLatencyMs || 14}ms</span></div>
-                    <div>Tools: <span className={evaluation?.requiresTools ? 'text-fc-amethyst font-bold' : 'text-slate-400'}>{evaluation?.requiresTools ? 'Yes' : 'No'}</span></div>
-                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-fc-bluetron font-bold' : 'text-slate-400'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
+                  <div className="grid grid-cols-2 gap-1 text-[11px] text-fc-muted">
+                    <div>Domain: <span className="text-fc-graphite font-bold">{evaluation?.domain || 'general'}</span></div>
+                    <div>Latency: <span className="text-fc-graphite font-bold">{evaluation?.routingLatencyMs || 14}ms</span></div>
+                    <div>Tools: <span className={evaluation?.requiresTools ? 'text-fc-graphite font-bold' : 'text-fc-muted-soft'}>{evaluation?.requiresTools ? 'Yes' : 'No'}</span></div>
+                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-fc-graphite font-bold' : 'text-fc-muted-soft'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-400">
+                <div className="flex justify-center text-fc-muted">
                   <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 3: Policy Engine */}
-                <div className="p-3 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint space-y-1">
+                <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-fc-amethyst">3. Policy Engine Resolution</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-sm bg-fc-amethyst/10 text-fc-amethyst font-bold border border-fc-amethyst/20 uppercase">
+                    <span className="font-medium text-fc-graphite">3. Policy Engine Resolution</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-4 bg-fc-surface text-fc-graphite font-bold border border-fc-border-faint uppercase">
                       {policy}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-500 leading-snug">
+                  <div className="text-[11px] text-fc-muted leading-snug">
                     Evaluated against active models matching score {score.toFixed(2)} with capability requirements.
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-400">
+                <div className="flex justify-center text-fc-muted">
                   <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 4: Selected Target Model */}
-                <div className="p-3 rounded-fc-sm bg-heat-4 border border-heat-40 text-fc-accent-black space-y-1">
+                <div className="p-3 rounded-fc-6 bg-heat-4 border border-heat-40 text-fc-graphite space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-fc-accent-black flex items-center space-x-1.5">
+                    <span className="font-bold text-fc-graphite flex items-center space-x-1.5">
                       <Sparkles className="w-3 h-3 text-heat-100" />
                       <span>4. Target Engine Selected</span>
                     </span>
-                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-fc-sm bg-fc-surface border border-heat-40 text-heat-100">
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-fc-4 bg-fc-surface border border-heat-40 text-heat-100">
                       {evaluation?.selectedModel?.provider || 'ollama'}
                     </span>
                   </div>
                   <div className="text-xs font-bold text-heat-100">
                     {evaluation?.selectedModel?.display_name || 'Local Chat'} ({evaluation?.selectedModel?.upstream_model || 'lfm3:latest'})
                   </div>
-                  <div className="text-[10px] text-slate-500 flex items-center justify-between pt-0.5">
+                  <div className="text-[10px] text-fc-muted flex items-center justify-between pt-0.5">
                     <span>Range: [{evaluation?.selectedModel?.complexity_range?.[0]?.toFixed(1)}, {evaluation?.selectedModel?.complexity_range?.[1]?.toFixed(1)}]</span>
                     <span>Cost: ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0}/1M</span>
                   </div>
@@ -812,26 +920,26 @@ export function PlaygroundPage() {
             )}
           </div>
 
-          {/* Calibrated Complexity Spectrum Card */}
-          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3 shadow-xs transition-colors">
+          {/* Calibrated Complexity Spectrum Card (Monochromatic) */}
+          <div className="fc-nested-card fc-stat-mono p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
-              <h2 className="font-medium text-fc-accent-black text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
-                <Gauge className="w-3.5 h-3.5 text-heat-100" />
+              <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
+                <Gauge className="w-3.5 h-3.5 text-fc-graphite stat-icon" />
                 <span>Complexity Spectrum</span>
               </h2>
-              <span className="text-[11px] font-mono text-slate-400">
+              <span className="text-[11px] font-mono text-fc-muted">
                 Score: <strong>{score.toFixed(2)}</strong> / 5.0
               </span>
             </div>
 
             {/* Readout & Meter */}
-            <div className="rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint p-4 flex flex-col items-center justify-center space-y-2.5">
+            <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint p-4 flex flex-col items-center justify-center space-y-2.5">
               <div className="text-center space-y-0.5">
-                <div className="text-3xl font-bold font-mono tracking-tight text-fc-accent-black">
-                  <span className={scoreStyle.text}>{score.toFixed(2)}</span>
-                  <span className="text-sm text-slate-400 font-sans font-normal ml-1">/ 5.0</span>
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+                  {score.toFixed(2)}
+                  <span className="text-sm text-fc-muted font-sans font-normal ml-1">/ 5.0</span>
                 </div>
-                <div className="text-xs text-slate-500 font-medium">
+                <div className="text-xs text-fc-muted font-medium">
                   {scoreStyle.tier}
                 </div>
               </div>
@@ -840,11 +948,11 @@ export function PlaygroundPage() {
               <div className="w-full space-y-1 pt-1">
                 <div className="w-full h-2 rounded-fc-full bg-fc-surface border border-fc-border-faint overflow-hidden">
                   <div
-                    className={`h-full rounded-fc-full transition-all duration-300 ${scoreStyle.bg}`}
+                    className="h-full rounded-fc-full transition-all duration-300 bg-fc-graphite"
                     style={{ width: `${scorePercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                <div className="flex justify-between text-[10px] font-mono text-fc-muted">
                   <span>1.0 Local</span>
                   <span>3.0 Mid-Tier</span>
                   <span>5.0 Frontier</span>
@@ -852,26 +960,26 @@ export function PlaygroundPage() {
               </div>
             </div>
 
-            {/* Classified Capabilities */}
+            {/* Classified Capabilities (Monochrome) */}
             <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
-              <div className="p-2.5 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint text-fc-accent-black">
-                <div className="text-slate-400 text-[10px]">Domain</div>
+              <div className="p-2.5 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-fc-graphite">
+                <div className="text-fc-muted text-[10px]">Domain</div>
                 <div className="font-bold">{evaluation?.domain || 'general'}</div>
               </div>
-              <div className={`p-2.5 rounded-fc-sm border text-[11px] font-mono ${
+              <div className={`p-2.5 rounded-fc-6 border text-[11px] font-mono ${
                 evaluation?.requiresTools
-                  ? 'bg-fc-amethyst/10 border-fc-amethyst/30 text-fc-amethyst font-bold'
-                  : 'bg-fc-bg-lighter border-fc-border-faint text-slate-500'
+                  ? 'bg-fc-bg-lighter border-fc-border-loud text-fc-graphite font-bold'
+                  : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted'
               }`}>
-                <div className="text-slate-400 text-[10px]">Tools</div>
+                <div className="text-fc-muted text-[10px]">Tools</div>
                 <div>{evaluation?.requiresTools ? 'Required' : 'None'}</div>
               </div>
-              <div className={`p-2.5 rounded-fc-sm border text-[11px] font-mono ${
+              <div className={`p-2.5 rounded-fc-6 border text-[11px] font-mono ${
                 evaluation?.requiresVision
-                  ? 'bg-fc-bluetron/10 border-fc-bluetron/30 text-fc-bluetron font-bold'
-                  : 'bg-fc-bg-lighter border-fc-border-faint text-slate-500'
+                  ? 'bg-fc-bg-lighter border-fc-border-loud text-fc-graphite font-bold'
+                  : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted'
               }`}>
-                <div className="text-slate-400 text-[10px]">Vision</div>
+                <div className="text-fc-muted text-[10px]">Vision</div>
                 <div>{evaluation?.requiresVision ? 'Required' : 'None'}</div>
               </div>
             </div>

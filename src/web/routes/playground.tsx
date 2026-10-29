@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
+import { AsciiFlame } from '../components/AsciiFlame';
 
 export const Route = createFileRoute('/playground')({
   component: PlaygroundPage,
@@ -499,7 +500,9 @@ export function PlaygroundPage() {
         {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
           {/* Prompt Editor Card */}
-          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3.5 shadow-xs transition-colors">
+          <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-5 sm:p-6 space-y-4 widget-halo">
+            <span className="corner-crosshair top-2 left-2">+</span>
+            <span className="corner-crosshair top-2 right-2">+</span>
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
               {/* Policy Segmented Control */}
@@ -631,7 +634,9 @@ export function PlaygroundPage() {
           )}
 
           {/* Streaming Output Card */}
-          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3 shadow-xs transition-colors">
+          <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-5 space-y-3.5 widget-halo">
+            <span className="corner-crosshair top-2 left-2">+</span>
+            <span className="corner-crosshair top-2 right-2">+</span>
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-2.5">
               <div className="flex items-center space-x-2 text-xs font-mono">
                 <Terminal className="w-3.5 h-3.5 text-heat-100" />
@@ -671,10 +676,13 @@ export function PlaygroundPage() {
               {chatResponse ? (
                 <span>{chatResponse}</span>
               ) : isGenerating ? (
-                <span className="text-slate-400 italic flex items-center space-x-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse mr-1.5" />
-                  Connecting to upstream model stream...
-                </span>
+                <div className="flex flex-col items-center justify-center py-6 space-y-3">
+                  <AsciiFlame opacity={0.7} />
+                  <span className="text-slate-500 font-mono text-xs flex items-center space-x-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse" />
+                    <span>Streaming tokens via Liquid d1 & upstream model...</span>
+                  </span>
+                </div>
               ) : (
                 <span className="text-slate-400 italic">
                   Run prompt to view token-by-token output and decision rationale...

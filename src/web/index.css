@@ -27,6 +27,7 @@
     --fc-border-loud: #e6e6e6;
 
     /* Shadows & Halos */
+    --fc-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(0, 0, 0, 0.05);
     --fc-shadow-halo: 0 0 0 6px rgba(0, 0, 0, 0.025), 0 4px 20px rgba(0, 0, 0, 0.04);
     --fc-shadow-heat-btn: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 1px 2px 0 rgba(250, 69, 0, 0.35), 0 0 0 1px #fa4500;
   }
@@ -52,6 +53,7 @@
     --fc-border-loud: #3d3d3d;
 
     /* Shadows & Halos in Dark */
+    --fc-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
     --fc-shadow-halo: 0 0 0 6px rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
     --fc-shadow-heat-btn: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 1px 2px 0 rgba(250, 69, 0, 0.45), 0 0 0 1px #fa4500;
   }
@@ -138,6 +140,51 @@
   line-height: 7px;
   user-select: none;
   pointer-events: none;
+}
+
+/* === STRUCTURAL GRID & NESTED ROUNDED TRAY UTILITIES === */
+.fc-blueprint-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  background-color: var(--fc-canvas-paper);
+  border-top: 1px solid var(--fc-border-faint);
+  border-left: 1px solid var(--fc-border-faint);
+}
+
+.fc-grid-cell {
+  position: relative;
+  padding: 8px; /* Recessed tray gap */
+  border-right: 1px solid var(--fc-border-faint);
+  border-bottom: 1px solid var(--fc-border-faint);
+  background-color: var(--fc-canvas-paper);
+}
+
+.fc-nested-card {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--fc-surface-white);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--fc-shadow-card);
+  transition: box-shadow 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.fc-nested-card:hover {
+  box-shadow: var(--fc-shadow-halo);
+}
+
+.fc-ascii-layer {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 12px;
+  color: #fa5d19;
+  opacity: 0.22;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* Precision scrollbars */

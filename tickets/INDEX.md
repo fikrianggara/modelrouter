@@ -7,4 +7,4 @@
 | TKT-005 | feature | medium | P0 | core | merged | jarvis | feature-TKT-005-system-one-liquid-d1-dec | false | 2026-10-29 | 2026-10-29 | System One Liquid D1 Decision Client and Heuristic Fallback |
 | TKT-006 | feature | medium | P1 | core | merged | jarvis | feature-TKT-006-policy-routing-resolver | false | 2026-10-29 | 2026-10-29 | Policy Routing Resolver Engine |
 | TKT-007 | feature | medium | P0 | core | merged | jarvis | feature-TKT-007-bidirectional-sse-stream | false | 2026-10-29 | 2026-10-29 | Bidirectional SSE Stream Transcoder for OpenAI and Anthropic |
-| TKT-008 | feature | big | P0 | core | backlog | null | null | false | 2026-10-29 | 2026-10-29 | Hono Gateway Server with OpenAI and Anthropic endpoints |
+| TKT-008 | feature | big | P0 | core | ongoing | jarvis | feature-TKT-008-hono-gateway-server-with | false | 2026-10-29 | 2026-10-29 | Hono Gateway Server with OpenAI and Anthropic endpoints |

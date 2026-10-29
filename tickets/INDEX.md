@@ -10,4 +10,4 @@
 | TKT-008 | feature | big | P0 | core | merged | jarvis | feature-TKT-008-hono-gateway-server-with | false | 2026-10-29 | 2026-10-29 | Hono Gateway Server with OpenAI and Anthropic endpoints |
 | TKT-009 | feature | big | P1 | core | merged | jarvis | feature-TKT-009-tanstack-router-web-dash | false | 2026-10-29 | 2026-10-29 | TanStack Router Web Dashboard and Interactive Complexity Playground |
 | TKT-010 | bug | medium | P1 | core | merged | jarvis | bug-TKT-010-fix-theme-toggle-increas | false | 2026-10-29 | 2026-10-29 | Fix theme toggle, increase D1 timeout, add fallback alerts, and clarify virtual routing policies |
-| TKT-011 | feature | big | P0 | core | ongoing | jarvis | feature-TKT-011-model-registry-managemen | false | 2026-10-29 | 2026-10-29 | Model registry management, 10s D1 timeout, interactive decision graph, dynamic telemetry, and policy-aligned responses |
+| TKT-011 | feature | big | P0 | core | done | jarvis | feature-TKT-011-model-registry-managemen | true | 2026-10-29 | 2026-10-29 | Model registry management, 10s D1 timeout, interactive decision graph, dynamic telemetry, and policy-aligned responses |

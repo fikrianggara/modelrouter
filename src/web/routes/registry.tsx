@@ -279,7 +279,7 @@ export function RegistryPage() {
           <div className="flex items-center space-x-2.5">
             <button
               onClick={openAddModal}
-              className="btn-heat-cta px-4 py-2 rounded-fc-6 text-xs font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
+              className="btn-heat-cta px-4 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Model</span>
@@ -287,7 +287,7 @@ export function RegistryPage() {
 
             <button
               onClick={() => setShowRawYaml(!showRawYaml)}
-              className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 text-xs font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
+              className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
             >
               <FileText className="w-3.5 h-3.5 text-heat-100" />
               <span>{showRawYaml ? 'Hide YAML' : 'View [ .YAML ]'}</span>
@@ -424,58 +424,52 @@ export function RegistryPage() {
                 <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
 
                 <div className="space-y-2.5">
-                  {/* Header: Name, Provider, Enabled Status (Responsive, Zero Overflow) */}
+                  {/* Header: Name, Provider, Enabled Status (Responsive, Zero Overflow, Normal Font Weight) */}
                   <div className="flex items-start justify-between gap-2 min-w-0">
                     <div className="min-w-0 flex-1">
                       <h2
-                        className="text-xs sm:text-sm font-semibold text-fc-graphite tracking-tight truncate"
+                        className="text-xs sm:text-sm font-normal text-fc-graphite tracking-tight truncate whitespace-nowrap"
                         title={model.display_name || model.id}
                       >
                         {model.display_name || model.id}
                       </h2>
-                      <div className="text-[10px] font-mono text-fc-muted truncate" title={model.id}>
+                      <div className="text-[10px] font-mono text-fc-muted truncate whitespace-nowrap" title={model.id}>
                         {model.id}
                       </div>
                     </div>
 
-                    <span className="shrink-0 px-2 py-0.5 rounded-fc-4 text-[9px] font-mono uppercase font-bold bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint whitespace-nowrap">
+                    <span className="shrink-0 px-2 py-0.5 rounded-fc-4 text-[9px] font-mono uppercase font-normal bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint whitespace-nowrap">
                       {model.provider}
                     </span>
                   </div>
 
-                  {/* Upstream & URL specs (Clean compact row) */}
-                  <div className="px-2.5 py-1.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[10px] font-mono space-y-0.5">
-                    <div className="flex items-center justify-between text-fc-graphite min-w-0 gap-2">
-                      <span className="text-fc-muted shrink-0">Upstream:</span>
-                      <span className="font-medium truncate text-right text-[10px]" title={model.upstream_model}>
+                  {/* Upstream & URL specs (Clean compact row, strictly 1 line) */}
+                  <div className="px-2.5 py-1.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[10px] font-mono space-y-0.5 overflow-hidden">
+                    <div className="flex items-center justify-between text-fc-graphite min-w-0 gap-2 whitespace-nowrap">
+                      <span className="text-fc-muted shrink-0 text-[10px]">Upstream:</span>
+                      <span className="font-normal truncate text-right text-[10px] min-w-0" title={model.upstream_model}>
                         {model.upstream_model}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-fc-muted text-[9px] min-w-0 gap-2">
-                      <span className="shrink-0">Endpoint:</span>
-                      <span className="truncate text-right" title={model.base_url}>
+                    <div className="flex items-center justify-between text-fc-muted text-[9px] min-w-0 gap-2 whitespace-nowrap">
+                      <span className="shrink-0 text-[9px]">Endpoint:</span>
+                      <span className="truncate text-right min-w-0 text-[9px]" title={model.base_url}>
                         {model.base_url}
                       </span>
                     </div>
                   </div>
 
-                  {/* Complexity Spectrum Bar (< 3.0: White, >= 3.0: Heat Orange) */}
+                  {/* Complexity Spectrum Bar (Restored Progress Bar Styling) */}
                   <div className="space-y-1 pt-0.5">
-                    <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center justify-between text-xs font-mono whitespace-nowrap">
                       <span className="text-fc-muted text-[10px]">Complexity Span:</span>
-                      <span
-                        className={`font-mono font-bold text-[10px] ${
-                          maxComp < 3.0 ? 'text-fc-graphite dark:text-white' : 'text-heat-100'
-                        }`}
-                      >
+                      <span className="font-mono font-normal text-[10px] text-heat-100">
                         [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
                       </span>
                     </div>
-                    <div className="w-full h-1.5 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden relative">
+                    <div className="w-full h-1.5 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden relative">
                       <div
-                        className={`h-full rounded-fc-full transition-all ${
-                          maxComp < 3.0 ? 'bg-white shadow-xs' : 'bg-heat-100 shadow-fc-heat-btn'
-                        }`}
+                        className="h-full rounded-fc-full bg-heat-100 transition-all"
                         style={{
                           marginLeft: `${leftPercent}%`,
                           width: `${Math.max(6, widthPercent)}%`,
@@ -484,43 +478,43 @@ export function RegistryPage() {
                     </div>
                   </div>
 
-                  {/* Capabilities & Pricing Matrix (Compact 4-column strip) */}
+                  {/* Capabilities & Pricing Matrix (Compact 1-line columns, normal font) */}
                   <div className="grid grid-cols-4 gap-1.5 pt-0.5 text-[10px] font-mono">
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
-                      <span className="text-[9px] text-fc-muted">Tools</span>
-                      <span className={`font-semibold ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}>
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Tools</span>
+                      <span className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}>
                         {model.capabilities.tools ? 'Yes' : 'No'}
                       </span>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
-                      <span className="text-[9px] text-fc-muted">Vision</span>
-                      <span className={`font-semibold ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}>
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Vision</span>
+                      <span className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}>
                         {model.capabilities.vision ? 'Yes' : 'No'}
                       </span>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
-                      <span className="text-[9px] text-fc-muted">Context</span>
-                      <span className="text-fc-graphite font-semibold">
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Context</span>
+                      <span className="text-fc-graphite font-normal whitespace-nowrap text-[10px]">
                         {Math.round(model.capabilities.max_context / 1024)}K
                       </span>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
-                      <span className="text-[9px] text-fc-muted">Cost/1M</span>
-                      <span className="text-fc-graphite font-semibold">
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Cost</span>
+                      <span className="text-fc-graphite font-normal whitespace-nowrap truncate text-[10px]" title={`$${model.cost.input_per_mtoken}/1M`}>
                         ${model.cost.input_per_mtoken}
                       </span>
                     </div>
                   </div>
 
-                  {/* Tags Badges (Clean, compact font) */}
+                  {/* Tags Badges (Clean, compact font, 1-line badge) */}
                   <div className="flex flex-wrap gap-1 items-center pt-0.5">
                     {model.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[9px] font-mono text-fc-muted"
+                        className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[9px] font-mono text-fc-muted whitespace-nowrap"
                       >
                         #{tag}
                       </span>

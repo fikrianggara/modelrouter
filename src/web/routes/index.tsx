@@ -191,10 +191,10 @@ export function DashboardPage() {
           </p>
 
           {/* Action Controls & Ingress Tag */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 font-sans">
             <Link
               to="/playground"
-              className="btn-heat-cta px-5 py-2.5 rounded-fc-6 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
+              className="btn-heat-cta px-5 py-2.5 rounded-fc-6 text-sm font-sans font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
             >
               <Gauge className="w-4 h-4" />
               <span>Launch Playground</span>
@@ -203,13 +203,13 @@ export function DashboardPage() {
 
             <Link
               to="/registry"
-              className="btn-ghost-outline px-4 py-2.5 rounded-fc-6 text-sm font-medium inline-flex items-center space-x-2"
+              className="btn-ghost-outline px-4 py-2.5 rounded-fc-6 text-sm font-sans font-medium inline-flex items-center space-x-2"
             >
               <Layers className="w-4 h-4 text-heat-100" />
               <span>Model Registry</span>
             </Link>
 
-            <div className="px-3 py-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-xs font-mono text-fc-muted flex items-center space-x-2">
+            <div className="px-3 py-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-xs font-sans text-fc-muted flex items-center space-x-2">
               <span className="text-heat-100 font-bold">[ .CLI ]</span>
               <span>npx -y modelrouter-cli@latest</span>
             </div>
@@ -330,30 +330,30 @@ export function DashboardPage() {
         </div>
 
         {/* Blueprint Flow Bento Box */}
-        <div className="p-3 sm:p-4 bg-fc-canvas-paper">
-          <div className="fc-nested-card rounded-fc-6 p-6 widget-halo relative">
+        <div className="p-4 sm:p-6 bg-fc-canvas-paper">
+          <div className="fc-nested-card rounded-fc-6 p-5 sm:p-6 space-y-5 widget-halo relative font-sans">
             <span className="corner-crosshair top-2 left-2">+</span>
             <span className="corner-crosshair top-2 right-2">+</span>
             <span className="corner-crosshair bottom-2 left-2">+</span>
             <span className="corner-crosshair bottom-2 right-2">+</span>
 
             {/* Stage Buttons */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {architectureSteps.map((s) => {
                 const isSelected = activeStep === s.step;
                 return (
                   <button
                     key={s.step}
                     onClick={() => setActiveStep(s.step)}
-                    className={`text-left p-3.5 rounded-fc-6 border transition-all cursor-pointer ${
+                    className={`text-left p-3.5 rounded-fc-6 border transition-all cursor-pointer font-sans ${
                       isSelected
                         ? 'bg-heat-4 border-heat-100 text-fc-graphite shadow-xs'
                         : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted hover:border-fc-border-muted'
                     }`}
                   >
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center justify-between mb-2">
                       <span
-                        className={`w-5 h-5 rounded-fc-4 flex items-center justify-center text-[10px] font-bold font-mono ${
+                        className={`w-5 h-5 rounded-fc-4 flex items-center justify-center text-[10px] font-sans font-medium ${
                           isSelected
                             ? 'bg-heat-100 text-white'
                             : 'bg-fc-surface border border-fc-border-faint text-fc-graphite'
@@ -361,10 +361,10 @@ export function DashboardPage() {
                       >
                         {s.step}
                       </span>
-                      <span className="text-[11px] font-mono text-heat-100 font-medium">{s.latency}</span>
+                      <span className="text-[11px] font-sans text-heat-100 font-medium">{s.latency}</span>
                     </div>
-                    <div className="font-medium text-xs text-fc-graphite truncate">{s.title}</div>
-                    <div className="text-[11px] text-fc-muted truncate">{s.subtitle}</div>
+                    <div className="font-normal text-xs text-fc-graphite truncate font-sans">{s.title}</div>
+                    <div className="text-[11px] text-fc-muted truncate font-sans">{s.subtitle}</div>
                   </button>
                 );
               })}
@@ -376,26 +376,26 @@ export function DashboardPage() {
               return (
                 <div
                   key={s.step}
-                  className="p-4 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs font-mono"
+                  className="p-4 sm:p-5 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-sans text-xs"
                 >
-                  <div className="space-y-1 max-w-3xl">
+                  <div className="space-y-1.5 max-w-3xl">
                     <div className="flex items-center space-x-2">
-                      <span className="font-bold text-fc-graphite">
+                      <span className="font-medium text-sm text-fc-graphite font-sans">
                         Stage {s.step}: {s.title}
                       </span>
-                      <span className="px-2 py-0.5 rounded-fc-4 bg-fc-surface border border-fc-border-faint text-fc-graphite text-[10px]">
+                      <span className="px-2 py-0.5 rounded-fc-4 bg-fc-surface border border-fc-border-faint text-fc-muted text-[10px] font-sans">
                         {s.badge}
                       </span>
                     </div>
-                    <p className="text-fc-body font-sans leading-relaxed text-xs">
+                    <p className="text-fc-body font-sans leading-relaxed text-xs sm:text-sm">
                       {s.description}
                     </p>
-                    <div className="text-fc-muted text-[11px] flex items-center space-x-1.5 pt-0.5">
-                      <Terminal className="w-3.5 h-3.5 text-fc-muted-soft" />
+                    <div className="text-fc-muted text-[11px] font-sans flex items-center space-x-1.5 pt-1">
+                      <Terminal className="w-3.5 h-3.5 text-fc-muted-soft shrink-0" />
                       <span>Module: {s.component}</span>
                     </div>
                   </div>
-                  <div className="px-3.5 py-1.5 rounded-fc-6 bg-fc-surface border border-fc-border-muted text-heat-100 whitespace-nowrap self-stretch md:self-auto text-center font-bold">
+                  <div className="px-3.5 py-1.5 rounded-fc-6 bg-fc-surface border border-fc-border-faint text-heat-100 whitespace-nowrap self-start md:self-auto text-center font-sans font-medium text-xs">
                     Latency Budget: {s.latency}
                   </div>
                 </div>
@@ -444,40 +444,40 @@ export function DashboardPage() {
                 </div>
 
                 <div className="space-y-3.5">
-                  {/* Level 1: Low (< 3: White) */}
+                  {/* Level 1: Low */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-fc-body font-medium">1.0 – 1.8 (Local Ollama)</span>
-                      <span className="font-mono text-fc-graphite dark:text-white font-bold">{p1}%</span>
+                      <span className="text-fc-body font-medium font-sans">1.0 – 1.8 (Local Ollama)</span>
+                      <span className="font-mono text-fc-graphite font-bold">{p1}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
-                      <div className="h-full bg-white rounded-fc-full shadow-xs" style={{ width: `${p1}%` }} />
+                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                      <div className="h-full bg-fc-graphite rounded-fc-full" style={{ width: `${p1}%` }} />
                     </div>
-                    <p className="text-[10px] text-fc-muted font-mono">Zero token egress ($0.00)</p>
+                    <p className="text-[10px] text-fc-muted font-sans">Zero token egress ($0.00)</p>
                   </div>
 
-                  {/* Level 2: Medium (< 3: White) */}
+                  {/* Level 2: Medium */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-fc-body font-medium">1.9 – 2.9 (Mid-tier / 9router)</span>
-                      <span className="font-mono text-fc-graphite dark:text-white font-bold">{p2}%</span>
+                      <span className="text-fc-body font-medium font-sans">1.9 – 3.5 (Mid-tier / 9router)</span>
+                      <span className="font-mono text-fc-graphite font-bold">{p2}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
-                      <div className="h-full bg-white rounded-fc-full shadow-xs" style={{ width: `${p2}%` }} />
+                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                      <div className="h-full bg-fc-muted rounded-fc-full" style={{ width: `${p2}%` }} />
                     </div>
-                    <p className="text-[10px] text-fc-muted font-mono">Frugal code & structured data</p>
+                    <p className="text-[10px] text-fc-muted font-sans">Frugal code & structured data</p>
                   </div>
 
-                  {/* Level 3: Frontier (>= 3: Firecrawl Heat Orange) */}
+                  {/* Level 3: Frontier */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs">
-                      <span className="text-fc-body font-medium">3.0 – 5.0 (Frontier Cloud)</span>
-                      <span className="font-mono text-heat-100 font-bold">{p3}%</span>
+                      <span className="text-fc-body font-medium font-sans">3.6 – 5.0 (Frontier Cloud)</span>
+                      <span className="font-mono text-fc-graphite font-bold">{p3}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
-                      <div className="h-full bg-heat-100 rounded-fc-full shadow-xs" style={{ width: `${p3}%` }} />
+                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                      <div className="h-full bg-heat-100 rounded-fc-full" style={{ width: `${p3}%` }} />
                     </div>
-                    <p className="text-[10px] text-fc-muted font-mono">Formal reasoning & architecture</p>
+                    <p className="text-[10px] text-fc-muted font-sans">Formal reasoning & architecture</p>
                   </div>
                 </div>
               </div>
@@ -560,7 +560,7 @@ export function DashboardPage() {
                                 {r.domain}
                               </span>
                             </td>
-                            <td className="py-2.5 font-mono text-fc-graphite whitespace-nowrap text-xs">
+                            <td className="py-2.5 font-sans font-normal text-fc-graphite whitespace-nowrap text-xs">
                               {r.model}
                             </td>
                             <td className="py-2.5 text-right font-mono text-fc-muted whitespace-nowrap text-[11px]">

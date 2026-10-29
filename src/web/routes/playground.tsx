@@ -6,7 +6,6 @@ import {
   RotateCcw,
   Copy,
   Check,
-  Bot,
   Cpu,
   Wrench,
   Eye,
@@ -112,7 +111,6 @@ export function PlaygroundPage() {
   const abortControllerRef = useRef<AbortController | null>(null);
   const chatOutputRef = useRef<HTMLDivElement | null>(null);
 
-  // Evaluate prompt complexity
   const handleEvaluate = async (customPrompt?: string) => {
     const textToEvaluate = customPrompt !== undefined ? customPrompt : prompt;
     if (!textToEvaluate.trim()) return;
@@ -142,7 +140,6 @@ export function PlaygroundPage() {
     }
   };
 
-  // Client-side fallback evaluator
   const fallbackClientEvaluation = (text: string) => {
     const lower = text.toLowerCase();
     let score = 1.2;
@@ -244,7 +241,6 @@ export function PlaygroundPage() {
     handleEvaluate(prompt);
   }, []);
 
-  // Send request and stream tokens
   const handleSendPrompt = async () => {
     if (!prompt.trim() || isGenerating) return;
 
@@ -324,7 +320,6 @@ export function PlaygroundPage() {
             Math.round((estimatedTokens / (elapsed / 1000)) * 10) / 10,
         });
       } else {
-        // Upstream returned non-200 (e.g. 401 unauthenticated or 404)
         const errText = await res.text().catch(() => '');
         setUpstreamNotice(
           `Upstream endpoint returned HTTP ${res.status}. Showing policy-aligned simulated output for ${evaluation?.selectedModel?.display_name || 'selected model'}.`
@@ -350,7 +345,6 @@ export function PlaygroundPage() {
     }
   };
 
-  // Generate dynamic, policy-aligned response
   const simulateStreamingResponse = async (
     userPrompt: string,
     modelName: string,
@@ -449,20 +443,20 @@ export function PlaygroundPage() {
   const getScoreColor = (val: number) => {
     if (val < 2.0)
       return {
-        text: 'text-emerald-500 dark:text-emerald-400',
+        text: 'text-emerald-600 dark:text-emerald-400',
         bg: 'bg-emerald-500',
-        tier: 'Low / Local',
+        tier: 'Low Complexity (Local Free Tier)',
       };
     if (val < 3.5)
       return {
-        text: 'text-amber-500 dark:text-amber-400',
+        text: 'text-amber-600 dark:text-amber-400',
         bg: 'bg-amber-500',
-        tier: 'Medium / Standard',
+        tier: 'Standard Complexity (Mid-tier Engine)',
       };
     return {
-      text: 'text-indigo-500 dark:text-indigo-400',
+      text: 'text-indigo-600 dark:text-indigo-400',
       bg: 'bg-indigo-500',
-      tier: 'High / Frontier',
+      tier: 'Advanced Complexity (Frontier Engine)',
     };
   };
 
@@ -470,21 +464,21 @@ export function PlaygroundPage() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Playground Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 transition-colors">
+      {/* Workbench Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center space-x-2.5">
-            <Gauge className="w-7 h-7 text-emerald-500 dark:text-emerald-400" />
-            <span>Interactive Complexity Playground</span>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center space-x-2">
+            <Gauge className="w-5 h-5 text-blue-500" />
+            <span>Decision Intelligence Playground</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Test prompt evaluation in real-time, inspect D1 decision routing, and observe token-by-token streaming.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
           </p>
         </div>
 
         {/* Preset Prompt Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-slate-500 mr-1 font-mono">Presets:</span>
+          <span className="text-xs text-slate-400 font-mono mr-1">Presets:</span>
           {PRESET_PROMPTS.map((p) => (
             <button
               key={p.label}
@@ -492,7 +486,7 @@ export function PlaygroundPage() {
                 setPrompt(p.prompt);
                 handleEvaluate(p.prompt);
               }}
-              className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
+              className="px-2.5 py-1 rounded text-xs font-mono bg-white dark:bg-[#11131B] hover:bg-slate-50 dark:hover:bg-[#1A1D27] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
             >
               {p.label}
             </button>
@@ -500,32 +494,42 @@ export function PlaygroundPage() {
         </div>
       </div>
 
-      {/* Main Grid: Controls & Prompt (Left) + Inspector & Gauge (Right) */}
+      {/* Main Dual-Pane Grid: Left = Execution Workbench, Right = Decision Inspector */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Prompt Input & Chat Output (7 Cols) */}
-        <div className="lg:col-span-7 space-y-5">
-          {/* Prompt Box */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
+        {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Prompt Editor Card */}
+          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center space-x-2">
+              {/* Policy Segmented Control */}
+              <div className="flex items-center space-x-1.5">
                 <span className="text-slate-500 dark:text-slate-400 font-medium">Policy:</span>
-                <select
-                  value={policy}
-                  onChange={(e) => {
-                    setPolicy(e.target.value);
-                  }}
-                  className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-cyan-500 font-mono transition-colors"
-                >
-                  <option value="balanced">Balanced (Pareto)</option>
-                  <option value="cost_optimized">Cost Optimized</option>
-                  <option value="quality_max">Quality Max</option>
-                  <option value="local_first">Local First</option>
-                </select>
+                <div className="flex bg-slate-100 dark:bg-[#171A24] p-0.5 rounded-lg border border-slate-200 dark:border-slate-800 font-mono text-[11px]">
+                  {(['balanced', 'cost_optimized', 'quality_max', 'local_first'] as const).map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPolicy(p)}
+                      className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                        policy === p
+                          ? 'bg-white dark:bg-[#252938] text-slate-900 dark:text-white font-bold shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                      }`}
+                    >
+                      {p === 'balanced'
+                        ? 'Balanced'
+                        : p === 'cost_optimized'
+                        ? 'Cost'
+                        : p === 'quality_max'
+                        ? 'Quality'
+                        : 'Local'}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <span className="text-slate-500 dark:text-slate-400 font-medium">Virtual Router:</span>
+              {/* Virtual Router & Stream Options */}
+              <div className="flex items-center space-x-3">
                 <select
                   value={virtualModel}
                   onChange={(e) => {
@@ -535,24 +539,22 @@ export function PlaygroundPage() {
                     else if (e.target.value === 'd1-router-local') setPolicy('local_first');
                     else if (e.target.value === 'd1-router-auto') setPolicy('balanced');
                   }}
-                  className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-cyan-500 font-mono transition-colors"
+                  className="bg-slate-100 dark:bg-[#171A24] border border-slate-200 dark:border-slate-800 rounded px-2 py-1 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 font-mono"
                 >
-                  <option value="d1-router-auto">d1-router-auto (Policy: Balanced)</option>
-                  <option value="d1-router-cost">d1-router-cost (Policy: Cost-Optimized)</option>
-                  <option value="d1-router-quality">d1-router-quality (Policy: Quality-Max)</option>
-                  <option value="d1-router-local">d1-router-local (Policy: Local-First)</option>
+                  <option value="d1-router-auto">d1-router-auto</option>
+                  <option value="d1-router-cost">d1-router-cost</option>
+                  <option value="d1-router-quality">d1-router-quality</option>
+                  <option value="d1-router-local">d1-router-local</option>
                 </select>
-              </div>
 
-              <div className="flex items-center space-x-3">
-                <label className="flex items-center space-x-1.5 cursor-pointer text-slate-600 dark:text-slate-300 select-none">
+                <label className="flex items-center space-x-1 cursor-pointer text-slate-600 dark:text-slate-300 select-none">
                   <input
                     type="checkbox"
                     checked={isStreaming}
                     onChange={(e) => setIsStreaming(e.target.checked)}
-                    className="rounded bg-slate-100 dark:bg-slate-950 border-slate-300 dark:border-slate-800 text-cyan-500 focus:ring-0 w-3.5 h-3.5"
+                    className="rounded bg-slate-100 dark:bg-[#171A24] border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-0 w-3 h-3"
                   />
-                  <span>SSE Stream</span>
+                  <span className="font-mono text-[11px]">Stream</span>
                 </label>
 
                 <button
@@ -562,19 +564,11 @@ export function PlaygroundPage() {
                     setEvaluation(null);
                   }}
                   className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center space-x-1 cursor-pointer"
+                  title="Clear Prompt"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Clear</span>
                 </button>
               </div>
-            </div>
-
-            {/* Architecture Explanatory Note */}
-            <div className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-100/70 dark:bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-800/60 font-mono transition-colors">
-              <Info className="w-3.5 h-3.5 text-brand-500 dark:text-cyan-400 shrink-0" />
-              <span>
-                Single Evaluator: <strong>Liquid d1</strong>. Virtual routers apply optimization policies (<code className="text-cyan-600 dark:text-cyan-300 font-bold">{policy}</code>) to select from active models.
-              </span>
             </div>
 
             {/* Prompt Textarea */}
@@ -592,34 +586,34 @@ export function PlaygroundPage() {
                   }
                 }}
                 rows={4}
-                placeholder="Type or paste your LLM prompt here (e.g. code generation, greeting, architecture, synthesis)..."
-                className="w-full bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-xl p-4 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-cyan-500/80 focus:ring-1 focus:ring-cyan-500/40 resize-y transition-all font-sans leading-relaxed"
+                placeholder="Type or paste prompt to analyze (e.g. code generation, greeting, architecture)..."
+                className="w-full bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800/80 rounded-lg p-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500/80 resize-y transition-colors font-sans leading-relaxed"
               />
-              <div className="absolute right-3 bottom-3 text-[11px] font-mono text-slate-400 dark:text-slate-500 pointer-events-none">
+              <div className="absolute right-2.5 bottom-2.5 text-[10px] font-mono text-slate-400 pointer-events-none">
                 {prompt.length} chars • ~{Math.round(prompt.length / 4)} tokens
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between pt-1">
-              <div className="text-xs text-slate-500 hidden sm:block">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">⌘+Enter</kbd> to execute
+            {/* Execute Buttons */}
+            <div className="flex items-center justify-between pt-0.5">
+              <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
+                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">⌘+Enter</kbd> to execute
               </div>
 
-              <div className="flex items-center space-x-2.5 w-full sm:w-auto justify-end">
+              <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleEvaluate()}
                   disabled={isEvaluating || !prompt.trim()}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-700 dark:text-slate-200 font-medium text-xs flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
+                  className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1D27] dark:hover:bg-[#222634] disabled:opacity-50 text-slate-700 dark:text-slate-200 font-medium text-xs flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700/80 transition-colors cursor-pointer"
                 >
-                  <Gauge className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
+                  <Gauge className="w-3.5 h-3.5 text-blue-500" />
                   <span>{isEvaluating ? 'Evaluating...' : 'Score Prompt'}</span>
                 </button>
 
                 <button
                   onClick={handleSendPrompt}
                   disabled={isGenerating || !prompt.trim()}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 disabled:opacity-50 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
+                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium text-xs flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isGenerating ? 'Streaming...' : 'Route & Execute'}</span>
@@ -630,28 +624,28 @@ export function PlaygroundPage() {
 
           {/* Upstream Notice Banner (if any) */}
           {upstreamNotice && (
-            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300 flex items-center space-x-2 transition-all">
+            <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300 flex items-center space-x-2 transition-all">
               <Info className="w-4 h-4 text-blue-500 shrink-0" />
               <span>{upstreamNotice}</span>
             </div>
           )}
 
-          {/* Token Streaming Response Viewer */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+          {/* Streaming Output Card */}
+          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2.5">
               <div className="flex items-center space-x-2 text-xs font-mono">
-                <Terminal className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
-                <span className="font-semibold text-slate-800 dark:text-slate-200">Streaming Output</span>
+                <Terminal className="w-3.5 h-3.5 text-blue-500" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">Execution Output</span>
                 {isGenerating && (
-                  <span className="flex items-center space-x-1 text-emerald-500 dark:text-emerald-400 text-[11px] animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                    <span>Live SSE Stream</span>
+                  <span className="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Streaming</span>
                   </span>
                 )}
               </div>
 
-              {/* Streaming Telemetry Stats */}
-              <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-500 dark:text-slate-400">
+              {/* Streaming Stats & Copy */}
+              <div className="flex items-center space-x-2.5 text-[11px] font-mono text-slate-400">
                 <span>{streamStats.tokens} tokens</span>
                 <span>•</span>
                 <span>{streamStats.tokensPerSec} t/s</span>
@@ -660,149 +654,148 @@ export function PlaygroundPage() {
                 {chatResponse && (
                   <button
                     onClick={copyToClipboard}
-                    className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer ml-1"
+                    className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
                     title="Copy output"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Chat Body */}
+            {/* Output Text View */}
             <div
               ref={chatOutputRef}
-              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 p-4 text-xs sm:text-sm font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-text transition-colors"
+              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800/80 p-3.5 text-xs font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-text transition-colors"
             >
               {chatResponse ? (
                 <span>{chatResponse}</span>
               ) : isGenerating ? (
-                <span className="text-slate-500 italic flex items-center space-x-2">
-                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping mr-2" />
+                <span className="text-slate-400 italic flex items-center space-x-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse mr-1.5" />
                   Connecting to upstream model stream...
                 </span>
               ) : (
-                <span className="text-slate-400 dark:text-slate-600 italic">
-                  Run prompt to view real-time token stream and latency breakdown...
+                <span className="text-slate-400 italic">
+                  Run prompt to view token-by-token output and decision rationale...
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Complexity Gauge & Routing Card & Interactive Pipeline Graph (5 Cols) */}
-        <div className="lg:col-span-5 space-y-5">
-          {/* Decision Fallback Alert Banner */}
+        {/* Right Column: Decision Intelligence Console (5 Cols) */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Decision Fallback / Status Alert */}
           {Boolean(evaluation?.isFallback || evaluation?.fallbackReason) ? (
-            <div className="rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 text-xs text-amber-700 dark:text-amber-300 flex items-start space-x-3 shadow-sm transition-all animate-in fade-in duration-200">
-              <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <div className="font-semibold text-amber-800 dark:text-amber-200 text-sm">
-                  D1 Decision Model Fallback Active
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 text-xs text-amber-700 dark:text-amber-300 flex items-start space-x-2.5 shadow-xs">
+              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+              <div className="space-y-0.5">
+                <div className="font-semibold text-amber-800 dark:text-amber-200 text-xs">
+                  Deterministic Fallback Active
                 </div>
-                <p className="text-amber-700/90 dark:text-amber-300/90 text-xs leading-relaxed">
+                <p className="text-amber-700/90 dark:text-amber-300/90 text-[11px] leading-snug">
                   {evaluation?.fallbackReason ||
-                    'Liquid D1 endpoint unreachable or exceeded timeout. Complexity score and routing were calculated using the deterministic heuristic fallback.'}
+                    'Liquid d1 unreachable or exceeded 10s timeout. Complexity and model choice calculated via heuristic rules.'}
                 </p>
               </div>
             </div>
           ) : evaluation ? (
-            <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-700 dark:text-emerald-300 flex items-center space-x-2.5 transition-all">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-              <span>
-                Verified Neural System One (Liquid d1) forward pass in{' '}
-                <strong>{evaluation.routingLatencyMs || 14} ms</strong>
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-xs text-emerald-700 dark:text-emerald-300 flex items-center space-x-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span className="font-mono text-[11px]">
+                Liquid d1 Neural Forward Pass: <strong>{evaluation.routingLatencyMs || 14} ms</strong>
               </span>
             </div>
           ) : null}
 
           {/* Interactive Decision Pipeline Node Graph */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                <GitBranch className="w-4 h-4 text-brand-600 dark:text-cyan-400" />
-                <span>Decision Flow Pipeline Graph</span>
+          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2">
+              <h2 className="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
+                <GitBranch className="w-3.5 h-3.5 text-blue-500" />
+                <span>Decision Flow Pipeline</span>
               </h2>
               <button
                 onClick={() => setShowGraph(!showGraph)}
-                className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1 cursor-pointer font-mono"
+                className="text-[11px] font-mono text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center space-x-1 cursor-pointer"
               >
                 <span>{showGraph ? 'Collapse' : 'Expand'}</span>
-                {showGraph ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                {showGraph ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               </button>
             </div>
 
             {showGraph && (
-              <div className="space-y-2 pt-1 font-mono text-xs">
+              <div className="space-y-1.5 pt-0.5 font-mono text-xs">
                 {/* Node 1: Ingestion */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1 relative">
-                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                    <span className="font-semibold text-brand-600 dark:text-cyan-400">1. Prompt State Ingestion</span>
-                    <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300">
+                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span className="font-semibold text-slate-900 dark:text-slate-200">1. Prompt State Ingestion</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                       ~{Math.round(prompt.length / 4)} tokens
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-600 dark:text-slate-400 truncate">
-                    Input: {prompt.slice(0, 50) || 'Waiting for prompt...'}
+                  <div className="text-[11px] text-slate-500 truncate">
+                    Input: {prompt.slice(0, 48) || 'Waiting for prompt...'}
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-400 dark:text-slate-600">
-                  <ArrowRight className="w-3.5 h-3.5 rotate-90" />
+                <div className="flex justify-center text-slate-300 dark:text-slate-700">
+                  <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 2: D1 System One Evaluation */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 relative">
+                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">2. Liquid D1 Decision Model</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">2. Liquid d1 Evaluation</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
                       Score: {score.toFixed(2)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 dark:text-slate-400">
+                  <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-500">
                     <div>Domain: <span className="text-slate-900 dark:text-slate-200 font-bold">{evaluation?.domain || 'general'}</span></div>
                     <div>Latency: <span className="text-slate-900 dark:text-slate-200 font-bold">{evaluation?.routingLatencyMs || 14}ms</span></div>
                     <div>Tools: <span className={evaluation?.requiresTools ? 'text-purple-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresTools ? 'Yes' : 'No'}</span></div>
-                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-cyan-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
+                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-blue-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-400 dark:text-slate-600">
-                  <ArrowRight className="w-3.5 h-3.5 rotate-90" />
+                <div className="flex justify-center text-slate-300 dark:text-slate-700">
+                  <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 3: Policy Engine */}
-                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 relative">
+                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-purple-600 dark:text-purple-400">3. Policy Engine Resolution</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20 uppercase">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20 uppercase">
                       {policy}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
-                    Evaluated against active candidate models matching score {score.toFixed(2)} with capability filters.
+                  <div className="text-[11px] text-slate-500 leading-snug">
+                    Evaluated against active models matching score {score.toFixed(2)} with capability requirements.
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-400 dark:text-slate-600">
-                  <ArrowRight className="w-3.5 h-3.5 rotate-90" />
+                <div className="flex justify-center text-slate-300 dark:text-slate-700">
+                  <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 4: Selected Target Model */}
-                <div className="p-3 rounded-xl bg-brand-500/10 border border-brand-500/30 text-brand-700 dark:text-cyan-300 space-y-1 relative">
+                <div className="p-2.5 rounded-lg bg-blue-50/60 dark:bg-[#171A24] border border-blue-500/30 text-blue-700 dark:text-blue-300 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-cyan-400" />
-                      <span>4. Selected Target Engine</span>
+                      <Sparkles className="w-3 h-3 text-blue-500" />
+                      <span>4. Target Engine Selected</span>
                     </span>
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 border border-brand-500/30">
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-white dark:bg-[#11131B] border border-blue-500/30">
                       {evaluation?.selectedModel?.provider || 'ollama'}
                     </span>
                   </div>
-                  <div className="text-xs font-bold text-brand-700 dark:text-cyan-300">
+                  <div className="text-xs font-bold text-blue-700 dark:text-blue-300">
                     {evaluation?.selectedModel?.display_name || 'Local Chat'} ({evaluation?.selectedModel?.upstream_model || 'lfm3:latest'})
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between pt-0.5">
+                  <div className="text-[10px] text-slate-500 flex items-center justify-between pt-0.5">
                     <span>Range: [{evaluation?.selectedModel?.complexity_range?.[0]?.toFixed(1)}, {evaluation?.selectedModel?.complexity_range?.[1]?.toFixed(1)}]</span>
                     <span>Cost: ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0}/1M</span>
                   </div>
@@ -811,84 +804,67 @@ export function PlaygroundPage() {
             )}
           </div>
 
-          {/* Real-time Complexity Score Gauge Card */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                <Gauge className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-                <span>Prompt Complexity Meter</span>
+          {/* Calibrated Complexity Spectrum Card */}
+          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2">
+              <h2 className="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
+                <Gauge className="w-3.5 h-3.5 text-blue-500" />
+                <span>Complexity Spectrum</span>
               </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                1.0 – 5.0 Scale
+              <span className="text-[11px] font-mono text-slate-400">
+                Score: <strong>{score.toFixed(2)}</strong> / 5.0
               </span>
             </div>
 
-            {/* Gauge Graphic & Score Display */}
-            <div className="rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 p-4 flex flex-col items-center justify-center space-y-3">
-              <div className="text-center space-y-1">
-                <div className="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-white flex items-center justify-center space-x-1">
+            {/* Readout & Meter */}
+            <div className="rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 p-3 flex flex-col items-center justify-center space-y-2.5">
+              <div className="text-center space-y-0.5">
+                <div className="text-3xl font-bold font-mono tracking-tight text-slate-900 dark:text-white">
                   <span className={scoreStyle.text}>{score.toFixed(2)}</span>
-                  <span className="text-lg text-slate-400 dark:text-slate-600 font-sans">/ 5.0</span>
+                  <span className="text-sm text-slate-400 font-sans font-normal ml-1">/ 5.0</span>
                 </div>
-                <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                  Tier: <span className={`font-semibold ${scoreStyle.text}`}>{scoreStyle.tier}</span>
+                <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {scoreStyle.tier}
                 </div>
               </div>
 
-              {/* Progress Gradient Bar */}
+              {/* Calibrated Bar with Ticks */}
               <div className="w-full space-y-1 pt-1">
-                <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden relative">
+                <div className="w-full h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-300 ${scoreStyle.bg}`}
+                    className={`h-full rounded transition-all duration-300 ${scoreStyle.bg}`}
                     style={{ width: `${scorePercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] font-mono text-slate-400 dark:text-slate-500 px-0.5">
-                  <span>1.0 Simple</span>
-                  <span>3.0 Standard</span>
-                  <span>5.0 Expert</span>
+                <div className="flex justify-between text-[10px] font-mono text-slate-400">
+                  <span>1.0 Local</span>
+                  <span>3.0 Mid-Tier</span>
+                  <span>5.0 Frontier</span>
                 </div>
-              </div>
-
-              {/* Confidence Rating */}
-              <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400 pt-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
-                <span>Confidence: {Math.round((evaluation?.confidence || 0.95) * 100)}%</span>
-                <span>•</span>
-                <span>Evaluated in {evaluation?.routingLatencyMs || 14} ms</span>
               </div>
             </div>
 
-            {/* Domain & Capability Classification Badges */}
-            <div className="space-y-2">
-              <span className="text-xs font-mono text-slate-400">Classified Attributes:</span>
-              <div className="flex flex-wrap gap-2">
-                <div className="px-3 py-1 rounded-lg bg-blue-950/50 border border-blue-500/30 text-blue-300 text-xs font-mono flex items-center space-x-1.5">
-                  <Cpu className="w-3.5 h-3.5" />
-                  <span>Domain: {evaluation?.domain || 'general'}</span>
-                </div>
-
-                <div
-                  className={`px-3 py-1 rounded-lg border text-xs font-mono flex items-center space-x-1.5 ${
-                    evaluation?.requiresTools
-                      ? 'bg-purple-950/50 border-purple-500/40 text-purple-300'
-                      : 'bg-slate-100 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  <Wrench className="w-3.5 h-3.5" />
-                  <span>Tools: {evaluation?.requiresTools ? 'Required' : 'Not Needed'}</span>
-                </div>
-
-                <div
-                  className={`px-3 py-1 rounded-lg border text-xs font-mono flex items-center space-x-1.5 ${
-                    evaluation?.requiresVision
-                      ? 'bg-cyan-950/50 border-cyan-500/40 text-cyan-300'
-                      : 'bg-slate-100 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
-                  }`}
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Vision: {evaluation?.requiresVision ? 'Required' : 'Not Needed'}</span>
-                </div>
+            {/* Classified Capabilities */}
+            <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
+              <div className="p-2 rounded bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                <div className="text-slate-400 text-[10px]">Domain</div>
+                <div className="font-bold">{evaluation?.domain || 'general'}</div>
+              </div>
+              <div className={`p-2 rounded border text-[11px] font-mono ${
+                evaluation?.requiresTools
+                  ? 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400 font-bold'
+                  : 'bg-slate-50 dark:bg-[#0D0F16] border-slate-200 dark:border-slate-800 text-slate-500'
+              }`}>
+                <div className="text-slate-400 text-[10px]">Tools</div>
+                <div>{evaluation?.requiresTools ? 'Required' : 'None'}</div>
+              </div>
+              <div className={`p-2 rounded border text-[11px] font-mono ${
+                evaluation?.requiresVision
+                  ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400 font-bold'
+                  : 'bg-slate-50 dark:bg-[#0D0F16] border-slate-200 dark:border-slate-800 text-slate-500'
+              }`}>
+                <div className="text-slate-400 text-[10px]">Vision</div>
+                <div>{evaluation?.requiresVision ? 'Required' : 'None'}</div>
               </div>
             </div>
           </div>

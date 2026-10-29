@@ -15,10 +15,10 @@ TKT_DEFAULT_ASSIGNEE="jarvis"
 TKT_PORT_BASE="8100"
 
 # Test command printed by `ticket.sh start`.
-TKT_TEST_CMD="pytest"
+TKT_TEST_CMD="npx vitest run"
 
 # DB migrate command used by db-create/merge. Empty = skip migrations.
 TKT_MIGRATE_CMD=""
 
 # Merge gate chain (single command string).
-TKT_GATE_CMD="pytest"
+TKT_GATE_CMD="npx vitest run"

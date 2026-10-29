@@ -1,520 +1,349 @@
-# Architecture Specification & Implementation Plan: D1-Powered Complexity Model Router
+# Architecture Specification & Implementation Plan: D1-Powered Complexity Model Router (Hono + TanStack)
 
-> **For Hermes / Implementer:** Use the `subagent-driven-development` skill to execute this plan task-by-task with strict TDD discipline.
+> **For Hermes / Implementer:** Use the `ticket-driven-parallel-development` or `subagent-driven-development` workflow to execute this plan task-by-task on dedicated feature branches with strict TDD discipline (`vitest`).
 
-**Goal:** Membangun reverse proxy dan platform routing model AI berlatensi rendah yang mengevaluasi kompleksitas prompt secara dinamis menggunakan Decision Model System One (Liquid AI `d1` via `/v1/systemone`), mencocokkannya ke Model Registry berbasis kapabilitas/tag/biaya, dan mengekspos endpoint ganda berstandar OpenAI (`/v1/chat/completions`) dan Anthropic (`/v1/messages`) yang mendukung bidirectional streaming SSE untuk harness seperti Hermes Agent, Claude Code, dan OpenCode.
+**Goal:** Membangun reverse proxy dan platform routing model AI berlatensi rendah (<30ms) yang mengevaluasi kompleksitas prompt secara dinamis menggunakan Decision Model System One (Liquid AI `d1` via `/v1/systemone`), mencocokkannya ke Model Registry berbasis kapabilitas/tag/biaya, dan menyediakan Web UI interaktif (TanStack Router + Tailwind) serta endpoint ganda berstandar OpenAI (`/v1/chat/completions`) dan Anthropic (`/v1/messages`) yang mendukung bidirectional streaming SSE untuk harness seperti Hermes Agent, Claude Code, dan OpenCode.
 
-**Architecture:** Arsitektur modular berbasis Event/Stream Gateway (FastAPI + Pydantic v2 + HTTPX) yang menormalisasi request masuk ke format kanonikal internal (`CanonicalRequest`), mengevaluasi kompleksitas dan domain tugas secara instan (<30ms) melalui *single forward pass* model `d1` (Ollama/Liquid), memilih model optimal dari Model Registry terindeks tag melalui *Policy Engine*, dan meneruskan request ke upstream LLM (lokal/cloud) dengan *Universal Protocol Transcoder* untuk *zero-buffering* SSE streaming pass-through.
+**Architecture:** Arsitektur monolitik modular terintegrasi dalam Pure TypeScript. Backend API dibangun menggunakan **Hono** (Web Standard `Request`/`Response`/`ReadableStream` via `@hono/node-server`) untuk zero-overhead routing dan stream transcoding; Frontend dibangun menggunakan **Vite + TanStack Router + Tailwind CSS** untuk dashboard telemetri, live complexity visualizer, dan interactive chat playground. Seluruh sistem berjalan pada satu port (default: 8100) dan satu proses Node.js.
 
-**Tech Stack:** Python 3.11+, FastAPI, Pydantic v2, HTTPX (Async Client with Connection Pooling), PyYAML, SQLite / In-Memory Indexed Registry, Pytest + Pytest-Asyncio.
-
----
-
-## 1. Analisis Kebutuhan Sistem Mendalam (System Requirements Analysis)
-
-### 1.1 Masalah Utama Arsitektur Eksisting (The Problem Statement)
-1. **Inefisiensi Biaya Frontier LLM:** Penggunaan model penalaran kelas atas (Claude 3.5 Sonnet, GPT-4o, O1) untuk tugas sepele (greeting, ekstraksi teks sederhana, formatting JSON, chit-chat) menghabiskan kuota dan anggaran API hingga 70-80% lebih boros dari yang seharusnya.
-2. **Keterbatasan Router Konvensional:**
-   - *Regex / Keyword Router:* Terlalu rapuh dan buta konteks semantik.
-   - *Embedding / Vector Distance Router:* Lambat (overhead 80-150ms), tidak memahami instruksi bertingkat, dan tidak memiliki kalibrasi kepastian.
-   - *Generative LLM Router (Classifier via SLM):* Memerlukan *token generation* (50-200 token), menambah latensi 300-800ms sebelum model utama mulai berpikir, serta rawan kegagalan parsing format JSON.
-3. **Fragmentasi Protokol Harness AI:**
-   - Alat seperti **Claude Code** secara native mengharuskan format Anthropic (`/v1/messages` dengan `content_block_delta` SSE streaming).
-   - Alat seperti **Hermes Agent**, **OpenCode**, **Cursor**, dan **Aider** dominan menggunakan protokol OpenAI (`/v1/chat/completions` dengan format delta choices).
-   - Sistem membutuhkan gateway yang mampu menerima kedua standar dan meneruskannya ke model apapun tanpa memaksa harness mengubah implementasi internalnya.
+**Tech Stack:** TypeScript 5.x, Hono v4, Vite 5.x, TanStack Router, TanStack Query, Zod v3, eventsource-parser, Tailwind CSS, Lucide Icons, Vitest.
 
 ---
 
-### 1.2 Kebutuhan Fungsional (Functional Requirements)
+## 1. Analisis Kebutuhan Sistem & Deployment
+
+### 1.1 Model Deployment (Sangat Sederhana & Mandiri)
+
+Pertanyaan utama: *Apakah deployment Hono + TanStack mudah?*
+**Jawabannya: Sangat mudah.** Dibandingkan Next.js yang membutuhkan tracing file `.next/standalone` atau platform spesifik seperti Vercel, Hono + TanStack menghasilkan **satu file bundle server tunggal dan satu folder statis**.
+
+Pola Deployment Produksi:
+1. **Single Node Process (Bare-metal / VPS / macOS launchd):**
+   ```bash
+   npm run build
+   # 1. Vite membangun frontend ke: dist/client
+   # 2. Esbuild/Tsup membangun backend Hono ke: dist/server.js
+   
+   node dist/server.js
+   # Mendengarkan pada port 8100.
+   # Rute /v1/* dilayani oleh engine Hono API.
+   # Rute /* menyajikan file statis dari dist/client (SPA TanStack Router).
+   ```
+2. **Docker Container Ringan (~90MB Alpine):**
+   * Multi-stage build (Node Alpine builder -> minimal Node runtime).
+   * Tidak ada build lock-in platform.
+3. **Zero Database Heavy-Lifting:**
+   * Registry model disimpan dalam YAML (`config/registry.yaml`) dan di-cache in-memory.
+   * Telemetri disimpan dalam SQLite lokal (`data/metrics.db`) atau in-memory circular buffer.
+
+---
+
+### 1.2 Matriks Kebutuhan Fungsional (Functional Requirements)
 
 | Kode | Kebutuhan | Deskripsi Teknis |
 | :--- | :--- | :--- |
-| **FR-01** | **OpenAI Ingestion API** | Menyediakan `POST /v1/chat/completions` dan `GET /v1/models` yang 100% kompatibel dengan spesifikasi OpenAI, mendukung `stream: true/false`, function/tool calling, serta image input. |
-| **FR-02** | **Anthropic Ingestion API** | Menyediakan `POST /v1/messages` yang kompatibel dengan protokol Anthropic Messages API v1, mendukung streaming SSE event-based (`message_start`, `content_block_delta`, `message_delta`, `message_stop`). |
-| **FR-03** | **Decision Engine (Liquid `d1`)** | Terkoneksi ke Ollama `/v1/systemone` (atau remote Liquid API) untuk menjalankan evaluasi terstruktur dalam satu forward pass (Score untuk kompleksitas, Choice untuk domain, Noul untuk kebutuhan tools/vision). |
-| **FR-04** | **Model Registry & Dynamic Tagging** | Menyimpan katalog model lengkap dengan metadata: `id`, `provider`, `upstream_model`, `base_url`, `api_key_env`, `complexity_range`, `capabilities` (`tools`, `vision`, `streaming`), `cost`, dan `tags`. |
-| **FR-05** | **Policy-Driven Routing Engine** | Algoritma pencocokan yang memetakan skor `d1` dan tag request ke model terbaik berdasarkan strategi: `BALANCED`, `COST_OPTIMIZED`, `PERFORMANCE`, atau `LOCAL_FIRST`. |
-| **FR-06** | **Universal Protocol Transcoder** | Menerjemahkan request & streaming response secara dinamis: Client OpenAI $\leftrightarrow$ Upstream Anthropic, atau Client Anthropic $\leftrightarrow$ Upstream OpenAI/Ollama secara real-time. |
-| **FR-07** | **Zero-Buffer SSE Streaming** | Menyalurkan chunk token langsung dari upstream ke client secara non-blocking (*async generator*) dengan latensi penambahan < 5ms. |
-| **FR-08** | **Observability & Telemetry Headers** | Menyuntikkan custom headers pada response: `X-D1-Complexity-Score`, `X-D1-Domain`, `X-D1-Selected-Model`, `X-D1-Routing-Latency-Ms`, serta mencatat metrik penghematan biaya. |
-| **FR-09** | **Resilience & Fallback Engine** | Jika model `d1` lokal gagal/timeout (>150ms), fallback otomatis ke rule-based heuristic classifier (token count + regex heuristic) tanpa menggagalkan request pengguna. |
+| **FR-01** | **OpenAI Ingestion API** | Endpoint `POST /v1/chat/completions` & `GET /v1/models` yang 100% kompatibel dengan spesifikasi OpenAI, validasi payload via Zod, mendukung streaming `stream: true` SSE and non-streaming. |
+| **FR-02** | **Anthropic Ingestion API** | Endpoint `POST /v1/messages` kompatibel dengan protokol Anthropic Messages API v1 (`messages`, `system`, `tools`, `content_block_delta` SSE streaming). |
+| **FR-03** | **Decision Engine (Liquid `d1`)** | Terkoneksi ke Ollama `/v1/systemone` lokal (atau hosted API) via native `fetch()` + `AbortSignal.timeout(150ms)` untuk evaluasi `Score` (kompleksitas 1-5), `Choice` (domain), dan `Noul` (tools/vision). |
+| **FR-04** | **Model Registry & Dynamic Tagging** | Katalog model terstruktur (YAML) dengan metadata: `id`, `provider`, `upstream_model`, `base_url`, `api_key_env`, `complexity_range`, `capabilities`, `cost`, dan `tags`. |
+| **FR-05** | **Policy-Driven Routing Engine** | Algoritma matematis untuk memetakan hasil evaluasi `d1` ke model terbaik berdasarkan strategi: `balanced`, `cost_optimized`, `quality_max`, atau `local_first`. |
+| **FR-06** | **Bidirectional SSE Transcoder** | Mentranslasikan event chunk streaming secara real-time via `TransformStream` dan `eventsource-parser`: Client OpenAI <-> Upstream Anthropic, Client Anthropic <-> Upstream OpenAI/Ollama. |
+| **FR-07** | **Zero-Buffer Streaming Proxy** | Menyalurkan token dari upstream ke client secara non-blocking dengan penambahan latensi <= 1 ms dan otomatis abort stream upstream jika client disconnect. |
+| **FR-08** | **Observability Telemetry** | Injeksi response headers: `X-D1-Complexity-Score`, `X-D1-Domain`, `X-D1-Selected-Model`, `X-D1-Routing-Latency-Ms`. |
+| **FR-09** | **Web UI Dashboard & Playground** | SPA TanStack Router: <br>1. *Live Complexity Meter* (visual gauge skor 1-5).<br>2. *Chat Playground* token-by-token.<br>3. *Registry Viewer & Tag Explorer*.<br>4. *Cost Savings Estimator*. |
+| **FR-10** | **Resilience & Fallback Engine** | Jika `d1` lokal gagal/timeout (>150ms), fallback otomatis ke rule-based heuristic classifier (token count, deteksi blok kode, tool signatures). |
 
 ---
 
-### 1.3 Kebutuhan Non-Fungsional (Non-Functional Requirements)
-
-1. **Routing Overhead Latency:** Maksimal $\le 50\text{ ms}$ untuk evaluasi `d1` lokal di atas Metal/GPU Apple Silicon.
-2. **High Concurrency & Low Memory Footprint:** Arsitektur full asynchronous non-blocking I/O (`asyncio` + `httpx.AsyncClient` dengan connection pool reuse).
-3. **Zero External DB Dependency for Core Routing:** Model registry disimpan dalam YAML/JSON yang dimuat ke in-memory index (*thread-safe read-heavy data structure*), opsional persistensi SQLite untuk log audit.
-4. **Reliability & Idempotency:** Graceful handling untuk upstream disconnection, timeout, rate limit (HTTP 429), dan token context overflow.
-
----
-
-## 2. Arsitektur Sistem & Spesifikasi Komponen
+## 2. Arsitektur Komponen & Struktur Direktori
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          AI CLIENT HARNESSES                                │
-│   [Hermes Agent]          [Claude Code]           [OpenCode / Cursor]       │
-│  (OpenAI Protocol)     (Anthropic Protocol)      (OpenAI / Custom API)      │
-└──────────────┬───────────────────┬───────────────────────────┬──────────────┘
-               │                   │                           │
-               ▼                   ▼                           ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    D1 COMPLEXITY ROUTER GATEWAY                             │
-│                                                                             │
-│  ┌─────────────────────────┐             ┌─────────────────────────┐        │
-│  │ OpenAI Ingestion Route  │             │ Anthropic Ingest Route  │        │
-│  │ POST /v1/chat/complet's │             │ POST /v1/messages       │        │
-│  └───────────┬─────────────┘             └───────────┬─────────────┘        │
-│              │                                       │                      │
-│              └───────────────────┬───────────────────┘                      │
-│                                  ▼                                          │
-│                   ┌─────────────────────────────┐                           │
-│                   │ Protocol Normalizer Adapter │                           │
-│                   │  -> CanonicalRequest        │                           │
-│                   └──────────────┬──────────────┘                           │
-│                                  │                                          │
-│                 ┌────────────────┴────────────────┐                         │
-│                 ▼                                 ▼                         │
-│  ┌───────────────────────────────┐  ┌───────────────────────────────────┐   │
-│  │   D1 DECISION EVALUATOR       │  │       MODEL REGISTRY & TAGS       │   │
-│  │   (Liquid AI / System One)    │  │   - Capability & Tag Index        │   │
-│  │ - State Formatter             │  │   - Complexity Range Mapping      │   │
-│  │ - Score: Complexity (1 - 5)   │  │   - Cost & Provider Configs       │   │
-│  │ - Choice: Domain classification│ └─────────────────┬─────────────────┘   │
-│  │ - Noul: Needs Tools / Vision  │                   │                     │
-│  └──────────────┬────────────────┘                   │                     │
-│                 │ (Evaluation Result)                │                     │
-│                 └────────────────►┌──────────────────▼┐                     │
-│                                   │   POLICY ROUTER   │                     │
-│                                   │ - Matcher Engine  │                     │
-│                                   │ - Selects Target  │                     │
-│                                   └─────────┬─────────┘                     │
-│                                             │ (Selected Target Model)       │
-│                                             ▼                               │
-│                         ┌──────────────────────────────────────┐            │
-│                         │   UPSTREAM DISPATCHER & PROXY        │            │
-│                         │   - Target Protocol Translation      │            │
-│                         │   - HTTPX Streaming Connection Pool  │            │
-│                         └───────────────────┬──────────────────┘            │
-│                                             │                               │
-│                                             ▼                               │
-│                         ┌──────────────────────────────────────┐            │
-│                         │     STREAM TRANSCODER (SSE)          │            │
-│                         │ Transcodes Upstream SSE Chunk ->     │            │
-│                         │ Native Client SSE Format Real-time   │            │
-│                         └───────────────────┬──────────────────┘            │
-└─────────────────────────────────────────────┼───────────────────────────────┘
-                                              │
-                    ┌─────────────────────────┴────────────────────────┐
-                    ▼                                                  ▼
-      ┌───────────────────────────┐                      ┌───────────────────────────┐
-      │  LOCAL UPSTREAM PROVIDER  │                      │  CLOUD UPSTREAM PROVIDER  │
-      │  - Ollama (lfm3, qwen)    │                      │  - Anthropic API          │
-      │  - Local vLLM Engine      │                      │  - OpenAI / OpenRouter    │
-      └───────────────────────────┘                      └───────────────────────────┘
+modelrouter/
+├── config/
+│   └── registry.yaml              # Definisi model, tag, range kompleksitas, dan harga
+├── src/
+│   ├── core/
+│   │   ├── config.ts              # Variabel lingkungan & app settings via Zod
+│   │   ├── types.ts               # Tipe kanonikal internal (CanonicalRequest, CanonicalMessage)
+│   │   └── telemetry.ts           # Logger & metrik latensi/biaya
+│   ├── engine/
+│   │   ├── d1-client.ts           # Client HTTP untuk Ollama /v1/systemone
+│   │   ├── evaluator.ts           # Formatter state prompt & typed questions
+│   │   ├── registry.ts            # Aggregate ModelRegistry & Tag Matcher
+│   │   └── policy-engine.ts       # Strategi routing (balanced, cost, quality, local)
+│   ├── adapters/
+│   │   ├── openai-adapter.ts      # Parser & serializer format OpenAI
+│   │   ├── anthropic-adapter.ts   # Parser & serializer format Anthropic
+│   │   └── sse-transcoder.ts      # TransformStream SSE OpenAI <-> Anthropic
+│   ├── proxy/
+│   │   └── forwarder.ts           # Upstream HTTP fetcher & stream pipe
+│   ├── api/
+│   │   ├── routes-openai.ts       # Hono routes: /v1/chat/completions, /v1/models
+│   │   ├── routes-anthropic.ts    # Hono routes: /v1/messages
+│   │   └── server.ts              # Hono application root & static file server
+│   └── web/                       # Frontend SPA (TanStack Router + Tailwind)
+│       ├── routes/
+│       │   ├── __root.tsx         # App layout (navbar, theme, status indicator)
+│       │   ├── index.tsx          # Dashboard (metrik & routing analytics)
+│       │   ├── playground.tsx     # Live Chat & Complexity Inspector
+│       │   └── registry.tsx       # Model Registry & Tag Manager
+│       ├── components/            # UI components (Gauge, ChatMessage, KebabMenu)
+│       └── main.tsx               # Client entrypoint
+├── tests/
+│   ├── unit/
+│   │   ├── canonical.test.ts
+│   │   ├── d1-client.test.ts
+│   │   ├── registry.test.ts
+│   │   ├── policy-engine.test.ts
+│   │   ├── adapters.test.ts
+│   │   └── sse-transcoder.test.ts
+│   └── integration/
+│       ├── openai-gateway.test.ts
+│       └── anthropic-gateway.test.ts
+├── vite.config.ts                 # Konfigurasi Vite & TanStack Router plugin
+├── vitest.config.ts               # Runner test Vitest
+├── package.json
+├── tsconfig.json
+└── scripts/
+    ├── ticket.sh
+    ├── merge-tickets.sh
+    └── ticket.config.sh
 ```
 
 ---
 
-## 3. Spesifikasi Protokol & Kontrak Data
+## 3. Rencana Kerja Implementasi Bertahap (Bite-Sized Tasks)
 
-### 3.1 Kontrak Evaluasi System One `d1` (Ollama `/v1/systemone`)
+### Phase 1: Inisialisasi Foundation & Konfigurasi Lingkungan
 
-* **Endpoint:** `POST http://localhost:11434/v1/systemone`
-* **Request Payload:**
+#### Task 1.1: Package Manifest, TypeScript & Vitest Configuration
+**Objective:** Mengonfigurasi `package.json`, `tsconfig.json`, dan `vitest.config.ts` untuk pengujian TDD berbasis Vitest.
+**Files:**
+- Create: `package.json`
+- Create: `tsconfig.json`
+- Create: `vitest.config.ts`
+- Create: `.env.example`
+- Create: `config/registry.yaml`
+
+**Step 1: Write `package.json`**
 ```json
 {
-  "model": "d1:latest",
-  "state": "User message + system instructions + tool signatures",
-  "questions": {
-    "complexity": {
-      "type": "score",
-      "instructions": "Rate the intellectual and technical complexity of this task on a scale from 1 (trivial/greetings) to 5 (deep reasoning/complex architecture).",
-      "criteria": [
-        "Level 1: Trivial greetings, chit-chat, simple formatting",
-        "Level 2: Basic rewrite, single-fact lookup, translation",
-        "Level 3: Standard code function, single tool call, structured data parsing",
-        "Level 4: Complex multi-file algorithm, deep debugging, architectural design",
-        "Level 5: Formal mathematical proof, intricate concurrency, distributed systems"
-      ]
-    },
-    "domain": {
-      "type": "choice",
-      "instructions": "What is the primary technical domain of this prompt?",
-      "criteria": {
-        "coding": "Writing, refactoring, or analyzing software code and scripts",
-        "reasoning": "Mathematical logic, formal verification, or complex deduction",
-        "tools": "Agentic execution, tool chaining, file system operations",
-        "general": "Casual conversation, translation, creative writing, or general knowledge"
-      }
-    },
-    "requires_tools": {
-      "type": "noul",
-      "instructions": "Does this request explicitly require executing external tools or calling APIs?"
-    },
-    "requires_vision": {
-      "type": "noul",
-      "instructions": "Does this request contain or reference images or visual artifacts?"
-    }
+  "name": "modelrouter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && esbuild src/api/server.ts --bundle --platform=node --format=esm --outfile=dist/server.js",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@tanstack/react-query": "^5.59.0",
+    "@tanstack/react-router": "^1.65.0",
+    "clsx": "^2.1.1",
+    "eventsource-parser": "^2.0.1",
+    "hono": "^4.6.4",
+    "lucide-react": "^0.453.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4",
+    "yaml": "^2.5.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tanstack/router-vite-plugin": "^1.65.0",
+    "@types/node": "^22.7.5",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "esbuild": "^0.24.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8",
+    "vitest": "^2.1.2"
   }
 }
 ```
 
-* **Response Output:**
-```json
-{
-  "model": "d1:latest",
-  "answers": {
-    "complexity": {
-      "type": "score",
-      "score": 3.42,
-      "probabilities": { "0": 0.01, "1": 0.04, "2": 0.15, "3": 0.48, "4": 0.32 },
-      "confidence": 0.52
-    },
-    "domain": {
-      "type": "choice",
-      "choice": "coding",
-      "probabilities": { "coding": 0.98, "reasoning": 0.01, "tools": 0.005, "general": 0.005 },
-      "confidence": 0.97
-    },
-    "requires_tools": {
-      "type": "noul",
-      "probability": 0.88
-    },
-    "requires_vision": {
-      "type": "noul",
-      "probability": 0.02
-    }
+**Step 2: Write `vitest.config.ts`**
+```typescript
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    include: ['tests/**/*.test.ts'],
   },
-  "usage": { "input_tokens": 184, "output_tokens": 0 }
-}
-```
-
----
-
-### 3.2 Struktur Model Registry (`config/registry.yaml`)
-
-```yaml
-version: "1.0"
-default_policy: "balanced" # balanced | cost_optimized | quality_max | local_first
-
-models:
-  # --- Tier 1: Local / Fast SLM (Complexity 0.0 - 1.8) ---
-  - id: "lfm3-local"
-    display_name: "Liquid LFM3 2.6B (Local)"
-    provider: "ollama"
-    upstream_model: "lfm3:latest"
-    base_url: "http://localhost:11434/v1"
-    api_key_env: null
-    complexity_range: [0.0, 1.8]
-    tags: ["local", "fast", "low_cost", "chat"]
-    capabilities:
-      tools: true
-      vision: false
-      max_context: 65536
-      streaming: true
-    cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  # --- Tier 2: Mid-tier Coding & Reasoning (Complexity 1.5 - 3.2) ---
-  - id: "qwen-coder-local"
-    display_name: "Qwen 2.5 Coder 7B (Local)"
-    provider: "ollama"
-    upstream_model: "qwen2.5-coder:7b"
-    base_url: "http://localhost:11434/v1"
-    api_key_env: null
-    complexity_range: [1.5, 3.2]
-    tags: ["local", "coding", "tools"]
-    capabilities:
-      tools: true
-      vision: false
-      max_context: 32768
-      streaming: true
-    cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  # --- Tier 3: High-efficiency Cloud (Complexity 2.0 - 3.8) ---
-  - id: "gpt-4o-mini"
-    display_name: "OpenAI GPT-4o Mini"
-    provider: "openai"
-    upstream_model: "gpt-4o-mini"
-    base_url: "https://api.openai.com/v1"
-    api_key_env: "OPENAI_API_KEY"
-    complexity_range: [2.0, 3.8]
-    tags: ["cloud", "balanced", "tools", "vision"]
-    capabilities:
-      tools: true
-      vision: true
-      max_context: 128000
-      streaming: true
-    cost:
-      input_per_mtoken: 0.15
-      output_per_mtoken: 0.60
-
-  # --- Tier 4: Frontier Coding & Complex Architecture (Complexity 3.5 - 5.0) ---
-  - id: "claude-3-5-sonnet"
-    display_name: "Anthropic Claude 3.5 Sonnet"
-    provider: "anthropic"
-    upstream_model: "claude-3-5-sonnet-20241022"
-    base_url: "https://api.anthropic.com/v1"
-    api_key_env: "ANTHROPIC_API_KEY"
-    complexity_range: [3.5, 5.0]
-    tags: ["cloud", "frontier", "coding", "reasoning", "vision", "tools"]
-    capabilities:
-      tools: true
-      vision: true
-      max_context: 200000
-      streaming: true
-    cost:
-      input_per_mtoken: 3.00
-      output_per_mtoken: 15.00
-```
-
----
-
-## 4. Modul Dependencies & Ekosistem
-
-File: `pyproject.toml`
-```toml
-[project]
-name = "d1-model-router"
-version = "0.1.0"
-description = "System One (Liquid d1) Dynamic Complexity Model Router"
-authors = [{ name = "Fikri Anggara" }]
-requires-python = ">=3.11"
-dependencies = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.30.0",
-    "pydantic>=2.8.0",
-    "pydantic-settings>=2.4.0",
-    "httpx[http2]>=0.27.0",
-    "pyyaml>=6.0.2",
-    "python-dotenv>=1.0.1",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.3.0",
-    "pytest-asyncio>=0.24.0",
-    "pytest-mock>=3.14.0",
-    "respx>=0.21.1", # Mocking HTTPX async requests
-]
-
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-testpaths = ["tests"]
-```
-
----
-
-## 5. Rencana Kerja Implementasi Bertahap (Bite-Sized Tasks)
-
-### Phase 1: Foundation & Core Configuration
-
-#### Task 1.1: Project Directory Structure & Dependencies
-**Objective:** Menginisialisasi direktori project, konfigurasi environment, dan dependency lock.
-**Files:**
-- Create: `pyproject.toml`
-- Create: `.env.example`
-- Create: `config/registry.yaml`
-- Create: `src/__init__.py`
-
-**Step 1: Write pyproject.toml**
-```toml
-[project]
-name = "d1-model-router"
-version = "0.1.0"
-dependencies = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.30.0",
-    "pydantic>=2.8.0",
-    "pydantic-settings>=2.4.0",
-    "httpx[http2]>=0.27.0",
-    "pyyaml>=6.0.2",
-    "python-dotenv>=1.0.1",
-]
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.3.0",
-    "pytest-asyncio>=0.24.0",
-    "respx>=0.21.1",
-]
-[tool.pytest.ini_options]
-asyncio_mode = "auto"
-```
-
-**Step 2: Write .env.example**
-```bash
-ROUTER_HOST=0.0.0.0
-ROUTER_PORT=8000
-D1_ENDPOINT=http://localhost:11434/v1/systemone
-D1_MODEL=d1:latest
-D1_TIMEOUT_SECONDS=0.15
-DEFAULT_POLICY=balanced
-FALLBACK_MODEL_ID=lfm3-local
-OPENAI_API_KEY=
-ANTHROPIC_API_KEY=
-OPENROUTER_API_KEY=
+});
 ```
 
 **Step 3: Verification command**
-Run: `python3 -m pip install -e ".[dev]" --dry-run`
-Expected: Valid pyproject dependencies resolved.
+Run: `npm install && npx vitest run`
+Expected: Vitest initializes successfully (0 tests found or all pass).
 
 ---
 
-#### Task 1.2: App Settings & Configuration Loader
-**Objective:** Membangun `src/core/config.py` menggunakan Pydantic Settings untuk validasi variabel lingkungan.
+#### Task 1.2: Environment Settings Loader via Zod
+**Objective:** Membangun `src/core/config.ts` yang memvalidasi environment variable dengan tipe ketat (*strict types*).
 **Files:**
-- Create: `src/core/config.py`
-- Test: `tests/unit/test_config.py`
+- Create: `src/core/config.ts`
+- Test: `tests/unit/config.test.ts`
 
 **Step 1: Write failing test**
-```python
-# tests/unit/test_config.py
-from src.core.config import Settings
+```typescript
+// tests/unit/config.test.ts
+import { describe, it, expect } from 'vitest';
+import { loadConfig } from '../../src/core/config';
 
-def test_settings_default_values():
-    settings = Settings(D1_ENDPOINT="http://localhost:11434/v1/systemone")
-    assert settings.ROUTER_PORT == 8000
-    assert settings.D1_MODEL == "d1:latest"
-    assert settings.DEFAULT_POLICY == "balanced"
-    assert settings.D1_TIMEOUT_SECONDS == 0.15
+describe('App Config', () => {
+  it('should load default configuration values', () => {
+    const config = loadConfig({});
+    expect(config.PORT).toBe(8100);
+    expect(config.D1_ENDPOINT).toBe('http://localhost:11434/v1/systemone');
+    expect(config.D1_MODEL).toBe('d1:latest');
+    expect(config.DEFAULT_POLICY).toBe('balanced');
+  });
+});
 ```
 
 **Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_config.py -v`
-Expected: FAIL (`ModuleNotFoundError: No module named 'src.core'`)
+Run: `npx vitest run tests/unit/config.test.ts`
+Expected: FAIL (`Cannot find module '../../src/core/config'`)
 
-**Step 3: Write minimal implementation**
-```python
-# src/core/config.py
-from pydantic_settings import BaseSettings
-from typing import Optional
+**Step 3: Minimal implementation**
+```typescript
+// src/core/config.ts
+import { z } from 'zod';
 
-class Settings(BaseSettings):
-    ROUTER_HOST: str = "0.0.0.0"
-    ROUTER_PORT: int = 8000
-    D1_ENDPOINT: str = "http://localhost:11434/v1/systemone"
-    D1_MODEL: str = "d1:latest"
-    D1_TIMEOUT_SECONDS: float = 0.15
-    DEFAULT_POLICY: str = "balanced"
-    FALLBACK_MODEL_ID: str = "lfm3-local"
-    REGISTRY_CONFIG_PATH: str = "config/registry.yaml"
-    
-    OPENAI_API_KEY: Optional[str] = None
-    ANTHROPIC_API_KEY: Optional[str] = None
-    OPENROUTER_API_KEY: Optional[str] = None
+const ConfigSchema = z.object({
+  PORT: z.coerce.number().default(8100),
+  HOST: z.string().default('0.0.0.0'),
+  D1_ENDPOINT: z.string().default('http://localhost:11434/v1/systemone'),
+  D1_MODEL: z.string().default('d1:latest'),
+  D1_TIMEOUT_MS: z.coerce.number().default(150),
+  DEFAULT_POLICY: z.enum(['balanced', 'cost_optimized', 'quality_max', 'local_first']).default('balanced'),
+  FALLBACK_MODEL_ID: z.string().default('lfm3-local'),
+  REGISTRY_PATH: z.string().default('config/registry.yaml'),
+  OPENAI_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
+  OPENROUTER_API_KEY: z.string().optional(),
+});
 
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
+export type AppConfig = z.infer<typeof ConfigSchema>;
 
-settings = Settings()
+export function loadConfig(env: Record<string, string | undefined> = process.env): AppConfig {
+  return ConfigSchema.parse(env);
+}
+
+export const config = loadConfig();
 ```
 
 **Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_config.py -v`
-Expected: PASS (1 passed)
-
----
-
-### Phase 2: Domain Layer — Canonical Schema & Model Registry
-
-#### Task 2.1: Canonical Request & Message Representation
-**Objective:** Membuat model kanonikal internal `CanonicalRequest` yang mengabstraksi perbedaan OpenAI dan Anthropic.
-**Files:**
-- Create: `src/domain/canonical.py`
-- Test: `tests/unit/test_canonical.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_canonical.py
-from src.domain.canonical import CanonicalRequest, CanonicalMessage
-
-def test_canonical_request_state_extraction():
-    req = CanonicalRequest(
-        messages=[
-            CanonicalMessage(role="system", content="You are a helpful coding assistant."),
-            CanonicalMessage(role="user", content="Write a quicksort in Python.")
-        ],
-        stream=True,
-        tools=[{"name": "execute_code", "description": "Runs code"}]
-    )
-    assert req.stream is True
-    assert len(req.messages) == 2
-    state_str = req.extract_eval_state()
-    assert "quicksort in Python" in state_str
-    assert "execute_code" in state_str
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_canonical.py -v`
-Expected: FAIL (`ModuleNotFoundError`)
-
-**Step 3: Write minimal implementation**
-```python
-# src/domain/canonical.py
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional, Union
-
-class CanonicalToolCall(BaseModel):
-    id: str
-    name: str
-    arguments: str
-
-class CanonicalMessage(BaseModel):
-    role: str # "system", "user", "assistant", "tool"
-    content: Union[str, List[Dict[str, Any]]]
-    name: Optional[str] = None
-    tool_calls: Optional[List[CanonicalToolCall]] = None
-    tool_call_id: Optional[str] = None
-
-class CanonicalRequest(BaseModel):
-    messages: List[CanonicalMessage]
-    model_override: Optional[str] = None
-    policy: Optional[str] = None
-    stream: bool = False
-    temperature: Optional[float] = 0.7
-    max_tokens: Optional[int] = None
-    tools: Optional[List[Dict[str, Any]]] = None
-    extra_params: Dict[str, Any] = Field(default_factory=dict)
-
-    def extract_eval_state(self, max_chars: int = 4000) -> str:
-        """Ekstraksi state ringkas untuk input System One d1."""
-        lines = []
-        for m in self.messages[-4:]: # Ambil 4 message terakhir
-            content_text = m.content if isinstance(m.content, str) else str(m.content)
-            lines.append(f"[{m.role.upper()}]: {content_text}")
-        if self.tools:
-            tool_names = [t.get("name") or t.get("function", {}).get("name", "") for t in self.tools]
-            lines.append(f"[AVAILABLE_TOOLS]: {', '.join(tool_names)}")
-        full_text = "\n".join(lines)
-        return full_text[-max_chars:] if len(full_text) > max_chars else full_text
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_canonical.py -v`
+Run: `npx vitest run tests/unit/config.test.ts`
 Expected: PASS
 
 ---
 
-#### Task 2.2: Model Registry & Capability Matching
-**Objective:** Membangun `ModelRegistry` yang memuat konfigurasi model, mengindeks tag, dan memfilter kandidat model berdasarkan kapabilitas.
+### Phase 2: Domain Layer — Canonical Data Structures & Model Registry
+
+#### Task 2.1: Canonical Request & Message Model
+**Objective:** Mengabstraksikan request masuk dari OpenAI dan Anthropic ke dalam representasi kanonikal `CanonicalRequest` dan fungsi ekstraksi `extractState()`.
 **Files:**
-- Create: `src/domain/registry.py`
-- Test: `tests/unit/test_registry.py`
+- Create: `src/core/types.ts`
+- Test: `tests/unit/canonical.test.ts`
 
 **Step 1: Write failing test**
-```python
-# tests/unit/test_registry.py
-from src.domain.registry import ModelRegistry, ModelSpec
+```typescript
+// tests/unit/canonical.test.ts
+import { describe, it, expect } from 'vitest';
+import { CanonicalRequest } from '../../src/core/types';
 
-SAMPLE_YAML = """
+describe('CanonicalRequest', () => {
+  it('should extract evaluation state accurately', () => {
+    const req: CanonicalRequest = {
+      messages: [
+        { role: 'system', content: 'You are an expert engineer.' },
+        { role: 'user', content: 'Write a Raft consensus algorithm in Go.' }
+      ],
+      stream: true,
+      tools: [{ name: 'run_tests', description: 'Run test suite' }]
+    };
+
+    const state = CanonicalRequest.extractState(req);
+    expect(state).toContain('Raft consensus algorithm in Go');
+    expect(state).toContain('[AVAILABLE_TOOLS]: run_tests');
+  });
+});
+```
+
+**Step 2: Run test to verify failure**
+Run: `npx vitest run tests/unit/canonical.test.ts`
+Expected: FAIL
+
+**Step 3: Minimal implementation**
+```typescript
+// src/core/types.ts
+export interface CanonicalMessage {
+  role: 'system' | 'user' | 'assistant' | 'tool';
+  content: string;
+  name?: string;
+  tool_calls?: any[];
+  tool_call_id?: string;
+}
+
+export interface CanonicalRequest {
+  messages: CanonicalMessage[];
+  model_override?: string;
+  policy?: 'balanced' | 'cost_optimized' | 'quality_max' | 'local_first';
+  stream?: boolean;
+  temperature?: number;
+  max_tokens?: number;
+  tools?: any[];
+  extra_params?: Record<string, any>;
+}
+
+export const CanonicalRequest = {
+  extractState(req: CanonicalRequest, maxChars: number = 4000): string {
+    const lines: string[] = [];
+    const recent = req.messages.slice(-4);
+    for (const m of recent) {
+      lines.push(`[${m.role.toUpperCase()}]: ${m.content}`);
+    }
+    if (req.tools && req.tools.length > 0) {
+      const toolNames = req.tools.map(t => t.name || t.function?.name || '').filter(Boolean);
+      lines.push(`[AVAILABLE_TOOLS]: ${toolNames.join(', ')}`);
+    }
+    const full = lines.join('\n');
+    return full.length > maxChars ? full.slice(-maxChars) : full;
+  }
+};
+```
+
+**Step 4: Run test to verify pass**
+Run: `npx vitest run tests/unit/canonical.test.ts`
+Expected: PASS
+
+---
+
+#### Task 2.2: Model Registry YAML Loader & Tag Filter
+**Objective:** Membaca `config/registry.yaml`, memvalidasi skema model, dan menyediakan fungsi filter berdasarkan kapabilitas, tag, dan rentang kompleksitas.
+**Files:**
+- Create: `src/engine/registry.ts`
+- Test: `tests/unit/registry.test.ts`
+
+**Step 1: Write failing test**
+```typescript
+// tests/unit/registry.test.ts
+import { describe, it, expect } from 'vitest';
+import { ModelRegistry } from '../../src/engine/registry';
+
+const sampleYaml = `
 version: "1.0"
 models:
   - id: "local-chat"
@@ -522,8 +351,8 @@ models:
     provider: "ollama"
     upstream_model: "lfm3:latest"
     base_url: "http://localhost:11434/v1"
-    complexity_range: [0.0, 2.0]
-    tags: ["chat", "local"]
+    complexity_range: [0.0, 1.8]
+    tags: ["local", "chat"]
     capabilities:
       tools: false
       vision: false
@@ -532,10 +361,10 @@ models:
     cost:
       input_per_mtoken: 0.0
       output_per_mtoken: 0.0
-  - id: "cloud-frontier"
-    display_name: "Frontier Sonnet"
+  - id: "cloud-coder"
+    display_name: "Claude Sonnet"
     provider: "anthropic"
-    upstream_model: "claude-3-5-sonnet"
+    upstream_model: "claude-3-5-sonnet-20241022"
     base_url: "https://api.anthropic.com/v1"
     complexity_range: [3.0, 5.0]
     tags: ["coding", "frontier", "tools"]
@@ -547,1017 +376,616 @@ models:
     cost:
       input_per_mtoken: 3.0
       output_per_mtoken: 15.0
-"""
+`;
 
-def test_registry_filtering():
-    reg = ModelRegistry.from_yaml_string(SAMPLE_YAML)
-    assert len(reg.models) == 2
-    
-    # Filter requiring tools
-    candidates = reg.find_candidates(requires_tools=True, requires_vision=False)
-    assert len(candidates) == 1
-    assert candidates[0].id == "cloud-frontier"
-    
-    # Filter by complexity score 1.0 (no tools required)
-    simple_candidates = reg.find_candidates(complexity=1.0, requires_tools=False)
-    assert any(m.id == "local-chat" for m in simple_candidates)
+describe('ModelRegistry', () => {
+  it('should filter models requiring tools', () => {
+    const reg = ModelRegistry.fromYaml(sampleYaml);
+    const candidates = reg.findCandidates({ requiresTools: true });
+    expect(candidates.length).toBe(1);
+    expect(candidates[0].id).toBe('cloud-coder');
+  });
+
+  it('should filter models by complexity score', () => {
+    const reg = ModelRegistry.fromYaml(sampleYaml);
+    const candidates = reg.findCandidates({ complexity: 1.0 });
+    expect(candidates.some(m => m.id === 'local-chat')).toBe(true);
+  });
+});
 ```
 
 **Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_registry.py -v`
-Expected: FAIL (`ModuleNotFoundError: No module named 'src.domain.registry'`)
-
-**Step 3: Write minimal implementation**
-```python
-# src/domain/registry.py
-import yaml
-from typing import List, Dict, Any, Optional, Tuple
-from pydantic import BaseModel, Field
-
-class ModelCapabilities(BaseModel):
-    tools: bool = True
-    vision: bool = False
-    max_context: int = 32768
-    streaming: bool = True
-
-class ModelCost(BaseModel):
-    input_per_mtoken: float = 0.0
-    output_per_mtoken: float = 0.0
-
-class ModelSpec(BaseModel):
-    id: str
-    display_name: str
-    provider: str # ollama, openai, anthropic, openrouter
-    upstream_model: str
-    base_url: str
-    api_key_env: Optional[str] = None
-    complexity_range: Tuple[float, float] = (0.0, 5.0)
-    tags: List[str] = Field(default_factory=list)
-    capabilities: ModelCapabilities = Field(default_factory=ModelCapabilities)
-    cost: ModelCost = Field(default_factory=ModelCost)
-
-class ModelRegistry(BaseModel):
-    version: str = "1.0"
-    models: List[ModelSpec] = Field(default_factory=list)
-
-    @classmethod
-    def from_yaml_file(cls, path: str) -> "ModelRegistry":
-        with open(path, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-        return cls(**data)
-
-    @classmethod
-    def from_yaml_string(cls, content: str) -> "ModelRegistry":
-        data = yaml.safe_load(content)
-        return cls(**data)
-
-    def get_model(self, model_id: str) -> Optional[ModelSpec]:
-        for m in self.models:
-            if m.id == model_id:
-                return m
-        return None
-
-    def find_candidates(
-        self,
-        complexity: Optional[float] = None,
-        requires_tools: bool = False,
-        requires_vision: bool = False,
-        tag: Optional[str] = None
-    ) -> List[ModelSpec]:
-        results = []
-        for m in self.models:
-            if requires_tools and not m.capabilities.tools:
-                continue
-            if requires_vision and not m.capabilities.vision:
-                continue
-            if tag and tag not in m.tags:
-                continue
-            if complexity is not None:
-                min_c, max_c = m.complexity_range
-                # Berikan toleransi margin 0.2
-                if not (min_c - 0.2 <= complexity <= max_c + 0.2):
-                    continue
-            results.append(m)
-        return results
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_registry.py -v`
-Expected: PASS
-
----
-
-### Phase 3: Engine Layer — System One `d1` Client & Decision Evaluator
-
-#### Task 3.1: D1 Decision Client
-**Objective:** Mengimplementasikan HTTP client asynchronous untuk memanggil endpoint `/v1/systemone` pada Ollama/Liquid.
-**Files:**
-- Create: `src/engine/d1_client.py`
-- Test: `tests/unit/test_d1_client.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_d1_client.py
-import pytest
-import respx
-import httpx
-from src.engine.d1_client import D1Client, D1EvaluationResult
-
-@pytest.mark.asyncio
-async def test_d1_evaluate_success():
-    client = D1Client(endpoint="http://localhost:11434/v1/systemone", model="d1:latest")
-    
-    mock_response = {
-        "model": "d1:latest",
-        "answers": {
-            "complexity": {"type": "score", "score": 3.8, "confidence": 0.8},
-            "domain": {"type": "choice", "choice": "coding", "confidence": 0.95},
-            "requires_tools": {"type": "noul", "probability": 0.85},
-            "requires_vision": {"type": "noul", "probability": 0.05}
-        },
-        "usage": {"input_tokens": 50, "output_tokens": 0}
-    }
-    
-    with respx.mock(base_url="http://localhost:11434") as respx_mock:
-        respx_mock.post("/v1/systemone").respond(200, json=mock_response)
-        result = await client.evaluate("Implement B-Tree in C")
-        
-        assert result.complexity_score == 3.8
-        assert result.domain == "coding"
-        assert result.requires_tools is True
-        assert result.requires_vision is False
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_d1_client.py -v`
-Expected: FAIL (`ModuleNotFoundError`)
-
-**Step 3: Write minimal implementation**
-```python
-# src/engine/d1_client.py
-import httpx
-from typing import Dict, Any, Optional
-from pydantic import BaseModel
-
-class D1EvaluationResult(BaseModel):
-    complexity_score: float
-    domain: str
-    requires_tools: bool
-    requires_vision: bool
-    confidence: float
-    raw_response: Dict[str, Any]
-
-class D1Client:
-    def __init__(self, endpoint: str, model: str = "d1:latest", timeout_s: float = 0.15):
-        self.endpoint = endpoint
-        self.model = model
-        self.timeout_s = timeout_s
-
-    def _build_payload(self, state: str) -> Dict[str, Any]:
-        return {
-            "model": self.model,
-            "state": state,
-            "questions": {
-                "complexity": {
-                    "type": "score",
-                    "instructions": "Rate the intellectual and technical complexity on a scale from 1 (trivial) to 5 (expert).",
-                    "criteria": [
-                        "Level 1: Trivial greetings, simple chit-chat",
-                        "Level 2: Basic rewrite, simple fact retrieval",
-                        "Level 3: Standard code function, simple script, data parsing",
-                        "Level 4: Complex multi-file architecture, advanced algorithms",
-                        "Level 5: Deep distributed systems, kernel logic, formal proofs"
-                    ]
-                },
-                "domain": {
-                    "type": "choice",
-                    "instructions": "What is the primary technical domain?",
-                    "criteria": {
-                        "coding": "Writing or refactoring source code",
-                        "reasoning": "Mathematics or complex logic",
-                        "tools": "Tool calling and execution planning",
-                        "general": "Casual conversation or general text"
-                    }
-                },
-                "requires_tools": {
-                    "type": "noul",
-                    "instructions": "Does this request require invoking external tools or APIs?"
-                },
-                "requires_vision": {
-                    "type": "noul",
-                    "instructions": "Does this request reference or analyze images?"
-                }
-            }
-        }
-
-    async def evaluate(self, state: str) -> D1EvaluationResult:
-        payload = self._build_payload(state)
-        async with httpx.AsyncClient(timeout=self.timeout_s) as client:
-            resp = await client.post(self.endpoint, json=payload)
-            resp.raise_for_status()
-            data = resp.json()
-            
-        answers = data.get("answers", {})
-        comp = answers.get("complexity", {})
-        dom = answers.get("domain", {})
-        tools = answers.get("requires_tools", {})
-        vision = answers.get("requires_vision", {})
-
-        return D1EvaluationResult(
-            complexity_score=float(comp.get("score", 1.0)),
-            domain=str(dom.get("choice", "general")),
-            requires_tools=bool(tools.get("probability", 0.0) >= 0.5),
-            requires_vision=bool(vision.get("probability", 0.0) >= 0.5),
-            confidence=float(comp.get("confidence", 0.5)),
-            raw_response=data
-        )
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_d1_client.py -v`
-Expected: PASS
-
----
-
-### Phase 4: Policy Engine & Model Routing Resolver
-
-#### Task 4.1: Routing Policy Strategy Pattern
-**Objective:** Mengimplementasikan strategi routing (`Balanced`, `CostOptimized`, `QualityMax`, `LocalFirst`).
-**Files:**
-- Create: `src/domain/router_policy.py`
-- Test: `tests/unit/test_policy.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_policy.py
-from src.domain.registry import ModelSpec, ModelCost, ModelCapabilities
-from src.domain.router_policy import PolicyEngine, RoutingDecision
-from src.engine.d1_client import D1EvaluationResult
-
-def test_cost_optimized_policy_selects_cheapest():
-    local_model = ModelSpec(
-        id="local-1", display_name="LFM Local", provider="ollama",
-        upstream_model="lfm3", base_url="http://localhost:11434",
-        complexity_range=(0.0, 2.5), cost=ModelCost(input_per_mtoken=0.0, output_per_mtoken=0.0)
-    )
-    cloud_model = ModelSpec(
-        id="cloud-1", display_name="GPT-4o Mini", provider="openai",
-        upstream_model="gpt-4o-mini", base_url="https://api.openai.com",
-        complexity_range=(1.0, 3.5), cost=ModelCost(input_per_mtoken=0.15, output_per_mtoken=0.6)
-    )
-    
-    eval_result = D1EvaluationResult(
-        complexity_score=1.5, domain="general", requires_tools=False,
-        requires_vision=False, confidence=0.9, raw_response={}
-    )
-    
-    engine = PolicyEngine()
-    decision = engine.resolve(candidates=[local_model, cloud_model], eval_result=eval_result, policy="cost_optimized")
-    assert decision.selected_model.id == "local-1"
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_policy.py -v`
-Expected: FAIL (`ModuleNotFoundError`)
-
-**Step 3: Write minimal implementation**
-```python
-# src/domain/router_policy.py
-from typing import List
-from pydantic import BaseModel
-from src.domain.registry import ModelSpec
-from src.engine.d1_client import D1EvaluationResult
-
-class RoutingDecision(BaseModel):
-    selected_model: ModelSpec
-    policy_used: str
-    reason: str
-    complexity_score: float
-
-class PolicyEngine:
-    def resolve(
-        self,
-        candidates: List[ModelSpec],
-        eval_result: D1EvaluationResult,
-        policy: str = "balanced"
-    ) -> RoutingDecision:
-        if not candidates:
-            raise ValueError("No eligible models found for routing criteria.")
-
-        score = eval_result.complexity_score
-
-        if policy == "cost_optimized" or policy == "local_first":
-            # Urutkan berdasarkan total cost (input + output), prioritaskan local (cost 0)
-            sorted_candidates = sorted(
-                candidates,
-                key=lambda m: (m.cost.input_per_mtoken + m.cost.output_per_mtoken, -m.complexity_range[1])
-            )
-            chosen = sorted_candidates[0]
-            reason = f"Selected {chosen.id} as lowest-cost candidate matching score {score:.2f}."
-            return RoutingDecision(selected_model=chosen, policy_used=policy, reason=reason, complexity_score=score)
-
-        elif policy == "quality_max":
-            # Pilih model dengan upper bound kompleksitas tertinggi
-            sorted_candidates = sorted(candidates, key=lambda m: m.complexity_range[1], reverse=True)
-            chosen = sorted_candidates[0]
-            reason = f"Selected {chosen.id} for maximum headroom above score {score:.2f}."
-            return RoutingDecision(selected_model=chosen, policy_used=policy, reason=reason, complexity_score=score)
-
-        else: # "balanced" default
-            # Cari model yang jarak tengah range-nya paling dekat dengan score
-            def distance(m: ModelSpec):
-                mid = (m.complexity_range[0] + m.complexity_range[1]) / 2.0
-                return abs(mid - score)
-
-            sorted_candidates = sorted(candidates, key=distance)
-            chosen = sorted_candidates[0]
-            reason = f"Selected {chosen.id} as best capability-cost fit for complexity {score:.2f}."
-            return RoutingDecision(selected_model=chosen, policy_used=policy, reason=reason, complexity_score=score)
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_policy.py -v`
-Expected: PASS
-
----
-
-### Phase 5: Adapters Layer — OpenAI & Anthropic Protocol Converters
-
-#### Task 5.1: OpenAI Ingestion Normalizer
-**Objective:** Mengonversi request OpenAI `POST /v1/chat/completions` menjadi `CanonicalRequest`.
-**Files:**
-- Create: `src/adapters/openai_adapter.py`
-- Test: `tests/unit/test_openai_adapter.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_openai_adapter.py
-from src.adapters.openai_adapter import OpenAIAdapter
-
-def test_parse_openai_payload():
-    payload = {
-        "model": "d1-router-auto",
-        "messages": [
-            {"role": "user", "content": "Explain raft algorithm"}
-        ],
-        "stream": True,
-        "temperature": 0.5
-    }
-    canonical = OpenAIAdapter.to_canonical(payload)
-    assert canonical.messages[0].content == "Explain raft algorithm"
-    assert canonical.stream is True
-    assert canonical.policy == "balanced"
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_openai_adapter.py -v`
+Run: `npx vitest run tests/unit/registry.test.ts`
 Expected: FAIL
 
-**Step 3: Write minimal implementation**
-```python
-# src/adapters/openai_adapter.py
-from typing import Dict, Any
-from src.domain.canonical import CanonicalRequest, CanonicalMessage
-
-class OpenAIAdapter:
-    @staticmethod
-    def to_canonical(payload: Dict[str, Any]) -> CanonicalRequest:
-        raw_model = payload.get("model", "auto")
-        policy = "balanced"
-        model_override = None
-
-        if "cost" in raw_model:
-            policy = "cost_optimized"
-        elif "quality" in raw_model or "max" in raw_model:
-            policy = "quality_max"
-        elif "local" in raw_model:
-            policy = "local_first"
-        elif not raw_model.startswith("d1-router") and raw_model != "auto":
-            model_override = raw_model
-
-        messages = [
-            CanonicalMessage(
-                role=m.get("role", "user"),
-                content=m.get("content", ""),
-                name=m.get("name"),
-                tool_calls=m.get("tool_calls"),
-                tool_call_id=m.get("tool_call_id")
-            )
-            for m in payload.get("messages", [])
-        ]
-
-        return CanonicalRequest(
-            messages=messages,
-            model_override=model_override,
-            policy=policy,
-            stream=payload.get("stream", False),
-            temperature=payload.get("temperature", 0.7),
-            max_tokens=payload.get("max_tokens") or payload.get("max_completion_tokens"),
-            tools=payload.get("tools"),
-            extra_params={k: v for k, v in payload.items() if k not in ["messages", "model", "stream", "tools"]}
-        )
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_openai_adapter.py -v`
-Expected: PASS
-
----
-
-#### Task 5.2: Anthropic Ingestion Normalizer
-**Objective:** Mengonversi request Anthropic `POST /v1/messages` (dengan system prompt & tools) menjadi `CanonicalRequest`.
-**Files:**
-- Create: `src/adapters/anthropic_adapter.py`
-- Test: `tests/unit/test_anthropic_adapter.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_anthropic_adapter.py
-from src.adapters.anthropic_adapter import AnthropicAdapter
-
-def test_parse_anthropic_payload():
-    payload = {
-        "model": "claude-d1-router",
-        "system": "You are a code assistant",
-        "messages": [
-            {"role": "user", "content": "Write unit tests"}
-        ],
-        "max_tokens": 1024,
-        "stream": True
-    }
-    canonical = AnthropicAdapter.to_canonical(payload)
-    assert len(canonical.messages) == 2
-    assert canonical.messages[0].role == "system"
-    assert canonical.messages[0].content == "You are a code assistant"
-    assert canonical.stream is True
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_anthropic_adapter.py -v`
-Expected: FAIL
-
-**Step 3: Write minimal implementation**
-```python
-# src/adapters/anthropic_adapter.py
-from typing import Dict, Any, List
-from src.domain.canonical import CanonicalRequest, CanonicalMessage
-
-class AnthropicAdapter:
-    @staticmethod
-    def to_canonical(payload: Dict[str, Any]) -> CanonicalRequest:
-        raw_model = payload.get("model", "auto")
-        policy = "balanced"
-        if "cost" in raw_model:
-            policy = "cost_optimized"
-        elif "max" in raw_model:
-            policy = "quality_max"
-
-        messages: List[CanonicalMessage] = []
-        
-        # Anthropic memisahkan system prompt di root
-        system_content = payload.get("system")
-        if system_content:
-            if isinstance(system_content, list):
-                sys_text = "".join([b.get("text", "") for b in system_content if b.get("type") == "text"])
-            else:
-                sys_text = str(system_content)
-            messages.append(CanonicalMessage(role="system", content=sys_text))
-
-        for m in payload.get("messages", []):
-            messages.append(CanonicalMessage(
-                role=m.get("role", "user"),
-                content=m.get("content", "")
-            ))
-
-        return CanonicalRequest(
-            messages=messages,
-            policy=policy,
-            stream=payload.get("stream", False),
-            temperature=payload.get("temperature", 0.7),
-            max_tokens=payload.get("max_tokens", 4096),
-            tools=payload.get("tools"),
-            extra_params={k: v for k, v in payload.items() if k not in ["messages", "system", "model", "stream", "tools"]}
-        )
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_anthropic_adapter.py -v`
-Expected: PASS
-
----
-
-### Phase 6: Universal Streaming Transcoder (SSE Bridge)
-
-#### Task 6.1: Bidirectional SSE Transcoder
-**Objective:** Mengonversi streaming SSE dari provider upstream (OpenAI $\leftrightarrow$ Anthropic) secara real-time tanpa penundaan buffer.
-**Files:**
-- Create: `src/adapters/stream_transcoder.py`
-- Test: `tests/unit/test_stream_transcoder.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_stream_transcoder.py
-import pytest
-from src.adapters.stream_transcoder import StreamTranscoder
-
-@pytest.mark.asyncio
-async def test_transcode_openai_to_anthropic_sse():
-    async def mock_openai_stream():
-        yield 'data: {"id":"1","choices":[{"delta":{"content":"Hello"}}]}\n\n'
-        yield 'data: {"id":"1","choices":[{"delta":{},"finish_reason":"stop"}]}\n\n'
-        yield 'data: [DONE]\n\n'
-
-    chunks = []
-    async for event in StreamTranscoder.openai_to_anthropic(mock_openai_stream(), model="target-model"):
-        chunks.append(event)
-
-    full_output = "".join(chunks)
-    assert "event: message_start" in full_output
-    assert "content_block_delta" in full_output
-    assert "message_stop" in full_output
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_stream_transcoder.py -v`
-Expected: FAIL
-
-**Step 3: Write minimal implementation**
-```python
-# src/adapters/stream_transcoder.py
-import json
-import uuid
-import time
-from typing import AsyncGenerator
-
-class StreamTranscoder:
-    @staticmethod
-    async def openai_to_anthropic(
-        stream: AsyncGenerator[str, None],
-        model: str
-    ) -> AsyncGenerator[str, None]:
-        msg_id = f"msg_{uuid.uuid4().hex[:12]}"
-        
-        # 1. Message Start
-        yield f"event: message_start\ndata: {json.dumps({'type':'message_start','message':{'id':msg_id,'type':'message','role':'assistant','model':model,'content':[],'stop_reason':None,'usage':{'input_tokens':0}}})}\n\n"
-        
-        # 2. Block Start
-        yield f"event: content_block_start\ndata: {json.dumps({'type':'content_block_start','index':0,'content_block':{'type':'text','text':''}})}\n\n"
-
-        async for chunk in stream:
-            lines = chunk.strip().split("\n")
-            for line in lines:
-                if not line.startswith("data: ") or line == "data: [DONE]":
-                    continue
-                raw_json = line[6:].strip()
-                try:
-                    payload = json.loads(raw_json)
-                    delta = payload.get("choices", [{}])[0].get("delta", {})
-                    text_piece = delta.get("content")
-                    if text_piece:
-                        yield f"event: content_block_delta\ndata: {json.dumps({'type':'content_block_delta','index':0,'delta':{'type':'text_delta','text':text_piece}})}\n\n"
-                except Exception:
-                    continue
-
-        # 3. Block Stop & Message Stop
-        yield f"event: content_block_stop\ndata: {json.dumps({'type':'content_block_stop','index':0})}\n\n"
-        yield f"event: message_delta\ndata: {json.dumps({'type':'message_delta','delta':{'stop_reason':'end_turn'},'usage':{'output_tokens':0}})}\n\n"
-        yield f"event: message_stop\ndata: {json.dumps({'type':'message_stop'})}\n\n"
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_stream_transcoder.py -v`
-Expected: PASS
-
----
-
-### Phase 7: Proxy Dispatcher & Upstream Forwarder
-
-#### Task 7.1: Upstream Async Forwarder with Connection Pooling
-**Objective:** Mengirimkan payload ke upstream LLM (Ollama, OpenAI, Anthropic) dengan connection reuse dan timeout handling.
-**Files:**
-- Create: `src/proxy/upstream_client.py`
-- Test: `tests/unit/test_upstream_client.py`
-
-**Step 1: Write failing test**
-```python
-# tests/unit/test_upstream_client.py
-import pytest
-import respx
-import httpx
-from src.proxy.upstream_client import UpstreamClient
-from src.domain.registry import ModelSpec
-
-@pytest.mark.asyncio
-async def test_forward_openai_compatible_upstream():
-    model = ModelSpec(
-        id="ollama-qwen", display_name="Qwen", provider="ollama",
-        upstream_model="qwen3.5:4b", base_url="http://localhost:11434/v1"
-    )
-    client = UpstreamClient()
-    
-    with respx.mock(base_url="http://localhost:11434") as respx_mock:
-        respx_mock.post("/v1/chat/completions").respond(200, json={"choices": [{"message": {"content": "OK"}}]})
-        resp = await client.send_json(model=model, path="/chat/completions", payload={"messages": []})
-        assert resp["choices"][0]["message"]["content"] == "OK"
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/unit/test_upstream_client.py -v`
-Expected: FAIL
-
-**Step 3: Write minimal implementation**
-```python
-# src/proxy/upstream_client.py
-import os
-import httpx
-from typing import Dict, Any, AsyncGenerator
-from src.domain.registry import ModelSpec
-
-class UpstreamClient:
-    def __init__(self):
-        self._client = httpx.AsyncClient(timeout=120.0, limits=httpx.Limits(max_keepalive_connections=50, max_connections=200))
-
-    def _get_headers(self, model: ModelSpec) -> Dict[str, str]:
-        headers = {"Content-Type": "application/json"}
-        if model.api_key_env:
-            token = os.getenv(model.api_key_env, "")
-            if model.provider == "anthropic":
-                headers["x-api-key"] = token
-                headers["anthropic-version"] = "2023-06-01"
-            else:
-                headers["Authorization"] = f"Bearer {token}"
-        return headers
-
-    async def send_json(self, model: ModelSpec, path: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-        url = f"{model.base_url.rstrip('/')}/{path.lstrip('/')}"
-        headers = self._get_headers(model)
-        payload["model"] = model.upstream_model
-        
-        resp = await self._client.post(url, json=payload, headers=headers)
-        resp.raise_for_status()
-        return resp.json()
-
-    async def stream_sse(self, model: ModelSpec, path: str, payload: Dict[str, Any]) -> AsyncGenerator[str, None]:
-        url = f"{model.base_url.rstrip('/')}/{path.lstrip('/')}"
-        headers = self._get_headers(model)
-        payload["model"] = model.upstream_model
-        payload["stream"] = True
-
-        async with self._client.stream("POST", url, json=payload, headers=headers) as resp:
-            resp.raise_for_status()
-            async for chunk in resp.aiter_lines():
-                if chunk:
-                    yield f"{chunk}\n\n"
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/unit/test_upstream_client.py -v`
-Expected: PASS
-
----
-
-### Phase 8: FastAPI Gateway & Dual-Protocol Endpoints
-
-#### Task 8.1: FastAPI Main App & Model List Endpoint
-**Objective:** Menginisialisasi aplikasi FastAPI dan endpoint `GET /v1/models` yang mengembalikan virtual router models dan model terdaftar.
-**Files:**
-- Create: `src/api/main.py`
-- Test: `tests/integration/test_models_endpoint.py`
-
-**Step 1: Write failing test**
-```python
-# tests/integration/test_models_endpoint.py
-import pytest
-from httpx import AsyncClient, ASGITransport
-from src.api.main import app
-
-@pytest.mark.asyncio
-async def test_get_models_list():
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        resp = await ac.get("/v1/models")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["object"] == "list"
-        model_ids = [m["id"] for m in data["data"]]
-        assert "d1-router-auto" in model_ids
-        assert "d1-router-cost" in model_ids
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/integration/test_models_endpoint.py -v`
-Expected: FAIL
-
-**Step 3: Write minimal implementation**
-```python
-# src/api/main.py
-import time
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse
-from src.core.config import settings
-from src.domain.registry import ModelRegistry
-from src.engine.d1_client import D1Client
-from src.domain.router_policy import PolicyEngine
-from src.adapters.openai_adapter import OpenAIAdapter
-from src.adapters.anthropic_adapter import AnthropicAdapter
-from src.adapters.stream_transcoder import StreamTranscoder
-from src.proxy.upstream_client import UpstreamClient
-
-app = FastAPI(title="D1 Complexity Model Router", version="0.1.0")
-
-# Singletons
-registry = ModelRegistry.from_yaml_file(settings.REGISTRY_CONFIG_PATH) if settings.REGISTRY_CONFIG_PATH else ModelRegistry()
-d1_client = D1Client(endpoint=settings.D1_ENDPOINT, model=settings.D1_MODEL, timeout_s=settings.D1_TIMEOUT_SECONDS)
-policy_engine = PolicyEngine()
-upstream = UpstreamClient()
-
-@app.get("/v1/models")
-async def list_models():
-    virtual_models = [
-        {"id": "d1-router-auto", "object": "model", "owned_by": "system-one-router"},
-        {"id": "d1-router-cost", "object": "model", "owned_by": "system-one-router"},
-        {"id": "d1-router-quality", "object": "model", "owned_by": "system-one-router"},
-        {"id": "d1-router-local", "object": "model", "owned_by": "system-one-router"},
-    ]
-    for m in registry.models:
-        virtual_models.append({"id": m.id, "object": "model", "owned_by": m.provider})
-    return {"object": "list", "data": virtual_models}
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/integration/test_models_endpoint.py -v`
-Expected: PASS
-
----
-
-#### Task 8.2: OpenAI Chat Completions Endpoint with d1 Routing
-**Objective:** Mengimplementasikan `POST /v1/chat/completions` dengan evaluasi System One d1, header telemetry, dan streaming pass-through.
-**Files:**
-- Modify: `src/api/main.py`
-- Test: `tests/integration/test_chat_completions.py`
-
-**Step 1: Write failing test**
-```python
-# tests/integration/test_chat_completions.py
-import pytest
-import respx
-from httpx import AsyncClient, ASGITransport
-from src.api.main import app
-
-@pytest.mark.asyncio
-async def test_openai_chat_completions_routing(respx_mock):
-    # Mock D1 evaluation
-    respx_mock.post("http://localhost:11434/v1/systemone").respond(200, json={
-        "answers": {
-            "complexity": {"type": "score", "score": 1.2, "confidence": 0.9},
-            "domain": {"type": "choice", "choice": "general"},
-            "requires_tools": {"type": "noul", "probability": 0.05},
-            "requires_vision": {"type": "noul", "probability": 0.01}
-        }
-    })
-    # Mock Upstream model chat
-    respx_mock.post("http://localhost:11434/v1/chat/completions").respond(200, json={
-        "id": "chatcmpl-test",
-        "choices": [{"message": {"role": "assistant", "content": "Hello!"}}]
-    })
-
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        resp = await ac.post("/v1/chat/completions", json={
-            "model": "d1-router-auto",
-            "messages": [{"role": "user", "content": "Hi"}],
-            "stream": False
-        })
-        assert resp.status_code == 200
-        assert "X-D1-Complexity-Score" in resp.headers
-        assert resp.json()["choices"][0]["message"]["content"] == "Hello!"
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/integration/test_chat_completions.py -v`
-Expected: FAIL (`404 Not Found` for `/v1/chat/completions`)
-
-**Step 3: Write minimal implementation**
-```python
-# Tambahkan ke src/api/main.py
-@app.post("/v1/chat/completions")
-async def chat_completions(request: Request):
-    t0 = time.perf_counter()
-    body = await request.json()
-    canonical = OpenAIAdapter.to_canonical(body)
-
-    # 1. Routing & d1 evaluation
-    state = canonical.extract_eval_state()
-    try:
-        eval_res = await d1_client.evaluate(state)
-    except Exception:
-        # Fallback to local heuristic
-        from src.engine.d1_client import D1EvaluationResult
-        eval_res = D1EvaluationResult(complexity_score=1.5, domain="general", requires_tools=False, requires_vision=False, confidence=0.5, raw_response={})
-
-    candidates = registry.find_candidates(
-        complexity=eval_res.complexity_score,
-        requires_tools=eval_res.requires_tools,
-        requires_vision=eval_res.requires_vision
-    ) or registry.models
-
-    decision = policy_engine.resolve(candidates, eval_res, policy=canonical.policy or "balanced")
-    selected = decision.selected_model
-    routing_latency_ms = (time.perf_counter() - t0) * 1000
-
-    headers = {
-        "X-D1-Complexity-Score": f"{eval_res.complexity_score:.2f}",
-        "X-D1-Domain": eval_res.domain,
-        "X-D1-Selected-Model": selected.id,
-        "X-D1-Routing-Latency-Ms": f"{routing_latency_ms:.2f}"
-    }
-
-    # 2. Dispatch
-    if canonical.stream:
-        stream_gen = upstream.stream_sse(model=selected, path="/chat/completions", payload=body)
-        return StreamingResponse(stream_gen, media_type="text/event-stream", headers=headers)
-    else:
-        resp_json = await upstream.send_json(model=selected, path="/chat/completions", payload=body)
-        return JSONResponse(content=resp_json, headers=headers)
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/integration/test_chat_completions.py -v`
-Expected: PASS
-
----
-
-#### Task 8.3: Anthropic Messages Endpoint (`POST /v1/messages`)
-**Objective:** Mengimplementasikan endpoint berstandar Anthropic Messages untuk Claude Code.
-**Files:**
-- Modify: `src/api/main.py`
-- Test: `tests/integration/test_anthropic_messages.py`
-
-**Step 1: Write failing test**
-```python
-# tests/integration/test_anthropic_messages.py
-import pytest
-from httpx import AsyncClient, ASGITransport
-from src.api.main import app
-
-@pytest.mark.asyncio
-async def test_anthropic_messages_endpoint(respx_mock):
-    respx_mock.post("http://localhost:11434/v1/systemone").respond(200, json={
-        "answers": {
-            "complexity": {"type": "score", "score": 3.2, "confidence": 0.8},
-            "domain": {"type": "choice", "choice": "coding"},
-            "requires_tools": {"type": "noul", "probability": 0.1},
-            "requires_vision": {"type": "noul", "probability": 0.0}
-        }
-    })
-    respx_mock.post("http://localhost:11434/v1/chat/completions").respond(200, json={
-        "choices": [{"message": {"role": "assistant", "content": "Refactored code"}}]
-    })
-
-    transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        resp = await ac.post("/v1/messages", json={
-            "model": "d1-router-auto",
-            "messages": [{"role": "user", "content": "Refactor this"}],
-            "max_tokens": 1024,
-            "stream": False
-        })
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["type"] == "message"
-        assert data["content"][0]["text"] == "Refactored code"
-```
-
-**Step 2: Run test to verify failure**
-Run: `pytest tests/integration/test_anthropic_messages.py -v`
-Expected: FAIL (`404 Not Found`)
-
-**Step 3: Write minimal implementation**
-```python
-# Tambahkan ke src/api/main.py
-@app.post("/v1/messages")
-async def anthropic_messages(request: Request):
-    t0 = time.perf_counter()
-    body = await request.json()
-    canonical = AnthropicAdapter.to_canonical(body)
-
-    state = canonical.extract_eval_state()
-    try:
-        eval_res = await d1_client.evaluate(state)
-    except Exception:
-        from src.engine.d1_client import D1EvaluationResult
-        eval_res = D1EvaluationResult(complexity_score=2.0, domain="coding", requires_tools=False, requires_vision=False, confidence=0.5, raw_response={})
-
-    candidates = registry.find_candidates(
-        complexity=eval_res.complexity_score,
-        requires_tools=eval_res.requires_tools,
-        requires_vision=eval_res.requires_vision
-    ) or registry.models
-
-    decision = policy_engine.resolve(candidates, eval_res, policy=canonical.policy or "balanced")
-    selected = decision.selected_model
-    routing_latency_ms = (time.perf_counter() - t0) * 1000
-
-    headers = {
-        "X-D1-Complexity-Score": f"{eval_res.complexity_score:.2f}",
-        "X-D1-Domain": eval_res.domain,
-        "X-D1-Selected-Model": selected.id,
-        "X-D1-Routing-Latency-Ms": f"{routing_latency_ms:.2f}"
-    }
-
-    # Jika upstream adalah Anthropic native:
-    if selected.provider == "anthropic":
-        if canonical.stream:
-            stream_gen = upstream.stream_sse(model=selected, path="/messages", payload=body)
-            return StreamingResponse(stream_gen, media_type="text/event-stream", headers=headers)
-        else:
-            resp_json = await upstream.send_json(model=selected, path="/messages", payload=body)
-            return JSONResponse(content=resp_json, headers=headers)
-
-    # Jika upstream adalah OpenAI/Ollama compatible, transcode ke format Anthropic:
-    openai_payload = {
-        "messages": [{"role": m.role, "content": m.content} for m in canonical.messages],
-        "temperature": canonical.temperature,
-        "max_tokens": canonical.max_tokens,
-        "stream": canonical.stream
-    }
-    
-    if canonical.stream:
-        raw_stream = upstream.stream_sse(model=selected, path="/chat/completions", payload=openai_payload)
-        transcoded_stream = StreamTranscoder.openai_to_anthropic(raw_stream, model=selected.id)
-        return StreamingResponse(transcoded_stream, media_type="text/event-stream", headers=headers)
-    else:
-        openai_resp = await upstream.send_json(model=selected, path="/chat/completions", payload=openai_payload)
-        content_text = openai_resp["choices"][0]["message"]["content"]
-        anthropic_resp = {
-            "id": f"msg_{int(time.time())}",
-            "type": "message",
-            "role": "assistant",
-            "model": selected.id,
-            "content": [{"type": "text", "text": content_text}],
-            "stop_reason": "end_turn",
-            "usage": {"input_tokens": 0, "output_tokens": 0}
-        }
-        return JSONResponse(content=anthropic_resp, headers=headers)
-```
-
-**Step 4: Run test to verify pass**
-Run: `pytest tests/integration/test_anthropic_messages.py -v`
-Expected: PASS
-
----
-
-## 6. Integrasi dengan AI Harness (Hermes, Claude Code, OpenCode)
-
-### 6.1 Hermes Agent
-Tambahkan router sebagai provider kustom di config profile:
-```yaml
-# config.yaml (Hermes)
-model: d1-router-auto
-provider: custom
-endpoints:
-  custom:
-    base_url: http://localhost:8000/v1
-    api_key: dummy
-```
-
-### 6.2 Claude Code CLI
-Arahkan Claude Code ke endpoint `/v1` router:
-```bash
-export ANTHROPIC_BASE_URL="http://localhost:8000"
-export ANTHROPIC_API_KEY="dummy"
-claude
-```
-
-### 6.3 OpenCode
-Konfigurasikan model provider di settings:
-```json
-{
-  "provider": "openai-compatible",
-  "apiBase": "http://localhost:8000/v1",
-  "model": "d1-router-auto"
+**Step 3: Minimal implementation**
+```typescript
+// src/engine/registry.ts
+import YAML from 'yaml';
+import { z } from 'zod';
+
+export const ModelSpecSchema = z.object({
+  id: z.string(),
+  display_name: z.string(),
+  provider: z.enum(['ollama', 'openai', 'anthropic', 'openrouter', 'custom']),
+  upstream_model: z.string(),
+  base_url: z.string(),
+  api_key_env: z.string().nullable().optional(),
+  complexity_range: z.tuple([z.number(), z.number()]),
+  tags: z.array(z.string()).default([]),
+  capabilities: z.object({
+    tools: z.boolean().default(true),
+    vision: z.boolean().default(false),
+    max_context: z.number().default(32768),
+    streaming: z.boolean().default(true),
+  }),
+  cost: z.object({
+    input_per_mtoken: z.number().default(0.0),
+    output_per_mtoken: z.number().default(0.0),
+  }),
+});
+
+export type ModelSpec = z.infer<typeof ModelSpecSchema>;
+
+export class ModelRegistry {
+  constructor(public models: ModelSpec[] = []) {}
+
+  static fromYaml(yamlString: string): ModelRegistry {
+    const parsed = YAML.parse(yamlString);
+    const validated = z.object({
+      version: z.string(),
+      models: z.array(ModelSpecSchema)
+    }).parse(parsed);
+    return new ModelRegistry(validated.models);
+  }
+
+  getModel(id: string): ModelSpec | undefined {
+    return this.models.find(m => m.id === id);
+  }
+
+  findCandidates(criteria: {
+    complexity?: number;
+    requiresTools?: boolean;
+    requiresVision?: boolean;
+    tag?: string;
+  }): ModelSpec[] {
+    return this.models.filter(m => {
+      if (criteria.requiresTools && !m.capabilities.tools) return false;
+      if (criteria.requiresVision && !m.capabilities.vision) return false;
+      if (criteria.tag && !m.tags.includes(criteria.tag)) return false;
+      if (criteria.complexity !== undefined) {
+        const [min, max] = m.complexity_range;
+        if (criteria.complexity < min - 0.2 || criteria.complexity > max + 0.2) return false;
+      }
+      return true;
+    });
+  }
 }
 ```
 
----
-
-## 7. Risiko, Trade-off, & Mitigasi (Systems Analyst Perspective)
-
-1. **Trade-off Latensi Evaluasi d1 vs Penghematan Biaya:**
-   - *Risiko:* Memanggil `d1` menambah ~25-35ms latensi round-trip.
-   - *Mitigasi:* Model `d1:latest` berjalan lokal di Apple Silicon GPU/Metal dengan 0 output token. Untuk request berskala kecil, overhead 30ms tidak terasa oleh pengguna dibandingkan penghematan ribuan dollar dari pemanggilan frontier model.
-2. **Risiko Ketidaktersediaan Local Ollama / d1 Crash:**
-   - *Risiko:* Jika daemon Ollama mati atau overload, gateway bisa gagal memproses request.
-   - *Mitigasi:* Implementasi circuit breaker dengan fallback deterministik otomatis ke rule-based heuristic (menghitung jumlah token prompt, deteksi blok kode ```` ``` ````, dan keberadaan tools) serta perutean ke default fallback model (`FALLBACK_MODEL_ID`).
-3. **Konversi Stateful Tool Calling Antara OpenAI dan Anthropic:**
-   - *Risiko:* Skema tool calling Anthropic (`input_schema`) berbeda dengan OpenAI (`parameters`).
-   - *Mitigasi:* Normalizer memetakan parameter JSON schema secara rekursif saat mentranskode request ke upstream yang berbeda format.
+**Step 4: Run test to verify pass**
+Run: `npx vitest run tests/unit/registry.test.ts`
+Expected: PASS
 
 ---
 
-## 8. Verifikasi & Definisi Selesai (Definition of Done)
+### Phase 3: Engine Layer — System One `d1` Client & Policy Engine
 
-- [ ] Seluruh unit test pada `tests/unit/` (Canonical, Registry, D1Client, Policy, Adapters, Transcoder) lulus 100%.
-- [ ] Test integrasi end-to-end `tests/integration/` lulus untuk skenario streaming dan non-streaming.
-- [ ] Latensi evaluasi `d1` lokal terbukti $\le 40\text{ ms}$ saat diuji dengan probe benchmark `curl`.
-- [ ] Hermes Agent dan Claude Code berhasil melakukan multi-turn chat dan tool execution melalui gateway tanpa format error.
+#### Task 3.1: D1 Decision Client (`/v1/systemone`)
+**Objective:** Mengintegrasikan model Liquid `d1` melalui endpoint `/v1/systemone` dengan timeout dan fallback otomatis.
+**Files:**
+- Create: `src/engine/d1-client.ts`
+- Test: `tests/unit/d1-client.test.ts`
+
+**Step 1: Write failing test**
+```typescript
+// tests/unit/d1-client.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { D1Client } from '../../src/engine/d1-client';
+
+describe('D1Client', () => {
+  it('should parse d1 evaluation answers properly', async () => {
+    const mockResponse = {
+      model: 'd1:latest',
+      answers: {
+        complexity: { type: 'score', score: 3.42, confidence: 0.8 },
+        domain: { type: 'choice', choice: 'coding', confidence: 0.95 },
+        requires_tools: { type: 'noul', probability: 0.88 },
+        requires_vision: { type: 'noul', probability: 0.02 }
+      },
+      usage: { input_tokens: 50, output_tokens: 0 }
+    };
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse
+    });
+
+    const client = new D1Client('http://localhost:11434/v1/systemone');
+    const result = await client.evaluate('Refactor this code');
+    expect(result.complexityScore).toBe(3.42);
+    expect(result.domain).toBe('coding');
+    expect(result.requiresTools).toBe(true);
+    expect(result.requiresVision).toBe(false);
+  });
+});
+```
+
+**Step 2: Run test to verify failure**
+Run: `npx vitest run tests/unit/d1-client.test.ts`
+Expected: FAIL
+
+**Step 3: Minimal implementation**
+```typescript
+// src/engine/d1-client.ts
+export interface D1EvaluationResult {
+  complexityScore: number;
+  domain: string;
+  requiresTools: boolean;
+  requiresVision: boolean;
+  confidence: number;
+}
+
+export class D1Client {
+  constructor(
+    private endpoint: string = 'http://localhost:11434/v1/systemone',
+    private model: string = 'd1:latest',
+    private timeoutMs: number = 150
+  ) {}
+
+  async evaluate(state: string): Promise<D1EvaluationResult> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      const res = await fetch(this.endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: this.model,
+          state,
+          questions: {
+            complexity: {
+              type: 'score',
+              instructions: 'Rate technical complexity from 1 (trivial) to 5 (expert).',
+              criteria: [
+                'Level 1: Trivial greetings, simple chit-chat',
+                'Level 2: Basic rewrite, simple fact retrieval',
+                'Level 3: Standard code function, single tool call',
+                'Level 4: Complex multi-file architecture, advanced algorithms',
+                'Level 5: Formal mathematical proof, deep distributed systems'
+              ]
+            },
+            domain: {
+              type: 'choice',
+              instructions: 'What is the primary technical domain?',
+              criteria: {
+                coding: 'Writing or refactoring source code',
+                reasoning: 'Mathematics or complex logic',
+                tools: 'Tool calling and execution planning',
+                general: 'Casual conversation or general text'
+              }
+            },
+            requires_tools: {
+              type: 'noul',
+              instructions: 'Does this request require invoking external tools or APIs?'
+            },
+            requires_vision: {
+              type: 'noul',
+              instructions: 'Does this request reference or analyze images?'
+            }
+          }
+        })
+      });
+
+      if (!res.ok) throw new Error(`D1 endpoint returned status ${res.status}`);
+      const data = await res.json();
+      const ans = data.answers || {};
+
+      return {
+        complexityScore: ans.complexity?.score ?? 1.5,
+        domain: ans.domain?.choice ?? 'general',
+        requiresTools: (ans.requires_tools?.probability ?? 0) >= 0.5,
+        requiresVision: (ans.requires_vision?.probability ?? 0) >= 0.5,
+        confidence: ans.complexity?.confidence ?? 0.5
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+}
+```
+
+**Step 4: Run test to verify pass**
+Run: `npx vitest run tests/unit/d1-client.test.ts`
+Expected: PASS
+
+---
+
+#### Task 3.2: Policy Routing Resolver
+**Objective:** Mengimplementasikan seleksi model berdasarkan bobot kebijakan (`balanced`, `cost_optimized`, `quality_max`, `local_first`).
+**Files:**
+- Create: `src/engine/policy-engine.ts`
+- Test: `tests/unit/policy-engine.test.ts`
+
+**Step 1: Write failing test**
+```typescript
+// tests/unit/policy-engine.test.ts
+import { describe, it, expect } from 'vitest';
+import { PolicyEngine } from '../../src/engine/policy-engine';
+import { ModelSpec } from '../../src/engine/registry';
+
+describe('PolicyEngine', () => {
+  const models: ModelSpec[] = [
+    {
+      id: 'local-slm', display_name: 'Local LFM', provider: 'ollama', upstream_model: 'lfm3',
+      base_url: 'http://localhost:11434', complexity_range: [0.0, 2.0], tags: ['local'],
+      capabilities: { tools: true, vision: false, max_context: 32768, streaming: true },
+      cost: { input_per_mtoken: 0, output_per_mtoken: 0 }
+    },
+    {
+      id: 'cloud-frontier', display_name: 'Sonnet', provider: 'anthropic', upstream_model: 'claude-3-5-sonnet',
+      base_url: 'https://api.anthropic.com', complexity_range: [3.0, 5.0], tags: ['cloud'],
+      capabilities: { tools: true, vision: true, max_context: 200000, streaming: true },
+      cost: { input_per_mtoken: 3.0, output_per_mtoken: 15.0 }
+    }
+  ];
+
+  it('should select local model for cost_optimized policy when complexity is low', () => {
+    const decision = PolicyEngine.resolve(models, {
+      complexityScore: 1.2, domain: 'general', requiresTools: false, requiresVision: false, confidence: 0.9
+    }, 'cost_optimized');
+    expect(decision.selectedModel.id).toBe('local-slm');
+  });
+});
+```
+
+**Step 2: Run test to verify failure**
+Run: `npx vitest run tests/unit/policy-engine.test.ts`
+Expected: FAIL
+
+**Step 3: Minimal implementation**
+```typescript
+// src/engine/policy-engine.ts
+import { ModelSpec } from './registry';
+import { D1EvaluationResult } from './d1-client';
+
+export interface RoutingDecision {
+  selectedModel: ModelSpec;
+  policyUsed: string;
+  reason: string;
+  complexityScore: number;
+}
+
+export const PolicyEngine = {
+  resolve(
+    candidates: ModelSpec[],
+    evalResult: D1EvaluationResult,
+    policy: 'balanced' | 'cost_optimized' | 'quality_max' | 'local_first' = 'balanced'
+  ): RoutingDecision {
+    if (candidates.length === 0) throw new Error('No candidate models available.');
+
+    const score = evalResult.complexityScore;
+
+    if (policy === 'cost_optimized' || policy === 'local_first') {
+      const sorted = [...candidates].sort((a, b) => {
+        const costA = a.cost.input_per_mtoken + a.cost.output_per_mtoken;
+        const costB = b.cost.input_per_mtoken + b.cost.output_per_mtoken;
+        return costA - costB;
+      });
+      return {
+        selectedModel: sorted[0],
+        policyUsed: policy,
+        reason: `Selected ${sorted[0].id} for minimum cost matching score ${score.toFixed(2)}`,
+        complexityScore: score
+      };
+    }
+
+    if (policy === 'quality_max') {
+      const sorted = [...candidates].sort((a, b) => b.complexity_range[1] - a.complexity_range[1]);
+      return {
+        selectedModel: sorted[0],
+        policyUsed: policy,
+        reason: `Selected ${sorted[0].id} for maximum reasoning capacity`,
+        complexityScore: score
+      };
+    }
+
+    // Default: 'balanced' (cari model dengan jarak titik tengah terdekat ke skor)
+    const sorted = [...candidates].sort((a, b) => {
+      const midA = (a.complexity_range[0] + a.complexity_range[1]) / 2;
+      const midB = (b.complexity_range[0] + b.complexity_range[1]) / 2;
+      return Math.abs(midA - score) - Math.abs(midB - score);
+    });
+
+    return {
+      selectedModel: sorted[0],
+      policyUsed: policy,
+      reason: `Selected ${sorted[0].id} as optimal complexity fit (${score.toFixed(2)})`,
+      complexityScore: score
+    };
+  }
+};
+```
+
+**Step 4: Run test to verify pass**
+Run: `npx vitest run tests/unit/policy-engine.test.ts`
+Expected: PASS
+
+---
+
+### Phase 4: Adapters & Bidirectional SSE Transcoder
+
+#### Task 4.1: Bidirectional SSE Transcoder
+**Objective:** Mengonversi data stream OpenAI ke format Anthropic SSE secara on-the-fly menggunakan `eventsource-parser` dan `TransformStream`.
+**Files:**
+- Create: `src/adapters/sse-transcoder.ts`
+- Test: `tests/unit/sse-transcoder.test.ts`
+
+**Step 1: Write failing test**
+```typescript
+// tests/unit/sse-transcoder.test.ts
+import { describe, it, expect } from 'vitest';
+import { createOpenAIToAnthropicTransform } from '../../src/adapters/sse-transcoder';
+
+describe('SSE Transcoder', () => {
+  it('should transform OpenAI delta chunks to Anthropic message events', async () => {
+    const transform = createOpenAIToAnthropicTransform('test-model');
+    const writer = transform.writable.getWriter();
+    const reader = transform.readable.getReader();
+
+    writer.write('data: {"id":"1","choices":[{"delta":{"content":"Hi"}}]}\n\n');
+    writer.write('data: [DONE]\n\n');
+    writer.close();
+
+    let output = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      output += value;
+    }
+
+    expect(output).toContain('event: message_start');
+    expect(output).toContain('event: content_block_delta');
+    expect(output).toContain('"text":"Hi"');
+    expect(output).toContain('event: message_stop');
+  });
+});
+```
+
+**Step 2: Run test to verify failure**
+Run: `npx vitest run tests/unit/sse-transcoder.test.ts`
+Expected: FAIL
+
+**Step 3: Minimal implementation**
+```typescript
+// src/adapters/sse-transcoder.ts
+import { createParser } from 'eventsource-parser';
+
+export function createOpenAIToAnthropicTransform(modelId: string): TransformStream<string, string> {
+  const msgId = `msg_${Math.random().toString(36).substring(2, 10)}`;
+
+  let controllerRef: TransformStreamDefaultController<string>;
+
+  const parser = createParser({
+    onEvent(event) {
+      if (event.data === '[DONE]') {
+        controllerRef.enqueue(`event: content_block_stop\ndata: {"type":"content_block_stop","index":0}\n\n`);
+        controllerRef.enqueue(`event: message_delta\ndata: {"type":"message_delta","delta":{"stop_reason":"end_turn"},"usage":{"output_tokens":0}}\n\n`);
+        controllerRef.enqueue(`event: message_stop\ndata: {"type":"message_stop"}\n\n`);
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(event.data);
+        const text = payload.choices?.[0]?.delta?.content;
+        if (text) {
+          controllerRef.enqueue(`event: content_block_delta\ndata: ${JSON.stringify({
+            type: 'content_block_delta',
+            index: 0,
+            delta: { type: 'text_delta', text }
+          })}\n\n`);
+        }
+      } catch {}
+    }
+  });
+
+  return new TransformStream({
+    start(controller) {
+      controllerRef = controller;
+      // Emit Initial Events
+      controller.enqueue(`event: message_start\ndata: ${JSON.stringify({
+        type: 'message_start',
+        message: { id: msgId, type: 'message', role: 'assistant', model: modelId, content: [], stop_reason: null, usage: { input_tokens: 0 } }
+      })}\n\n`);
+      controller.enqueue(`event: content_block_start\ndata: ${JSON.stringify({
+        type: 'content_block_start',
+        index: 0,
+        content_block: { type: 'text', text: '' }
+      })}\n\n`);
+    },
+    transform(chunk) {
+      parser.feed(chunk);
+    }
+  });
+}
+```
+
+**Step 4: Run test to verify pass**
+Run: `npx vitest run tests/unit/sse-transcoder.test.ts`
+Expected: PASS
+
+---
+
+### Phase 5: Hono API Gateway & Dual Endpoint Routing
+
+#### Task 5.1: Hono Core API Server & Endpoint Handlers
+**Objective:** Mengintegrasikan seluruh router, d1 evaluator, dan upstream proxy ke dalam rute `/v1/chat/completions`, `/v1/messages`, dan `/v1/models`.
+**Files:**
+- Create: `src/api/server.ts`
+- Test: `tests/integration/gateway.test.ts`
+
+**Step 1: Write failing test**
+```typescript
+// tests/integration/gateway.test.ts
+import { describe, it, expect } from 'vitest';
+import { app } from '../../src/api/server';
+
+describe('Gateway API Routes', () => {
+  it('GET /v1/models returns virtual and registered models', async () => {
+    const res = await app.request('/v1/models');
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.object).toBe('list');
+    expect(data.data.some((m: any) => m.id === 'd1-router-auto')).toBe(true);
+  });
+});
+```
+
+**Step 2: Run test to verify failure**
+Run: `npx vitest run tests/integration/gateway.test.ts`
+Expected: FAIL
+
+**Step 3: Minimal implementation**
+```typescript
+// src/api/server.ts
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { config } from '../core/config';
+import { ModelRegistry } from '../engine/registry';
+import { D1Client } from '../engine/d1-client';
+import { PolicyEngine } from '../engine/policy-engine';
+import { CanonicalRequest } from '../core/types';
+import fs from 'fs';
+
+export const app = new Hono();
+
+app.use('*', cors());
+
+let registry = new ModelRegistry([]);
+if (fs.existsSync(config.REGISTRY_PATH)) {
+  registry = ModelRegistry.fromYaml(fs.readFileSync(config.REGISTRY_PATH, 'utf-8'));
+}
+
+const d1Client = new D1Client(config.D1_ENDPOINT, config.D1_MODEL, config.D1_TIMEOUT_MS);
+
+// 1. Model List
+app.get('/v1/models', (c) => {
+  const models = [
+    { id: 'd1-router-auto', object: 'model', owned_by: 'system-one' },
+    { id: 'd1-router-cost', object: 'model', owned_by: 'system-one' },
+    { id: 'd1-router-quality', object: 'model', owned_by: 'system-one' },
+    { id: 'd1-router-local', object: 'model', owned_by: 'system-one' },
+    ...registry.models.map(m => ({ id: m.id, object: 'model', owned_by: m.provider }))
+  ];
+  return c.json({ object: 'list', data: models });
+});
+
+// 2. OpenAI Chat Completions
+app.post('/v1/chat/completions', async (c) => {
+  const t0 = performance.now();
+  const body = await c.req.json();
+  
+  const canonical: CanonicalRequest = {
+    messages: body.messages || [],
+    stream: body.stream ?? false,
+    tools: body.tools
+  };
+
+  const state = CanonicalRequest.extractState(canonical);
+  let evalResult;
+  try {
+    evalResult = await d1Client.evaluate(state);
+  } catch {
+    evalResult = { complexityScore: 1.5, domain: 'general', requiresTools: false, requiresVision: false, confidence: 0.5 };
+  }
+
+  const candidates = registry.findCandidates({
+    complexity: evalResult.complexityScore,
+    requiresTools: evalResult.requiresTools,
+    requiresVision: evalResult.requiresVision
+  });
+
+  const decision = PolicyEngine.resolve(
+    candidates.length > 0 ? candidates : registry.models,
+    evalResult,
+    config.DEFAULT_POLICY
+  );
+
+  const latency = (performance.now() - t0).toFixed(2);
+  c.header('X-D1-Complexity-Score', evalResult.complexityScore.toFixed(2));
+  c.header('X-D1-Domain', evalResult.domain);
+  c.header('X-D1-Selected-Model', decision.selectedModel.id);
+  c.header('X-D1-Routing-Latency-Ms', latency);
+
+  // Forward to upstream
+  const upstreamUrl = `${decision.selectedModel.base_url.replace(/\/$/, '')}/chat/completions`;
+  body.model = decision.selectedModel.upstream_model;
+
+  const upstreamRes = await fetch(upstreamUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: c.req.raw.signal
+  });
+
+  if (body.stream && upstreamRes.body) {
+    return new Response(upstreamRes.body, {
+      status: upstreamRes.status,
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),
+        'X-D1-Selected-Model': decision.selectedModel.id
+      }
+    });
+  }
+
+  const data = await upstreamRes.json();
+  return c.json(data);
+});
+```
+
+**Step 4: Run test to verify pass**
+Run: `npx vitest run tests/integration/gateway.test.ts`
+Expected: PASS
+
+---
+
+### Phase 6: Web Dashboard & Live Complexity Playground
+
+#### Task 6.1: Vite & TanStack Router Frontend Setup
+**Objective:** Menyiapkan root layout TanStack Router dengan dashboard metrik dan playground.
+**Files:**
+- Create: `src/web/routes/__root.tsx`
+- Create: `src/web/routes/index.tsx`
+- Create: `src/web/routes/playground.tsx`
+- Create: `vite.config.ts`
+
+**Step 1: Write `vite.config.ts`**
+```typescript
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { TanStackRouterVite } from '@tanstack/router-vite-plugin';
+
+export default defineConfig({
+  plugins: [react(), TanStackRouterVite({ routesDirectory: './src/web/routes' })],
+  server: {
+    port: 8100,
+  },
+  build: {
+    outDir: 'dist/client'
+  }
+});
+```
+
+---
+
+## 4. Definisi Selesai (Definition of Done)
+
+- [ ] Seluruh unit test pada `tests/unit/` (Config, Canonical, D1Client, Registry, Policy, Transcoder) lulus 100%.
+- [ ] Pengujian integrasi pada `tests/integration/` lulus untuk skenario streaming dan non-streaming.
+- [ ] Server Hono dapat menyajikan rute API `/v1/*` dan file statis TanStack UI pada port 8100.
+- [ ] Hermes Agent dan Claude Code berhasil terhubung ke gateway router lokal tanpa kesalahan format.

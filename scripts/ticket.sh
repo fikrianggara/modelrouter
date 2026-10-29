@@ -82,13 +82,14 @@ cmd_new() {
   [[ "$type" == "feature" || "$type" == "bug" ]] || die "type must be feature|bug"
   [[ "$size" == "small" || "$size" == "medium" || "$size" == "big" ]] || die "size must be small|medium|big"
   [[ "$severity" == "P0" || "$severity" == "P1" || "$severity" == "P2" ]] || die "severity must be P0|P1|P2"
-  local id next now tmp
+  local id next now tmp safe_title
   id="$(next_id)"
   next="$(date +%F)"
   now="$(now_iso)"
   tmp="$(mktemp)"
+  safe_title="${title//&/\\&}"
   sed -e "s/^id: TKT-000$/id: $id/" \
-      -e "s|^title: .*|title: \"$title\"|" \
+      -e "s|^title: .*|title: \"$safe_title\"|" \
       -e "s|^type: .*|type: $type|" \
       -e "s|^size: .*|size: $size|" \
       -e "s|^severity: .*|severity: $severity|" \

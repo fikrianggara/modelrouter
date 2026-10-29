@@ -28,7 +28,8 @@ export const Route = createFileRoute('/registry')({
 export interface ModelSpec {
   id: string;
   display_name?: string;
-  provider: 'ollama' | 'openai' | 'anthropic' | 'openrouter' | '9router' | 'custom';
+  provider:
+    'ollama' | 'openai' | 'anthropic' | 'openrouter' | '9router' | 'custom';
   upstream_model: string;
   base_url: string;
   api_key_env?: string | null;
@@ -101,14 +102,19 @@ export function RegistryPage() {
 
   const handleToggle = async (id: string, currentEnabled: boolean = true) => {
     try {
-      const res = await fetch(`/api/registry/model/${encodeURIComponent(id)}/toggle`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled: !currentEnabled }),
-      });
+      const res = await fetch(
+        `/api/registry/model/${encodeURIComponent(id)}/toggle`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled: !currentEnabled }),
+        },
+      );
       if (res.ok) {
         setModels((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, enabled: !currentEnabled } : m))
+          prev.map((m) =>
+            m.id === id ? { ...m, enabled: !currentEnabled } : m,
+          ),
         );
       }
     } catch {
@@ -209,15 +215,15 @@ export function RegistryPage() {
   const filteredModels = models.filter((m) => {
     const matchesSearch =
       m.id.toLowerCase().includes(search.toLowerCase()) ||
-      (m.display_name && m.display_name.toLowerCase().includes(search.toLowerCase())) ||
+      (m.display_name &&
+        m.display_name.toLowerCase().includes(search.toLowerCase())) ||
       m.upstream_model.toLowerCase().includes(search.toLowerCase()) ||
       m.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
 
     const matchesProvider =
       selectedProvider === 'all' || m.provider === selectedProvider;
 
-    const matchesTag =
-      selectedTag === 'all' || m.tags.includes(selectedTag);
+    const matchesTag = selectedTag === 'all' || m.tags.includes(selectedTag);
 
     return matchesSearch && matchesProvider && matchesTag;
   });
@@ -227,7 +233,7 @@ export function RegistryPage() {
     models
       .map(
         (m) =>
-          `  - id: "${m.id}"\n    display_name: "${m.display_name || ''}"\n    provider: "${m.provider}"\n    upstream_model: "${m.upstream_model}"\n    base_url: "${m.base_url}"\n    complexity_range: [${m.complexity_range[0]}, ${m.complexity_range[1]}]\n    enabled: ${m.enabled !== false}\n    tags: [${m.tags.map((t) => `"${t}"`).join(', ')}]`
+          `  - id: "${m.id}"\n    display_name: "${m.display_name || ''}"\n    provider: "${m.provider}"\n    upstream_model: "${m.upstream_model}"\n    base_url: "${m.base_url}"\n    complexity_range: [${m.complexity_range[0]}, ${m.complexity_range[1]}]\n    enabled: ${m.enabled !== false}\n    tags: [${m.tags.map((t) => `"${t}"`).join(', ')}]`,
       )
       .join('\n\n');
 
@@ -247,7 +253,10 @@ export function RegistryPage() {
         <span className="corner-crosshair bottom-2 right-2">+</span>
 
         {/* Repeatable ASCII Flame Watermark in Background of Hero Section */}
-        <div className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0" aria-hidden="true">
+        <div
+          className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0"
+          aria-hidden="true"
+        >
           <AsciiFlame
             className="text-fc-muted-soft dark:text-fc-muted"
             opacity={0.16}
@@ -266,20 +275,22 @@ export function RegistryPage() {
           <span className="text-fc-muted-soft">//</span>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-2xl relative z-10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between relative z-10">
           <div>
             <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-1">
-              Registered <span className="text-heat-100">execution engines</span>.
+              Registered{' '}
+              <span className="text-heat-100">execution engines</span>.
             </h1>
             <p className="text-xs sm:text-sm text-fc-body-soft">
-              Configure upstream models, active status, complexity intervals, and pricing metrics.
+              Configure upstream models, active status, complexity intervals,
+              and pricing metrics.
             </p>
           </div>
 
           <div className="flex items-center space-x-2.5">
             <button
               onClick={openAddModal}
-              className="btn-heat-cta px-4 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
+              className="btn-heat-cta px-4 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn w-36"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Model</span>
@@ -287,7 +298,7 @@ export function RegistryPage() {
 
             <button
               onClick={() => setShowRawYaml(!showRawYaml)}
-              className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer"
+              className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer w-36"
             >
               <FileText className="w-3.5 h-3.5 text-heat-100" />
               <span>{showRawYaml ? 'Hide YAML' : 'View [ .YAML ]'}</span>
@@ -304,10 +315,19 @@ export function RegistryPage() {
           <Info className="w-4 h-4 text-heat-100 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <div className="font-semibold text-fc-graphite text-xs">
-              Architecture Blueprint: Evaluator Head vs. Upstream Execution Engines
+              Architecture Blueprint: Evaluator Head vs. Upstream Execution
+              Engines
             </div>
             <p className="leading-relaxed text-[11px] text-fc-body">
-              <strong>Liquid AI d1</strong> is our dedicated System One Decision Model running locally in Ollama (<code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">/v1/systemone</code>). It consumes zero output tokens to classify task complexity (1–5). The entries below represent the <strong>Upstream Execution Engines</strong> that receive the request payload once routing is resolved.
+              <strong>Liquid AI d1</strong> is our dedicated System One Decision
+              Model running locally in Ollama (
+              <code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">
+                /v1/systemone
+              </code>
+              ). It consumes zero output tokens to classify task complexity
+              (1–5). The entries below represent the{' '}
+              <strong>Upstream Execution Engines</strong> that receive the
+              request payload once routing is resolved.
             </p>
           </div>
         </div>
@@ -320,12 +340,18 @@ export function RegistryPage() {
             <span className="corner-crosshair top-2 left-2">+</span>
             <span className="corner-crosshair top-2 right-2">+</span>
             <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
-              <span className="text-heat-100 font-bold">[ config/registry.yaml ]</span>
+              <span className="text-heat-100 font-bold">
+                [ config/registry.yaml ]
+              </span>
               <button
                 onClick={copyYaml}
                 className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
               >
-                {copiedYaml ? <Check className="w-3.5 h-3.5 text-fc-forest" /> : <Copy className="w-3.5 h-3.5" />}
+                {copiedYaml ? (
+                  <Check className="w-3.5 h-3.5 text-fc-forest" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
                 <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
               </button>
             </div>
@@ -357,25 +383,29 @@ export function RegistryPage() {
 
             {/* Provider Filter Segment */}
             <div className="flex items-center bg-fc-bg-lighter p-0.5 rounded-fc-6 border border-fc-border-faint text-xs font-mono self-start md:self-auto">
-              {['all', 'ollama', '9router', 'anthropic', 'openai'].map((prov) => (
-                <button
-                  key={prov}
-                  onClick={() => setSelectedProvider(prov)}
-                  className={`px-3 py-1 rounded-fc-4 capitalize transition-all cursor-pointer ${
-                    selectedProvider === prov
-                      ? 'bg-heat-100 text-white font-medium shadow-fc-heat-btn'
-                      : 'text-fc-muted hover:text-fc-graphite'
-                  }`}
-                >
-                  {prov === 'ollama' ? 'Ollama' : prov}
-                </button>
-              ))}
+              {['all', 'ollama', '9router', 'anthropic', 'openai'].map(
+                (prov) => (
+                  <button
+                    key={prov}
+                    onClick={() => setSelectedProvider(prov)}
+                    className={`px-3 py-1 rounded-fc-4 capitalize transition-all cursor-pointer ${
+                      selectedProvider === prov
+                        ? 'bg-heat-100 text-white font-medium shadow-fc-heat-btn'
+                        : 'text-fc-muted hover:text-fc-graphite'
+                    }`}
+                  >
+                    {prov === 'ollama' ? 'Ollama' : prov}
+                  </button>
+                ),
+              )}
             </div>
           </div>
 
           {/* Tags Row */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-fc-border-faint">
-            <span className="text-[11px] font-mono text-fc-muted mr-1">Tags:</span>
+            <span className="text-[11px] font-mono text-fc-muted mr-1">
+              Tags:
+            </span>
             <button
               onClick={() => setSelectedTag('all')}
               className={`px-2.5 py-0.5 rounded-fc-4 text-[11px] font-mono transition-colors cursor-pointer ${
@@ -416,9 +446,7 @@ export function RegistryPage() {
               <span className="corner-crosshair top-1 left-1.5">+</span>
               <div
                 className={`fc-nested-card p-3.5 sm:p-4 space-y-2.5 sm:space-y-3 flex flex-col justify-between h-full transition-all ${
-                  isEnabled
-                    ? ''
-                    : 'opacity-50 grayscale-[40%]'
+                  isEnabled ? '' : 'opacity-50 grayscale-[40%]'
                 }`}
               >
                 <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
@@ -433,7 +461,10 @@ export function RegistryPage() {
                       >
                         {model.display_name || model.id}
                       </h2>
-                      <div className="text-[10px] font-mono text-fc-muted truncate whitespace-nowrap" title={model.id}>
+                      <div
+                        className="text-[10px] font-mono text-fc-muted truncate whitespace-nowrap"
+                        title={model.id}
+                      >
                         {model.id}
                       </div>
                     </div>
@@ -446,14 +477,22 @@ export function RegistryPage() {
                   {/* Upstream & URL specs (Clean compact row, strictly 1 line) */}
                   <div className="px-2.5 py-1.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[10px] font-mono space-y-0.5 overflow-hidden">
                     <div className="flex items-center justify-between text-fc-graphite min-w-0 gap-2 whitespace-nowrap">
-                      <span className="text-fc-muted shrink-0 text-[10px]">Upstream:</span>
-                      <span className="font-normal truncate text-right text-[10px] min-w-0" title={model.upstream_model}>
+                      <span className="text-fc-muted shrink-0 text-[10px]">
+                        Upstream:
+                      </span>
+                      <span
+                        className="font-normal truncate text-right text-[10px] min-w-0"
+                        title={model.upstream_model}
+                      >
                         {model.upstream_model}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-fc-muted text-[9px] min-w-0 gap-2 whitespace-nowrap">
                       <span className="shrink-0 text-[9px]">Endpoint:</span>
-                      <span className="truncate text-right min-w-0 text-[9px]" title={model.base_url}>
+                      <span
+                        className="truncate text-right min-w-0 text-[9px]"
+                        title={model.base_url}
+                      >
                         {model.base_url}
                       </span>
                     </div>
@@ -462,7 +501,9 @@ export function RegistryPage() {
                   {/* Complexity Spectrum Bar (Restored Progress Bar Styling) */}
                   <div className="space-y-1 pt-0.5">
                     <div className="flex items-center justify-between text-xs font-mono whitespace-nowrap">
-                      <span className="text-fc-muted text-[10px]">Complexity Span:</span>
+                      <span className="text-fc-muted text-[10px]">
+                        Complexity Span:
+                      </span>
                       <span className="font-mono font-normal text-[10px] text-heat-100">
                         [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
                       </span>
@@ -481,29 +522,44 @@ export function RegistryPage() {
                   {/* Capabilities & Pricing Matrix (Compact 1-line columns, normal font) */}
                   <div className="grid grid-cols-4 gap-1.5 pt-0.5 text-[10px] font-mono">
                     <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Tools</span>
-                      <span className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}>
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                        Tools
+                      </span>
+                      <span
+                        className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}
+                      >
                         {model.capabilities.tools ? 'Yes' : 'No'}
                       </span>
                     </div>
 
                     <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Vision</span>
-                      <span className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}>
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                        Vision
+                      </span>
+                      <span
+                        className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}
+                      >
                         {model.capabilities.vision ? 'Yes' : 'No'}
                       </span>
                     </div>
 
                     <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Context</span>
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                        Context
+                      </span>
                       <span className="text-fc-graphite font-normal whitespace-nowrap text-[10px]">
                         {Math.round(model.capabilities.max_context / 1024)}K
                       </span>
                     </div>
 
                     <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">Cost</span>
-                      <span className="text-fc-graphite font-normal whitespace-nowrap truncate text-[10px]" title={`$${model.cost.input_per_mtoken}/1M`}>
+                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                        Cost
+                      </span>
+                      <span
+                        className="text-fc-graphite font-normal whitespace-nowrap truncate text-[10px]"
+                        title={`$${model.cost.input_per_mtoken}/1M`}
+                      >
                         ${model.cost.input_per_mtoken}
                       </span>
                     </div>
@@ -575,7 +631,11 @@ export function RegistryPage() {
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-3">
               <h2 className="text-sm font-bold text-fc-graphite flex items-center space-x-2">
                 <Layers className="w-4 h-4 text-heat-100" />
-                <span>{modalMode === 'add' ? 'Register Upstream Model' : `Edit: ${formData.id}`}</span>
+                <span>
+                  {modalMode === 'add'
+                    ? 'Register Upstream Model'
+                    : `Edit: ${formData.id}`}
+                </span>
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -592,27 +652,38 @@ export function RegistryPage() {
               </div>
             )}
 
-            <form onSubmit={handleFormSubmit} className="space-y-3.5 text-xs font-sans">
+            <form
+              onSubmit={handleFormSubmit}
+              className="space-y-3.5 text-xs font-sans"
+            >
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Model ID *</label>
+                  <label className="text-fc-muted font-medium">
+                    Model ID *
+                  </label>
                   <input
                     type="text"
                     required
                     disabled={modalMode === 'edit'}
                     value={formData.id}
-                    onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, id: e.target.value })
+                    }
                     placeholder="e.g. qwen-coder-local"
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Display Name</label>
+                  <label className="text-fc-muted font-medium">
+                    Display Name
+                  </label>
                   <input
                     type="text"
                     value={formData.display_name || ''}
-                    onChange={(e) => setFormData({ ...formData, display_name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, display_name: e.target.value })
+                    }
                     placeholder="e.g. Qwen 2.5 Coder 7B"
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite"
                   />
@@ -621,10 +692,17 @@ export function RegistryPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Provider *</label>
+                  <label className="text-fc-muted font-medium">
+                    Provider *
+                  </label>
                   <select
                     value={formData.provider}
-                    onChange={(e) => setFormData({ ...formData, provider: e.target.value as any })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        provider: e.target.value as any,
+                      })
+                    }
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
                   >
                     <option value="ollama">ollama (Local)</option>
@@ -637,12 +715,19 @@ export function RegistryPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Upstream Model *</label>
+                  <label className="text-fc-muted font-medium">
+                    Upstream Model *
+                  </label>
                   <input
                     type="text"
                     required
                     value={formData.upstream_model}
-                    onChange={(e) => setFormData({ ...formData, upstream_model: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        upstream_model: e.target.value,
+                      })
+                    }
                     placeholder="e.g. qwen2.5-coder:7b"
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
                   />
@@ -655,18 +740,27 @@ export function RegistryPage() {
                   type="text"
                   required
                   value={formData.base_url}
-                  onChange={(e) => setFormData({ ...formData, base_url: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, base_url: e.target.value })
+                  }
                   placeholder="e.g. http://localhost:11434/v1"
                   className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-fc-muted font-medium">API Key Env Variable</label>
+                <label className="text-fc-muted font-medium">
+                  API Key Env Variable
+                </label>
                 <input
                   type="text"
                   value={formData.api_key_env || ''}
-                  onChange={(e) => setFormData({ ...formData, api_key_env: e.target.value || null })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      api_key_env: e.target.value || null,
+                    })
+                  }
                   placeholder="e.g. OPENAI_API_KEY (leave blank for local)"
                   className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
                 />
@@ -674,7 +768,9 @@ export function RegistryPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Complexity Min (0.0 - 5.0)</label>
+                  <label className="text-fc-muted font-medium">
+                    Complexity Min (0.0 - 5.0)
+                  </label>
                   <input
                     type="number"
                     step="0.1"
@@ -684,7 +780,10 @@ export function RegistryPage() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        complexity_range: [parseFloat(e.target.value) || 0, formData.complexity_range[1]],
+                        complexity_range: [
+                          parseFloat(e.target.value) || 0,
+                          formData.complexity_range[1],
+                        ],
                       })
                     }
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
@@ -692,7 +791,9 @@ export function RegistryPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Complexity Max (0.0 - 5.0)</label>
+                  <label className="text-fc-muted font-medium">
+                    Complexity Max (0.0 - 5.0)
+                  </label>
                   <input
                     type="number"
                     step="0.1"
@@ -702,7 +803,10 @@ export function RegistryPage() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        complexity_range: [formData.complexity_range[0], parseFloat(e.target.value) || 5],
+                        complexity_range: [
+                          formData.complexity_range[0],
+                          parseFloat(e.target.value) || 5,
+                        ],
                       })
                     }
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
@@ -711,14 +815,19 @@ export function RegistryPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-fc-muted font-medium">Tags (comma-separated)</label>
+                <label className="text-fc-muted font-medium">
+                  Tags (comma-separated)
+                </label>
                 <input
                   type="text"
                   value={formData.tags.join(', ')}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      tags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
+                      tags: e.target.value
+                        .split(',')
+                        .map((t) => t.trim())
+                        .filter(Boolean),
                     })
                   }
                   placeholder="e.g. local, coding, fast, tools"
@@ -728,7 +837,9 @@ export function RegistryPage() {
 
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Input Cost ($/1M Tokens)</label>
+                  <label className="text-fc-muted font-medium">
+                    Input Cost ($/1M Tokens)
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -737,7 +848,10 @@ export function RegistryPage() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        cost: { ...formData.cost, input_per_mtoken: parseFloat(e.target.value) || 0 },
+                        cost: {
+                          ...formData.cost,
+                          input_per_mtoken: parseFloat(e.target.value) || 0,
+                        },
                       })
                     }
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
@@ -745,7 +859,9 @@ export function RegistryPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-fc-muted font-medium">Output Cost ($/1M Tokens)</label>
+                  <label className="text-fc-muted font-medium">
+                    Output Cost ($/1M Tokens)
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -754,7 +870,10 @@ export function RegistryPage() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        cost: { ...formData.cost, output_per_mtoken: parseFloat(e.target.value) || 0 },
+                        cost: {
+                          ...formData.cost,
+                          output_per_mtoken: parseFloat(e.target.value) || 0,
+                        },
                       })
                     }
                     className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
@@ -770,7 +889,10 @@ export function RegistryPage() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        capabilities: { ...formData.capabilities, tools: e.target.checked },
+                        capabilities: {
+                          ...formData.capabilities,
+                          tools: e.target.checked,
+                        },
                       })
                     }
                     className="rounded text-heat-100"
@@ -785,7 +907,10 @@ export function RegistryPage() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        capabilities: { ...formData.capabilities, vision: e.target.checked },
+                        capabilities: {
+                          ...formData.capabilities,
+                          vision: e.target.checked,
+                        },
                       })
                     }
                     className="rounded text-heat-100"
@@ -797,7 +922,9 @@ export function RegistryPage() {
                   <input
                     type="checkbox"
                     checked={formData.enabled !== false}
-                    onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, enabled: e.target.checked })
+                    }
                     className="rounded text-heat-100"
                   />
                   <span>Enabled (Active)</span>

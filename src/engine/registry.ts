@@ -23,6 +23,7 @@ export const ModelProviderSchema = z.enum([
   'openai',
   'anthropic',
   'openrouter',
+  '9router',
   'custom',
 ]);
 

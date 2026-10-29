@@ -20,7 +20,7 @@ export const Route = createFileRoute('/registry')({
 interface ModelSpec {
   id: string;
   display_name?: string;
-  provider: 'ollama' | 'openai' | 'anthropic' | 'openrouter' | 'custom';
+  provider: 'ollama' | 'openai' | 'anthropic' | 'openrouter' | '9router' | 'custom';
   upstream_model: string;
   base_url: string;
   api_key_env?: string | null;

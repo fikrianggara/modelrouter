@@ -353,7 +353,7 @@ describe('Hono Gateway Integration Tests (TKT-008)', () => {
       });
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-d1-selected-model')).toBe('openai-gpt4o');
+      expect(res.headers.get('x-d1-selected-model')).toBe('9router-gemini-38-flash');
       expect(res.headers.get('x-d1-complexity-score')).toBe('4.00');
       expect(res.headers.get('x-d1-domain')).toBe('coding');
     });
@@ -375,7 +375,7 @@ describe('Hono Gateway Integration Tests (TKT-008)', () => {
       });
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('x-d1-selected-model')).toBe('cloud-coder');
+      expect(res.headers.get('x-d1-selected-model')).toBe('9router-claude-opus-thinking');
       expect(res.headers.get('x-d1-complexity-score')).toBe('4.00');
       expect(res.headers.get('x-d1-domain')).toBe('coding');
     });

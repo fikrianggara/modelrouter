@@ -6,4 +6,4 @@
 | TKT-004 | feature | medium | P1 | core | merged | jarvis | feature-TKT-004-model-registry-yaml-load | false | 2026-10-29 | 2026-10-29 | Model Registry YAML loader and capability tag filter |
 | TKT-005 | feature | medium | P0 | core | merged | jarvis | feature-TKT-005-system-one-liquid-d1-dec | false | 2026-10-29 | 2026-10-29 | System One Liquid D1 Decision Client and Heuristic Fallback |
 | TKT-006 | feature | medium | P1 | core | merged | jarvis | feature-TKT-006-policy-routing-resolver | false | 2026-10-29 | 2026-10-29 | Policy Routing Resolver Engine |
-| TKT-007 | feature | medium | P0 | core | ongoing | jarvis | feature-TKT-007-bidirectional-sse-stream | false | 2026-10-29 | 2026-10-29 | Bidirectional SSE Stream Transcoder for OpenAI and Anthropic |
+| TKT-007 | feature | medium | P0 | core | done | jarvis | feature-TKT-007-bidirectional-sse-stream | true | 2026-10-29 | 2026-10-29 | Bidirectional SSE Stream Transcoder for OpenAI and Anthropic |

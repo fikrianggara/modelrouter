@@ -466,59 +466,55 @@ export function PlaygroundPage() {
   const scoreStyle = getScoreColor(score);
 
   return (
-    <div className="flex flex-col bg-fc-canvas-paper">
-      {/* Section 01: Header with ASCII Flame */}
-      <section className="relative border-b border-fc-border-faint p-6 sm:p-8 bg-fc-canvas-paper">
-        <span className="corner-crosshair top-2 left-2">+</span>
-        <span className="corner-crosshair top-2 right-2">+</span>
-        <span className="corner-crosshair bottom-2 left-2">+</span>
-        <span className="corner-crosshair bottom-2 right-2">+</span>
+    <div className="min-h-screen bg-fc-paper text-fc-graphite font-sans">
+      <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
+        {/* ================= BARIS 1: SPACER KOSONG TOP ================= */}
+        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
+        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
+        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
 
-        {/* Repeatable ASCII Flame Watermark in Background of Hero Section */}
-        <div className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0" aria-hidden="true">
-          <AsciiFlame
-            className="text-fc-muted-soft dark:text-fc-muted"
-            opacity={0.16}
-            variant="flame"
-            repeatRows={3}
-            repeatCols={3}
-          />
+        {/* ================= BARIS 2: SECTION HEADER [ 01 / 02 ] ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+          <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
+            <span>[ <strong className="text-heat-100 font-bold">01</strong> / 02 ]</span>
+            <span>·</span>
+            <span className="text-fc-graphite font-semibold">DECISION WORKBENCH</span>
+            <span className="text-fc-muted-soft">//</span>
+            <span>REAL-TIME TELEMETRY</span>
+          </div>
+          <span className="hidden sm:inline-block font-mono text-[11px] text-fc-muted">
+            LIQUID d1 NEURAL PASS
+          </span>
         </div>
+        <div className="border-b border-l border-fc-border-faint" />
 
-        {/* Section Metadata */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2 relative z-10">
-          <span className="text-heat-100 font-bold">[ 01 / 02 ]</span>
-          <span>·</span>
-          <span>Decision Workbench</span>
-          <span className="text-fc-muted-soft">//</span>
-          <span className="text-fc-muted-soft">Real-time Telemetry</span>
-          <span className="text-fc-muted-soft">//</span>
+        {/* ================= BARIS 3: WORKBENCH HERO BANNER ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint p-8 sm:p-12 relative overflow-hidden">
+          <div className="max-w-2xl relative z-10">
+            <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-2">
+              Decision Intelligence <span className="text-heat-100 font-semibold">Playground</span>.
+            </h1>
+            <p className="text-sm sm:text-base text-fc-body-soft">
+              Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
+            </p>
+          </div>
         </div>
+        <div className="border-b border-l border-fc-border-faint" />
 
-        {/* Workbench Header */}
-        <div className="max-w-2xl relative z-10">
-          <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-1">
-            Decision Intelligence <span className="text-heat-100">Playground</span>.
-          </h1>
-          <p className="text-xs sm:text-sm text-fc-body-soft">
-            Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
-          </p>
-        </div>
-      </section>
-
-      {/* Blueprint Exposed Grid: Monochromatic Statistic Cards with Nested Rounded Cards & ASCII Flame */}
-      <section className="fc-blueprint-grid border-b border-fc-border-faint">
-        {/* Stat Cell 1: Calibrated Complexity Score */}
-        <div className="fc-grid-cell">
-          <span className="corner-crosshair top-1 left-1.5">+</span>
-          <div className="fc-nested-card fc-stat-mono w-full h-full">
-            <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Task Complexity</span>
-              <Gauge className="w-4 h-4 text-fc-graphite stat-icon" />
+        {/* ================= BARIS 4: 4 STAT BENTO CELLS (Gap 0px) ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Stat Cell 1: Calibrated Complexity Score */}
+          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+            <div className="flex items-center justify-between text-fc-muted mb-3">
+              <span className="text-xs font-mono uppercase tracking-wider font-medium">Task Complexity</span>
+              <Gauge className="w-4 h-4 text-fc-graphite" />
             </div>
-            <div className="space-y-0.5 pt-2">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+            <div className="space-y-1">
+              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
                 {score.toFixed(2)}{' '}
                 <span className="text-sm font-sans font-normal text-fc-muted">/ 5.0</span>
               </div>
@@ -526,62 +522,53 @@ export function PlaygroundPage() {
                 {score < 2.0 ? 'Tier 1 · Local Engine' : score < 3.5 ? 'Tier 2 · Mid-Tier Engine' : 'Tier 3 · Frontier Engine'}
               </div>
             </div>
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-        </div>
 
-        {/* Stat Cell 2: Decision Latency */}
-        <div className="fc-grid-cell">
-          <span className="corner-crosshair top-1 left-1.5">+</span>
-          <div className="fc-nested-card fc-stat-mono w-full h-full">
-            <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Decision Latency</span>
-              <Clock className="w-4 h-4 text-fc-graphite stat-icon" />
+          {/* Stat Cell 2: Decision Latency */}
+          <div className="p-6 sm:p-8 border-b sm:border-b-0 lg:border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+            <div className="flex items-center justify-between text-fc-muted mb-3">
+              <span className="text-xs font-mono uppercase tracking-wider font-medium">Decision Latency</span>
+              <Clock className="w-4 h-4 text-fc-graphite" />
             </div>
-            <div className="space-y-0.5 pt-2">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+            <div className="space-y-1">
+              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
                 {evaluation?.routingLatencyMs ? evaluation.routingLatencyMs.toFixed(1) : '14.0'}{' '}
                 <span className="text-base font-sans font-normal text-fc-muted">ms</span>
               </div>
-              <div className="text-xs text-fc-muted font-mono flex items-center space-x-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-fc-graphite" />
+              <div className="text-xs text-fc-forest font-mono flex items-center space-x-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-fc-forest" />
                 <span>Liquid d1 Neural Pass</span>
               </div>
             </div>
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-        </div>
 
-        {/* Stat Cell 3: Target Execution Engine */}
-        <div className="fc-grid-cell">
-          <span className="corner-crosshair top-1 left-1.5">+</span>
-          <div className="fc-nested-card fc-stat-mono w-full h-full">
-            <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Target Engine</span>
-              <Cpu className="w-4 h-4 text-fc-graphite stat-icon" />
+          {/* Stat Cell 3: Target Execution Engine */}
+          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+            <div className="flex items-center justify-between text-fc-muted mb-3">
+              <span className="text-xs font-mono uppercase tracking-wider font-medium">Target Engine</span>
+              <Cpu className="w-4 h-4 text-fc-graphite" />
             </div>
-            <div className="space-y-0.5 pt-2">
-              <div className="text-xl sm:text-2xl font-normal font-sans tracking-tight text-fc-graphite stat-value truncate">
+            <div className="space-y-1">
+              <div className="text-xl sm:text-2xl font-normal font-sans tracking-tight text-fc-graphite truncate">
                 {evaluation?.selectedModel?.display_name || 'Local Chat'}
               </div>
               <div className="text-xs font-mono text-fc-muted truncate">
                 {evaluation?.selectedModel?.provider || 'ollama'} • ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0}/1M
               </div>
             </div>
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-        </div>
 
-        {/* Stat Cell 4: Stream Execution Telemetry */}
-        <div className="fc-grid-cell">
-          <span className="corner-crosshair top-1 left-1.5">+</span>
-          <div className="fc-nested-card fc-stat-mono w-full h-full">
-            <AsciiFlame className="fc-ascii-layer text-fc-muted-soft dark:text-fc-muted" opacity={0.16} />
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium stat-label">Stream Telemetry</span>
-              <Terminal className="w-4 h-4 text-fc-graphite stat-icon" />
+          {/* Stat Cell 4: Stream Execution Telemetry */}
+          <div className="p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+            <div className="flex items-center justify-between text-fc-muted mb-3">
+              <span className="text-xs font-mono uppercase tracking-wider font-medium">Stream Telemetry</span>
+              <Terminal className="w-4 h-4 text-fc-graphite" />
             </div>
-            <div className="space-y-0.5 pt-2">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
+            <div className="space-y-1">
+              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
                 {streamStats.tokens}{' '}
                 <span className="text-sm font-sans font-normal text-fc-muted">tokens</span>
               </div>
@@ -589,14 +576,35 @@ export function PlaygroundPage() {
                 {streamStats.tokensPerSec} tok/sec • {streamStats.elapsedMs} ms
               </div>
             </div>
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
-      </section>
+        <div className="border-b border-l border-fc-border-faint" />
 
-      {/* Main Dual-Pane Blueprint Grid: Left = Execution Workbench, Right = Decision Inspector */}
-      <div className="fc-blueprint-grid grid-cols-1 lg:grid-cols-12 border-b border-fc-border-faint">
-        {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
-        <div className="fc-grid-cell lg:col-span-7 space-y-4">
+        {/* ================= BARIS 5: SPACER KOSONG ================= */}
+        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
+        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
+        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+
+        {/* ================= BARIS 6: SECTION HEADER [ 02 / 02 ] ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+          <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
+            <span>[ <strong className="text-heat-100 font-bold">02</strong> / 02 ]</span>
+            <span>·</span>
+            <span className="text-fc-graphite font-semibold">WORKBENCH & INGRESS</span>
+            <span className="text-fc-muted-soft">//</span>
+            <span>STREAMING DISPATCH</span>
+          </div>
+        </div>
+        <div className="border-b border-l border-fc-border-faint" />
+
+        {/* ================= BARIS 7: WORKBENCH DUAL-PANE GRID ================= */}
+        <div className="border-b border-r border-fc-border-faint" />
+        <div className="border-b border-fc-border-faint grid grid-cols-1 lg:grid-cols-12">
+          {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
+          <div className="lg:col-span-7 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-fc-border-faint space-y-5">
           <span className="corner-crosshair top-1 left-1.5">+</span>
           <span className="corner-crosshair top-1 right-1.5">+</span>
 
@@ -811,9 +819,7 @@ export function PlaygroundPage() {
         </div>
 
         {/* Right Column: Decision Intelligence Console (5 Cols) */}
-        <div className="fc-grid-cell lg:col-span-5 space-y-4">
-          <span className="corner-crosshair top-1 left-1.5">+</span>
-          <span className="corner-crosshair top-1 right-1.5">+</span>
+        <div className="lg:col-span-5 p-6 sm:p-8 space-y-5">
 
           {/* Decision Fallback / Status Alert */}
           {Boolean(evaluation?.isFallback || evaluation?.fallbackReason) ? (
@@ -998,6 +1004,13 @@ export function PlaygroundPage() {
             </div>
           </div>
         </div>
+        </div>
+        <div className="border-b border-l border-fc-border-faint" />
+
+        {/* ================= BARIS 8: SPACER KOSONG BOTTOM ================= */}
+        <div className="border-b border-r border-fc-border-faint h-16 sm:h-20" />
+        <div className="border-b border-fc-border-faint h-16 sm:h-20" />
+        <div className="border-b border-l border-fc-border-faint h-16 sm:h-20" />
       </div>
     </div>
   );

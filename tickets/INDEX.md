@@ -13,4 +13,4 @@
 | TKT-011 | feature | big | P0 | core | merged | jarvis | feature-TKT-011-model-registry-managemen | false | 2026-10-29 | 2026-10-29 | Model registry management, 10s D1 timeout, interactive decision graph, dynamic telemetry, and policy-aligned responses |
 | TKT-012 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-012-frontend-redesign-and-an | false | 2026-10-29 | 2026-10-29 | Frontend Redesign and Anti-AI Slop Transformation |
 | TKT-013 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-013-implement-firecrawl-desi | false | 2026-10-29 | 2026-10-29 | Implement Firecrawl Design System Tokens and Theme |
-| TKT-014 | feature | medium | P2 | frontend | done | jarvis | feature-TKT-014-rework-modelrouter-to-ma | true | 2026-10-29 | 2026-10-29 | Rework ModelRouter to match Firecrawl.dev Blueprint Design System |
+| TKT-014 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-014-rework-modelrouter-to-ma | false | 2026-10-29 | 2026-10-29 | Rework ModelRouter to match Firecrawl.dev Blueprint Design System |

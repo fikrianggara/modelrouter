@@ -246,13 +246,18 @@ export function RegistryPage() {
         <span className="corner-crosshair bottom-2 left-2">+</span>
         <span className="corner-crosshair bottom-2 right-2">+</span>
 
-        {/* Flame ASCII Animation in Top-Right of Hero Section */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none select-none flex flex-col items-end">
-          <span className="text-[10px] font-mono text-fc-muted-soft mb-1 hidden sm:inline">[ ASCII // REGISTRY ]</span>
-          <AsciiFlame className="text-heat-100" opacity={0.65} variant="flame" />
+        {/* Repeatable ASCII Flame Watermark in Background of Hero Section */}
+        <div className="absolute top-0 right-0 bottom-0 pointer-events-none select-none overflow-hidden max-w-[60%] flex items-center justify-end pr-4 sm:pr-8 z-0" aria-hidden="true">
+          <AsciiFlame
+            className="text-fc-muted-soft dark:text-fc-muted"
+            opacity={0.16}
+            variant="flame"
+            repeatRows={3}
+            repeatCols={3}
+          />
         </div>
 
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2">
+        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2 relative z-10">
           <span className="text-heat-100 font-bold">[ 01 / 01 ]</span>
           <span>·</span>
           <span>Model Registry</span>
@@ -261,7 +266,7 @@ export function RegistryPage() {
           <span className="text-fc-muted-soft">//</span>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-2xl relative z-10">
           <div>
             <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-1">
               Registered <span className="text-heat-100">execution engines</span>.
@@ -290,12 +295,6 @@ export function RegistryPage() {
           </div>
         </div>
       </section>
-
-      {/* Filler Grid Spacer Row */}
-      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
 
       {/* Architecture Clarification Note with Halo */}
       <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
@@ -416,7 +415,7 @@ export function RegistryPage() {
             <div key={model.id} className="fc-grid-cell">
               <span className="corner-crosshair top-1 left-1.5">+</span>
               <div
-                className={`fc-nested-card p-5 space-y-3.5 flex flex-col justify-between h-full transition-all ${
+                className={`fc-nested-card p-3.5 sm:p-4 space-y-2.5 sm:space-y-3 flex flex-col justify-between h-full transition-all ${
                   isEnabled
                     ? ''
                     : 'opacity-50 grayscale-[40%]'
@@ -424,48 +423,59 @@ export function RegistryPage() {
               >
                 <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
 
-                <div className="space-y-3">
-                  {/* Header: Name, Provider, Enabled Status */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h2 className="text-sm font-medium text-fc-graphite tracking-tight truncate max-w-[210px]">
+                <div className="space-y-2.5">
+                  {/* Header: Name, Provider, Enabled Status (Responsive, Zero Overflow) */}
+                  <div className="flex items-start justify-between gap-2 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <h2
+                        className="text-xs sm:text-sm font-semibold text-fc-graphite tracking-tight truncate"
+                        title={model.display_name || model.id}
+                      >
                         {model.display_name || model.id}
                       </h2>
-                      <span className="text-[11px] font-mono text-fc-muted">
+                      <div className="text-[10px] font-mono text-fc-muted truncate" title={model.id}>
                         {model.id}
-                      </span>
+                      </div>
                     </div>
 
-                    <span className="px-2 py-0.5 rounded-fc-4 text-[10px] font-mono uppercase font-bold bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint">
+                    <span className="shrink-0 px-2 py-0.5 rounded-fc-4 text-[9px] font-mono uppercase font-bold bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint whitespace-nowrap">
                       {model.provider}
                     </span>
                   </div>
 
-                  {/* Upstream & URL specs */}
-                  <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1 text-xs font-mono">
-                    <div className="flex items-center justify-between text-fc-graphite">
-                      <span className="text-fc-muted text-[11px]">Upstream:</span>
-                      <span className="font-semibold truncate max-w-[170px] text-[11px]">
+                  {/* Upstream & URL specs (Clean compact row) */}
+                  <div className="px-2.5 py-1.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[10px] font-mono space-y-0.5">
+                    <div className="flex items-center justify-between text-fc-graphite min-w-0 gap-2">
+                      <span className="text-fc-muted shrink-0">Upstream:</span>
+                      <span className="font-medium truncate text-right text-[10px]" title={model.upstream_model}>
                         {model.upstream_model}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between text-fc-muted text-[10px]">
-                      <span className="text-fc-muted">Endpoint:</span>
-                      <span className="truncate max-w-[170px]">{model.base_url}</span>
+                    <div className="flex items-center justify-between text-fc-muted text-[9px] min-w-0 gap-2">
+                      <span className="shrink-0">Endpoint:</span>
+                      <span className="truncate text-right" title={model.base_url}>
+                        {model.base_url}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Complexity Spectrum Bar */}
-                  <div className="space-y-1.5 pt-0.5">
+                  {/* Complexity Spectrum Bar (< 3.0: White, >= 3.0: Heat Orange) */}
+                  <div className="space-y-1 pt-0.5">
                     <div className="flex items-center justify-between text-xs font-mono">
-                      <span className="text-fc-muted text-[11px]">Complexity Span:</span>
-                      <span className="text-fc-graphite font-bold text-[11px]">
+                      <span className="text-fc-muted text-[10px]">Complexity Span:</span>
+                      <span
+                        className={`font-mono font-bold text-[10px] ${
+                          maxComp < 3.0 ? 'text-fc-graphite dark:text-white' : 'text-heat-100'
+                        }`}
+                      >
                         [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
                       </span>
                     </div>
-                    <div className="w-full h-1.5 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden relative">
+                    <div className="w-full h-1.5 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden relative">
                       <div
-                        className="h-full rounded-fc-full bg-heat-100"
+                        className={`h-full rounded-fc-full transition-all ${
+                          maxComp < 3.0 ? 'bg-white shadow-xs' : 'bg-heat-100 shadow-fc-heat-btn'
+                        }`}
                         style={{
                           marginLeft: `${leftPercent}%`,
                           width: `${Math.max(6, widthPercent)}%`,
@@ -474,43 +484,43 @@ export function RegistryPage() {
                     </div>
                   </div>
 
-                  {/* Capabilities & Pricing Matrix */}
-                  <div className="grid grid-cols-2 gap-2 text-[11px] font-mono pt-1">
-                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                      <span className="text-fc-muted">Tools:</span>
-                      <span className={model.capabilities.tools ? 'text-fc-forest font-bold' : 'text-fc-muted'}>
+                  {/* Capabilities & Pricing Matrix (Compact 4-column strip) */}
+                  <div className="grid grid-cols-4 gap-1.5 pt-0.5 text-[10px] font-mono">
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
+                      <span className="text-[9px] text-fc-muted">Tools</span>
+                      <span className={`font-semibold ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}>
                         {model.capabilities.tools ? 'Yes' : 'No'}
                       </span>
                     </div>
 
-                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                      <span className="text-fc-muted">Vision:</span>
-                      <span className={model.capabilities.vision ? 'text-fc-bluetron font-bold' : 'text-fc-muted'}>
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
+                      <span className="text-[9px] text-fc-muted">Vision</span>
+                      <span className={`font-semibold ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}>
                         {model.capabilities.vision ? 'Yes' : 'No'}
                       </span>
                     </div>
 
-                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                      <span className="text-fc-muted">Context:</span>
-                      <span className="text-fc-graphite font-medium">
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
+                      <span className="text-[9px] text-fc-muted">Context</span>
+                      <span className="text-fc-graphite font-semibold">
                         {Math.round(model.capabilities.max_context / 1024)}K
                       </span>
                     </div>
 
-                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                      <span className="text-fc-muted">Cost/1M:</span>
-                      <span className="text-fc-graphite">
+                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center">
+                      <span className="text-[9px] text-fc-muted">Cost/1M</span>
+                      <span className="text-fc-graphite font-semibold">
                         ${model.cost.input_per_mtoken}
                       </span>
                     </div>
                   </div>
 
-                  {/* Tags Badges */}
-                  <div className="flex flex-wrap gap-1 pt-0.5">
+                  {/* Tags Badges (Clean, compact font) */}
+                  <div className="flex flex-wrap gap-1 items-center pt-0.5">
                     {model.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-[10px] font-mono text-fc-muted"
+                        className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[9px] font-mono text-fc-muted"
                       >
                         #{tag}
                       </span>
@@ -519,10 +529,10 @@ export function RegistryPage() {
                 </div>
 
                 {/* Card Footer Actions */}
-                <div className="pt-3 border-t border-fc-border-faint flex items-center justify-between gap-2">
+                <div className="pt-2.5 border-t border-fc-border-faint flex items-center justify-between gap-1.5">
                   <button
                     onClick={() => handleToggle(model.id, isEnabled)}
-                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-fc-6 text-[11px] font-medium border transition-colors cursor-pointer ${
+                    className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-fc-4 text-[10px] font-mono font-medium border transition-colors cursor-pointer ${
                       isEnabled
                         ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:bg-fc-forest/20'
                         : 'bg-fc-bg-lighter text-fc-muted border-fc-border-faint'
@@ -530,17 +540,17 @@ export function RegistryPage() {
                     title={isEnabled ? 'Click to disable' : 'Click to enable'}
                   >
                     {isEnabled ? (
-                      <ToggleRight className="w-4 h-4 text-fc-forest" />
+                      <ToggleRight className="w-3.5 h-3.5 text-fc-forest" />
                     ) : (
-                      <ToggleLeft className="w-4 h-4 text-slate-400" />
+                      <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />
                     )}
                     <span>{isEnabled ? 'Active' : 'Disabled'}</span>
                   </button>
 
-                  <div className="flex items-center space-x-1.5">
+                  <div className="flex items-center space-x-1">
                     <button
                       onClick={() => openEditModal(model)}
-                      className="p-1.5 rounded-fc-6 bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
+                      className="p-1 rounded-fc-4 bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
                       title="Edit Model"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -548,7 +558,7 @@ export function RegistryPage() {
 
                     <button
                       onClick={() => handleDelete(model.id)}
-                      className="p-1.5 rounded-fc-6 bg-fc-crimson/10 hover:bg-fc-crimson/20 text-fc-crimson transition-colors cursor-pointer"
+                      className="p-1 rounded-fc-4 bg-fc-crimson/10 hover:bg-fc-crimson/20 text-fc-crimson transition-colors cursor-pointer"
                       title="Delete Model"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -819,12 +829,6 @@ export function RegistryPage() {
           </div>
         </div>
       )}
-
-      {/* Bottom Spacer Row */}
-      <div className="h-8 sm:h-12 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
-        <span className="corner-crosshair top-0 left-1.5">+</span>
-        <span className="corner-crosshair top-0 right-1.5">+</span>
-      </div>
     </div>
   );
 }

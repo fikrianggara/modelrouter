@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const FLAME_FRAMES = [
   `  .  .  :  .  *  #  @  #  *  .  :  .
@@ -57,12 +57,16 @@ interface AsciiFlameProps {
   className?: string;
   opacity?: number;
   variant?: 'flame' | 'matrix' | 'stream';
+  repeatRows?: number;
+  repeatCols?: number;
 }
 
 export function AsciiFlame({
   className = '',
   opacity = 0.25,
   variant = 'flame',
+  repeatRows = 1,
+  repeatCols = 1,
 }: AsciiFlameProps) {
   const [frameIndex, setFrameIndex] = useState(0);
 
@@ -86,6 +90,25 @@ export function AsciiFlame({
     return () => clearInterval(timer);
   }, [frames.length]);
 
+  const renderedContent = useMemo(() => {
+    const raw = frames[frameIndex] || '';
+    if (repeatRows <= 1 && repeatCols <= 1) {
+      return raw;
+    }
+    const lines = raw.split('\n');
+    const result: string[] = [];
+    for (let r = 0; r < repeatRows; r++) {
+      for (const line of lines) {
+        let repeatedLine = '';
+        for (let c = 0; c < repeatCols; c++) {
+          repeatedLine += (c > 0 ? '  ' : '') + line.trimEnd();
+        }
+        result.push(repeatedLine);
+      }
+    }
+    return result.join('\n');
+  }, [frames, frameIndex, repeatRows, repeatCols]);
+
   const hasColor = /text-/.test(className);
   const colorClass = hasColor ? '' : 'text-heat-100';
 
@@ -95,7 +118,7 @@ export function AsciiFlame({
       style={{ opacity }}
       className={`font-mono text-[10px] leading-[13px] select-none pointer-events-none transition-opacity ${colorClass} ${className}`}
     >
-      {frames[frameIndex]}
+      {renderedContent}
     </pre>
   );
 }

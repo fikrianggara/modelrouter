@@ -10,7 +10,8 @@
 
   body {
     font-family: var(--font-sans);
-    @apply antialiased bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200;
+    @apply antialiased bg-[#F8FAFC] text-slate-900 dark:bg-[#090A0F] dark:text-slate-100 transition-colors duration-150;
+    letter-spacing: -0.01em;
   }
 
   code, pre, kbd {
@@ -18,10 +19,10 @@
   }
 }
 
-/* Custom scrollbars */
+/* Precision scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -30,9 +31,9 @@
 
 ::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.2);
-  border-radius: 9999px;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.35);
 }

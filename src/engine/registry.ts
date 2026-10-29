@@ -40,6 +40,7 @@ export const ModelSpecSchema = z.object({
   tags: z.array(z.string()).default([]),
   capabilities: ModelCapabilitiesSchema.default({}),
   cost: ModelCostSchema.default({}),
+  enabled: z.boolean().default(true),
 });
 
 export type ModelSpec = z.infer<typeof ModelSpecSchema>;
@@ -57,6 +58,7 @@ export interface CandidateCriteria {
   requiresVision?: boolean;
   tag?: string;
   tags?: string[];
+  includeDisabled?: boolean;
 }
 
 export class ModelRegistry {
@@ -77,12 +79,15 @@ export class ModelRegistry {
     return this.models.find(m => m.id === id);
   }
 
-  getAllModels(): ModelSpec[] {
-    return this.models;
+  getAllModels(includeDisabled: boolean = true): ModelSpec[] {
+    return includeDisabled
+      ? this.models
+      : this.models.filter(m => m.enabled !== false);
   }
 
   findCandidates(criteria: CandidateCriteria = {}): ModelSpec[] {
     return this.models.filter(m => {
+      if (!criteria.includeDisabled && m.enabled === false) return false;
       if (criteria.requiresTools && !m.capabilities.tools) return false;
       if (criteria.requiresVision && !m.capabilities.vision) return false;
       if (criteria.tag && !m.tags.includes(criteria.tag)) return false;
@@ -102,5 +107,53 @@ export class ModelRegistry {
       }
       return true;
     });
+  }
+
+  addModel(model: ModelSpec): void {
+    const existingIndex = this.models.findIndex(m => m.id === model.id);
+    if (existingIndex >= 0) {
+      throw new Error(`Model with id "${model.id}" already exists.`);
+    }
+    const validated = ModelSpecSchema.parse(model);
+    this.models.push(validated);
+  }
+
+  updateModel(id: string, updates: Partial<ModelSpec>): ModelSpec {
+    const existingIndex = this.models.findIndex(m => m.id === id);
+    if (existingIndex === -1) {
+      throw new Error(`Model with id "${id}" not found.`);
+    }
+    const updated = {
+      ...this.models[existingIndex],
+      ...updates,
+      id, // Preserve ID
+    };
+    const validated = ModelSpecSchema.parse(updated);
+    this.models[existingIndex] = validated;
+    return validated;
+  }
+
+  deleteModel(id: string): boolean {
+    const initialLength = this.models.length;
+    this.models = this.models.filter(m => m.id !== id);
+    return this.models.length < initialLength;
+  }
+
+  toggleModel(id: string, enabled?: boolean): ModelSpec {
+    const existing = this.getModel(id);
+    if (!existing) {
+      throw new Error(`Model with id "${id}" not found.`);
+    }
+    const newEnabled = enabled !== undefined ? enabled : !existing.enabled;
+    return this.updateModel(id, { enabled: newEnabled });
+  }
+
+  saveToFile(filePath: string): void {
+    const config: RegistryConfig = {
+      version: '1.0',
+      models: this.models,
+    };
+    const yamlString = YAML.stringify(config);
+    fs.writeFileSync(filePath, yamlString, 'utf-8');
   }
 }

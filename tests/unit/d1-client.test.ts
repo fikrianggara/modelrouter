@@ -17,7 +17,7 @@ describe('D1Client', () => {
       const client = new D1Client();
       expect(client.endpoint).toBe('http://localhost:11434/v1/systemone');
       expect(client.model).toBe('d1:latest');
-      expect(client.timeoutMs).toBe(3000);
+      expect(client.timeoutMs).toBe(10000);
     });
 
     it('should accept custom parameters', () => {

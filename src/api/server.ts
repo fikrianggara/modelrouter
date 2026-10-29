@@ -13,6 +13,7 @@ import {
   createOpenAIToAnthropicTransform,
   createAnthropicToOpenAITransform,
 } from '../adapters/sse-transcoder';
+import { telemetry } from '../core/telemetry';
 
 export interface ServerOptions {
   registry?: ModelRegistry;
@@ -150,19 +151,25 @@ export function createApp(options?: ServerOptions): Hono {
         : undefined;
 
     let selectedModel: ModelSpec;
+    let candidatesCount = 0;
+    let poolSize = 0;
     if (directModel) {
       selectedModel = directModel;
+      candidatesCount = 1;
+      poolSize = 1;
     } else {
       const candidates = registry.findCandidates({
         complexity: evalResult.complexityScore,
         requiresTools: evalResult.requiresTools,
         requiresVision: evalResult.requiresVision,
       });
+      candidatesCount = candidates.length;
 
       const pool =
-        candidates.length > 0 ? candidates : registry.getAllModels();
+        candidates.length > 0 ? candidates : registry.getAllModels(false);
+      poolSize = pool.length;
       if (pool.length === 0) {
-        throw new Error('No models available in registry');
+        throw new Error('No active models available in registry');
       }
 
       const decision = PolicyEngine.resolve(pool, evalResult, policy);
@@ -170,14 +177,82 @@ export function createApp(options?: ServerOptions): Hono {
     }
 
     const latencyMs = (performance.now() - t0).toFixed(2);
-    return { evalResult, selectedModel, latencyMs };
+    return { evalResult, selectedModel, latencyMs, policy, candidatesCount, poolSize };
   }
 
   // Web Dashboard & Playground API routes
   app.get('/api/registry', (c) => {
     return c.json({
-      models: registry.getAllModels(),
+      models: registry.getAllModels(true),
     });
+  });
+
+  app.post('/api/registry/model', async (c) => {
+    try {
+      const body = await c.req.json();
+      registry.addModel(body);
+      try {
+        registry.saveToFile(appConfig.REGISTRY_PATH);
+      } catch (err: any) {
+        console.warn('Could not persist registry to file:', err.message);
+      }
+      return c.json({ ok: true, model: registry.getModel(body.id) });
+    } catch (err: any) {
+      return c.json({ ok: false, error: err?.message || 'Failed to add model' }, 400);
+    }
+  });
+
+  app.put('/api/registry/model/:id', async (c) => {
+    try {
+      const id = c.req.param('id');
+      const body = await c.req.json();
+      const updated = registry.updateModel(id, body);
+      try {
+        registry.saveToFile(appConfig.REGISTRY_PATH);
+      } catch (err: any) {
+        console.warn('Could not persist registry to file:', err.message);
+      }
+      return c.json({ ok: true, model: updated });
+    } catch (err: any) {
+      return c.json({ ok: false, error: err?.message || 'Failed to update model' }, 400);
+    }
+  });
+
+  app.delete('/api/registry/model/:id', (c) => {
+    try {
+      const id = c.req.param('id');
+      const deleted = registry.deleteModel(id);
+      if (deleted) {
+        try {
+          registry.saveToFile(appConfig.REGISTRY_PATH);
+        } catch (err: any) {
+          console.warn('Could not persist registry to file:', err.message);
+        }
+        return c.json({ ok: true });
+      }
+      return c.json({ ok: false, error: `Model "${id}" not found` }, 404);
+    } catch (err: any) {
+      return c.json({ ok: false, error: err?.message || 'Failed to delete model' }, 400);
+    }
+  });
+
+  app.patch('/api/registry/model/:id/toggle', async (c) => {
+    try {
+      const id = c.req.param('id');
+      let body: any = {};
+      try {
+        body = await c.req.json();
+      } catch {}
+      const updated = registry.toggleModel(id, body.enabled);
+      try {
+        registry.saveToFile(appConfig.REGISTRY_PATH);
+      } catch (err: any) {
+        console.warn('Could not persist registry to file:', err.message);
+      }
+      return c.json({ ok: true, model: updated });
+    } catch (err: any) {
+      return c.json({ ok: false, error: err?.message || 'Failed to toggle model' }, 400);
+    }
   });
 
   app.post('/api/evaluate', async (c) => {
@@ -196,6 +271,18 @@ export function createApp(options?: ServerOptions): Hono {
     };
     try {
       const result = await routeRequest(canonical, requestedModel, explicitPolicy);
+
+      // Record to telemetry
+      telemetry.recordEvent({
+        prompt,
+        score: result.evalResult.complexityScore,
+        domain: result.evalResult.domain,
+        selectedModel: result.selectedModel,
+        latencyMs: parseFloat(result.latencyMs),
+        policy: result.policy,
+        isFallback: result.evalResult.isFallback,
+      });
+
       return c.json({
         ok: true,
         complexityScore: result.evalResult.complexityScore,
@@ -207,6 +294,9 @@ export function createApp(options?: ServerOptions): Hono {
         fallbackReason: result.evalResult.fallbackReason,
         selectedModel: result.selectedModel,
         routingLatencyMs: parseFloat(result.latencyMs),
+        policy: result.policy,
+        candidatesCount: result.candidatesCount,
+        poolSize: result.poolSize,
       });
     } catch (err: any) {
       return c.json({ ok: false, error: err?.message || 'Evaluation failed' }, 500);
@@ -214,15 +304,29 @@ export function createApp(options?: ServerOptions): Hono {
   });
 
   app.get('/api/stats', (c) => {
-    const models = registry.getAllModels();
+    const stats = telemetry.getStats();
+    const allModels = registry.getAllModels(true);
+    const activeModels = registry.getAllModels(false);
     return c.json({
-      status: 'online',
-      uptime: process.uptime(),
-      registeredModels: models.length,
+      ...stats,
+      registeredModels: allModels.length,
+      activeModels: activeModels.length,
+      disabledModels: allModels.length - activeModels.length,
       defaultPolicy: appConfig.DEFAULT_POLICY,
       targetLatencyMs: 30,
       d1Endpoint: appConfig.D1_ENDPOINT,
     });
+  });
+
+  app.get('/api/telemetry/recent', (c) => {
+    return c.json({
+      requests: telemetry.getRecentRequests(),
+    });
+  });
+
+  app.post('/api/telemetry/reset', (c) => {
+    telemetry.reset();
+    return c.json({ ok: true });
   });
 
   // 2. POST /v1/chat/completions - OpenAI API format
@@ -265,7 +369,7 @@ export function createApp(options?: ServerOptions): Hono {
       max_tokens: body.max_tokens,
     };
 
-    const { evalResult, selectedModel, latencyMs } = await routeRequest(
+    const { evalResult, selectedModel, latencyMs, policy } = await routeRequest(
       canonical,
       body.model,
       body.policy
@@ -281,6 +385,17 @@ export function createApp(options?: ServerOptions): Hono {
         c.header('X-D1-Fallback-Reason', evalResult.fallbackReason);
       }
     }
+
+    // Record telemetry event
+    telemetry.recordEvent({
+      prompt: canonicalMessages.map((m) => m.content).join(' '),
+      score: evalResult.complexityScore,
+      domain: evalResult.domain,
+      selectedModel,
+      latencyMs: parseFloat(latencyMs),
+      policy,
+      isFallback: evalResult.isFallback,
+    });
 
     const telemetryHeaders: Record<string, string> = {
       'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),
@@ -480,7 +595,7 @@ export function createApp(options?: ServerOptions): Hono {
       max_tokens: body.max_tokens,
     };
 
-    const { evalResult, selectedModel, latencyMs } = await routeRequest(
+    const { evalResult, selectedModel, latencyMs, policy } = await routeRequest(
       canonical,
       body.model,
       body.policy
@@ -496,6 +611,17 @@ export function createApp(options?: ServerOptions): Hono {
         c.header('X-D1-Fallback-Reason', evalResult.fallbackReason);
       }
     }
+
+    // Record telemetry event
+    telemetry.recordEvent({
+      prompt: canonicalMessages.map((m) => m.content).join(' '),
+      score: evalResult.complexityScore,
+      domain: evalResult.domain,
+      selectedModel,
+      latencyMs: parseFloat(latencyMs),
+      policy,
+      isFallback: evalResult.isFallback,
+    });
 
     const telemetryHeaders: Record<string, string> = {
       'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),

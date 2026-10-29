@@ -1,51 +1,63 @@
 version: "1.0"
-default_policy: "balanced"
-
 models:
-  # ============================================================================
-  # Baseline & Core Reference Models (Preserves Existing Test Contracts)
-  # ============================================================================
-  - id: "local-chat"
-    display_name: "Local Chat (LFM3)"
-    provider: "ollama"
-    upstream_model: "lfm3:latest"
-    base_url: "http://localhost:11434/v1"
-    complexity_range: [0.0, 1.8]
-    tags: ["local", "chat", "fast", "general"]
+  - id: local-chat
+    display_name: Local Chat (LFM3)
+    provider: ollama
+    upstream_model: lfm3:latest
+    base_url: http://localhost:11434/v1
+    complexity_range:
+      - 0
+      - 1.8
+    tags:
+      - local
+      - chat
+      - fast
+      - general
     capabilities:
       tools: false
       vision: false
       max_context: 32768
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  - id: "cloud-coder"
-    display_name: "Claude Sonnet (Direct Cloud)"
-    provider: "anthropic"
-    upstream_model: "claude-3-5-sonnet-20241022"
-    base_url: "https://api.anthropic.com/v1"
-    api_key_env: "ANTHROPIC_API_KEY"
-    complexity_range: [3.0, 5.0]
-    tags: ["coding", "frontier", "tools"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: cloud-coder
+    display_name: Claude Sonnet (Direct Cloud)
+    provider: anthropic
+    upstream_model: claude-3-5-sonnet-20241022
+    base_url: https://api.anthropic.com/v1
+    api_key_env: ANTHROPIC_API_KEY
+    complexity_range:
+      - 3
+      - 5
+    tags:
+      - coding
+      - frontier
+      - tools
     capabilities:
       tools: true
       vision: true
       max_context: 200000
       streaming: true
     cost:
-      input_per_mtoken: 3.0
-      output_per_mtoken: 15.0
-
-  - id: "openai-gpt4o"
-    display_name: "OpenAI GPT-4o (Direct Cloud)"
-    provider: "openai"
-    upstream_model: "gpt-4o"
-    base_url: "https://api.openai.com/v1"
-    api_key_env: "OPENAI_API_KEY"
-    complexity_range: [2.5, 5.0]
-    tags: ["cloud", "frontier", "tools", "vision"]
+      input_per_mtoken: 3
+      output_per_mtoken: 15
+    enabled: true
+  - id: openai-gpt4o
+    display_name: OpenAI GPT-4o (Direct Cloud)
+    provider: openai
+    upstream_model: gpt-4o
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+    complexity_range:
+      - 2.5
+      - 5
+    tags:
+      - cloud
+      - frontier
+      - tools
+      - vision
     capabilities:
       tools: true
       vision: true
@@ -53,117 +65,154 @@ models:
       streaming: true
     cost:
       input_per_mtoken: 2.5
-      output_per_mtoken: 10.0
-
-  # ============================================================================
-  # Local Ollama Provider Models (http://localhost:11434/v1 - Zero Marginal Cost)
-  # ============================================================================
-  - id: "ollama-lfm3-hermes"
-    display_name: "Liquid LFM3 Hermes (Local)"
-    provider: "ollama"
-    upstream_model: "lfm3-hermes:latest"
-    base_url: "http://localhost:11434/v1"
-    complexity_range: [1.0, 2.6]
-    tags: ["local", "hermes", "tools", "coding"]
+      output_per_mtoken: 10
+    enabled: true
+  - id: ollama-lfm3-hermes
+    display_name: Liquid LFM3 Hermes (Local)
+    provider: ollama
+    upstream_model: lfm3-hermes:latest
+    base_url: http://localhost:11434/v1
+    complexity_range:
+      - 1
+      - 2.6
+    tags:
+      - local
+      - hermes
+      - tools
+      - coding
     capabilities:
       tools: true
       vision: false
       max_context: 65536
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  - id: "ollama-lfm3-hermes-128k"
-    display_name: "Liquid LFM3 Hermes 128K (Local)"
-    provider: "ollama"
-    upstream_model: "lfm3-hermes-128:latest"
-    base_url: "http://localhost:11434/v1"
-    complexity_range: [1.2, 2.8]
-    tags: ["local", "hermes", "long_context", "tools"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: ollama-lfm3-hermes-128k
+    display_name: Liquid LFM3 Hermes 128K (Local)
+    provider: ollama
+    upstream_model: lfm3-hermes-128:latest
+    base_url: http://localhost:11434/v1
+    complexity_range:
+      - 1.2
+      - 2.8
+    tags:
+      - local
+      - hermes
+      - long_context
+      - tools
     capabilities:
       tools: true
       vision: false
       max_context: 131072
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  - id: "ollama-qwen35-4b"
-    display_name: "Qwen 3.5 4B Multimodal (Local)"
-    provider: "ollama"
-    upstream_model: "qwen3.5:4b"
-    base_url: "http://localhost:11434/v1"
-    complexity_range: [1.5, 3.2]
-    tags: ["local", "vision", "tools", "reasoning", "coding"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: ollama-qwen35-4b
+    display_name: Qwen 3.5 4B Multimodal (Local)
+    provider: ollama
+    upstream_model: qwen3.5:4b
+    base_url: http://localhost:11434/v1
+    complexity_range:
+      - 1.5
+      - 3.2
+    tags:
+      - local
+      - vision
+      - tools
+      - reasoning
+      - coding
     capabilities:
       tools: true
       vision: true
       max_context: 262144
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  - id: "ollama-lfm25-q8"
-    display_name: "Liquid LFM 2.5 2.6B Q8 (Local)"
-    provider: "ollama"
-    upstream_model: "hf.co/LiquidAI/LFM2.5-2.6B-GGUF:Q8_0"
-    base_url: "http://localhost:11434/v1"
-    complexity_range: [1.0, 2.2]
-    tags: ["local", "thinking", "tools"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: ollama-lfm25-q8
+    display_name: Liquid LFM 2.5 2.6B Q8 (Local)
+    provider: ollama
+    upstream_model: hf.co/LiquidAI/LFM2.5-2.6B-GGUF:Q8_0
+    base_url: http://localhost:11434/v1
+    complexity_range:
+      - 1
+      - 2.2
+    tags:
+      - local
+      - thinking
+      - tools
     capabilities:
       tools: true
       vision: false
       max_context: 131072
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  - id: "ollama-qwen-image"
-    display_name: "Qwen Image 2.1 (Local)"
-    provider: "ollama"
-    upstream_model: "hf.co/abenzerps/Qwen-Image-2.1-GGUF:Q4_K_M"
-    base_url: "http://localhost:11434/v1"
-    complexity_range: [1.5, 3.0]
-    tags: ["local", "vision", "image"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: ollama-qwen-image
+    display_name: Qwen Image 2.1 (Local)
+    provider: ollama
+    upstream_model: hf.co/abenzerps/Qwen-Image-2.1-GGUF:Q4_K_M
+    base_url: http://localhost:11434/v1
+    complexity_range:
+      - 1.5
+      - 3
+    tags:
+      - local
+      - vision
+      - image
     capabilities:
       tools: false
       vision: true
       max_context: 32768
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  # ============================================================================
-  # 9router Gateway Models (http://localhost:20128/v1)
-  # ============================================================================
-  - id: "9router-gemini-38-flash"
-    display_name: "Gemini 3.8 Flash High (9router)"
-    provider: "9router"
-    upstream_model: "ag/gemini-3.8-flash-high"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [1.8, 4.2]
-    tags: ["9router", "gemini", "fast", "vision", "tools", "reasoning"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: 9router-gemini-38-flash
+    display_name: Gemini 3.8 Flash High (9router)
+    provider: 9router
+    upstream_model: ag/gemini-3.8-flash-high
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 1.8
+      - 4.2
+    tags:
+      - 9router
+      - gemini
+      - fast
+      - vision
+      - tools
+      - reasoning
     capabilities:
       tools: true
       vision: true
       max_context: 1048576
       streaming: true
     cost:
-      input_per_mtoken: 0.10
-      output_per_mtoken: 0.40
-
-  - id: "9router-deepseek-flash"
-    display_name: "DeepSeek Flash (9router)"
-    provider: "9router"
-    upstream_model: "9router-ds-flash"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [1.0, 3.0]
-    tags: ["9router", "fast", "reasoning", "coding"]
+      input_per_mtoken: 0.1
+      output_per_mtoken: 0.4
+    enabled: true
+  - id: 9router-deepseek-flash
+    display_name: DeepSeek Flash (9router)
+    provider: 9router
+    upstream_model: 9router-ds-flash
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 1
+      - 3
+    tags:
+      - 9router
+      - fast
+      - reasoning
+      - coding
     capabilities:
       tools: true
       vision: false
@@ -171,79 +220,113 @@ models:
       streaming: true
     cost:
       input_per_mtoken: 0.05
-      output_per_mtoken: 0.20
-
-  - id: "9router-qwen37-plus"
-    display_name: "Qwen 3.7 Plus (9router)"
-    provider: "9router"
-    upstream_model: "9inference/qwen3.7-plus"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [2.2, 4.4]
-    tags: ["9router", "qwen", "vision", "tools", "coding"]
+      output_per_mtoken: 0.2
+    enabled: true
+  - id: 9router-qwen37-plus
+    display_name: Qwen 3.7 Plus (9router)
+    provider: 9router
+    upstream_model: 9inference/qwen3.7-plus
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 2.2
+      - 4.4
+    tags:
+      - 9router
+      - qwen
+      - vision
+      - tools
+      - coding
     capabilities:
       tools: true
       vision: true
       max_context: 1000000
       streaming: true
     cost:
-      input_per_mtoken: 0.40
-      output_per_mtoken: 1.20
-
-  - id: "9router-minimax-m3-free"
-    display_name: "MiniMax M3 Free (9router)"
-    provider: "9router"
-    upstream_model: "openrouter/minimax/minimax-m3:free"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [1.2, 3.2]
-    tags: ["9router", "free", "vision", "tools"]
+      input_per_mtoken: 0.4
+      output_per_mtoken: 1.2
+    enabled: true
+  - id: 9router-minimax-m3-free
+    display_name: MiniMax M3 Free (9router)
+    provider: 9router
+    upstream_model: openrouter/minimax/minimax-m3:free
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 1.2
+      - 3.2
+    tags:
+      - 9router
+      - free
+      - vision
+      - tools
     capabilities:
       tools: true
       vision: true
       max_context: 1000000
       streaming: true
     cost:
-      input_per_mtoken: 0.0
-      output_per_mtoken: 0.0
-
-  - id: "9router-claude-sonnet-46"
-    display_name: "Claude Sonnet 4.6 (9router)"
-    provider: "9router"
-    upstream_model: "ag/claude-sonnet-4-6"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [3.2, 5.0]
-    tags: ["9router", "frontier", "coding", "vision", "reasoning", "tools"]
+      input_per_mtoken: 0
+      output_per_mtoken: 0
+    enabled: true
+  - id: 9router-claude-sonnet-46
+    display_name: Claude Sonnet 4.6 (9router)
+    provider: 9router
+    upstream_model: ag/claude-sonnet-4-6
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 3.2
+      - 5
+    tags:
+      - 9router
+      - frontier
+      - coding
+      - vision
+      - reasoning
+      - tools
     capabilities:
       tools: true
       vision: true
       max_context: 1000000
       streaming: true
     cost:
-      input_per_mtoken: 3.0
-      output_per_mtoken: 15.0
-
-  - id: "9router-claude-opus-thinking"
-    display_name: "Claude Opus 4.6 Thinking (9router)"
-    provider: "9router"
-    upstream_model: "ag/claude-opus-4-6-thinking"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [4.0, 5.0]
-    tags: ["9router", "frontier", "deep_reasoning", "vision", "tools"]
+      input_per_mtoken: 3
+      output_per_mtoken: 15
+    enabled: true
+  - id: 9router-claude-opus-thinking
+    display_name: Claude Opus 4.6 Thinking (9router)
+    provider: 9router
+    upstream_model: ag/claude-opus-4-6-thinking
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 4
+      - 5
+    tags:
+      - 9router
+      - frontier
+      - deep_reasoning
+      - vision
+      - tools
     capabilities:
       tools: true
       vision: true
       max_context: 200000
       streaming: true
     cost:
-      input_per_mtoken: 15.0
-      output_per_mtoken: 75.0
-
-  - id: "9router-glm-53-flash"
-    display_name: "GLM 5.3 Flash (9router)"
-    provider: "9router"
-    upstream_model: "cbai-prod/glm-5.3-flash"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [1.8, 3.8]
-    tags: ["9router", "glm", "vision", "tools"]
+      input_per_mtoken: 15
+      output_per_mtoken: 75
+    enabled: true
+  - id: 9router-glm-53-flash
+    display_name: GLM 5.3 Flash (9router)
+    provider: 9router
+    upstream_model: cbai-prod/glm-5.3-flash
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 1.8
+      - 3.8
+    tags:
+      - 9router
+      - glm
+      - vision
+      - tools
     capabilities:
       tools: true
       vision: true
@@ -251,15 +334,21 @@ models:
       streaming: true
     cost:
       input_per_mtoken: 0.15
-      output_per_mtoken: 0.50
-
-  - id: "9router-deepseek-reasoner"
-    display_name: "DeepSeek Reasoner R1 (9router)"
-    provider: "9router"
-    upstream_model: "ds/deepseek-reasoner"
-    base_url: "http://localhost:20128/v1"
-    complexity_range: [3.5, 5.0]
-    tags: ["9router", "reasoning", "math", "coding"]
+      output_per_mtoken: 0.5
+    enabled: true
+  - id: 9router-deepseek-reasoner
+    display_name: DeepSeek Reasoner R1 (9router)
+    provider: 9router
+    upstream_model: ds/deepseek-reasoner
+    base_url: http://localhost:20128/v1
+    complexity_range:
+      - 3.5
+      - 5
+    tags:
+      - 9router
+      - reasoning
+      - math
+      - coding
     capabilities:
       tools: true
       vision: false
@@ -268,3 +357,4 @@ models:
     cost:
       input_per_mtoken: 0.55
       output_per_mtoken: 2.19
+    enabled: true

@@ -5,7 +5,7 @@ export const ConfigSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
   D1_ENDPOINT: z.string().default('http://localhost:11434/v1/systemone'),
   D1_MODEL: z.string().default('d1:latest'),
-  D1_TIMEOUT_MS: z.coerce.number().default(3000),
+  D1_TIMEOUT_MS: z.coerce.number().default(10000),
   DEFAULT_POLICY: z.enum(['balanced', 'cost_optimized', 'quality_max', 'local_first']).default('balanced'),
   FALLBACK_MODEL_ID: z.string().default('lfm3-local'),
   REGISTRY_PATH: z.string().default('config/registry.yaml'),

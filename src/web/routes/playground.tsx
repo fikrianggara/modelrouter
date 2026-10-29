@@ -444,16 +444,21 @@ export function PlaygroundPage() {
   const scorePercent = Math.min(100, Math.max(0, (score / 5) * 100));
 
   const getScoreColor = (val: number) => {
-    if (val < 3.0) {
+    if (val < 2.0)
       return {
-        text: 'text-white',
-        bg: 'bg-white',
-        tier: val < 2.0 ? 'Tier 1 · Local Engine (d1 Free)' : 'Tier 2 · Mid-Tier Engine',
+        text: 'text-fc-graphite',
+        bg: 'bg-fc-graphite',
+        tier: 'Tier 1 · Local Engine (d1 Free)',
       };
-    }
+    if (val < 3.5)
+      return {
+        text: 'text-fc-graphite',
+        bg: 'bg-fc-graphite',
+        tier: 'Tier 2 · Mid-Tier Engine',
+      };
     return {
-      text: 'text-heat-100',
-      bg: 'bg-heat-100',
+      text: 'text-fc-graphite',
+      bg: 'bg-fc-graphite',
       tier: 'Tier 3 · Frontier Engine',
     };
   };
@@ -556,7 +561,7 @@ export function PlaygroundPage() {
               <Cpu className="w-4 h-4 text-fc-graphite stat-icon" />
             </div>
             <div className="space-y-0.5 pt-2">
-              <div className="text-xl sm:text-2xl font-bold font-mono tracking-tight text-fc-graphite stat-value truncate">
+              <div className="text-xl sm:text-2xl font-normal font-sans tracking-tight text-fc-graphite stat-value truncate">
                 {evaluation?.selectedModel?.display_name || 'Local Chat'}
               </div>
               <div className="text-xs font-mono text-fc-muted truncate">
@@ -916,7 +921,7 @@ export function PlaygroundPage() {
                       {evaluation?.selectedModel?.provider || 'ollama'}
                     </span>
                   </div>
-                  <div className="text-xs font-bold text-heat-100">
+                  <div className="text-xs font-normal text-heat-100 font-sans">
                     {evaluation?.selectedModel?.display_name || 'Local Chat'} ({evaluation?.selectedModel?.upstream_model || 'lfm3:latest'})
                   </div>
                   <div className="text-[10px] text-fc-muted flex items-center justify-between pt-0.5">
@@ -928,44 +933,42 @@ export function PlaygroundPage() {
             )}
           </div>
 
-          {/* Calibrated Complexity Spectrum Card */}
+          {/* Calibrated Complexity Spectrum Card (Theme-Aware: Light in Light mode, Dark in Dark mode) */}
           <div className="fc-nested-card p-5 space-y-3">
             <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
               <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
-                <Gauge className={`w-3.5 h-3.5 ${score < 3.0 ? 'text-fc-graphite dark:text-white' : 'text-heat-100'}`} />
+                <Gauge className="w-3.5 h-3.5 text-fc-graphite stat-icon" />
                 <span>Complexity Spectrum</span>
               </h2>
               <span className="text-[11px] font-mono text-fc-muted">
-                Score: <strong className={score < 3.0 ? 'text-fc-graphite dark:text-white' : 'text-heat-100'}>{score.toFixed(2)}</strong> / 5.0
+                Score: <strong className="text-fc-graphite">{score.toFixed(2)}</strong> / 5.0
               </span>
             </div>
 
-            {/* Readout & Meter: White for < 3, Heat Orange for >= 3 */}
-            <div className="rounded-fc-6 bg-neutral-900 border border-neutral-800 p-4 flex flex-col items-center justify-center space-y-2.5 shadow-xs">
+            {/* Readout & Meter: Theme-aware bg-fc-bg-lighter border-fc-border-faint */}
+            <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint p-4 flex flex-col items-center justify-center space-y-2.5">
               <div className="text-center space-y-0.5">
-                <div className={`text-3xl font-bold font-mono tracking-tight ${score < 3.0 ? 'text-white' : 'text-heat-100'}`}>
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
                   {score.toFixed(2)}
-                  <span className="text-sm text-neutral-400 font-sans font-normal ml-1">/ 5.0</span>
+                  <span className="text-sm text-fc-muted font-sans font-normal ml-1">/ 5.0</span>
                 </div>
-                <div className="text-xs text-neutral-400 font-medium">
+                <div className="text-xs text-fc-muted font-medium">
                   {scoreStyle.tier}
                 </div>
               </div>
 
-              {/* Calibrated Bar with Ticks: White fill for < 3, Heat Orange for >= 3 */}
+              {/* Calibrated Bar with Ticks: Restored to original styling */}
               <div className="w-full space-y-1 pt-1">
-                <div className="w-full h-2.5 rounded-fc-full bg-neutral-800 border border-neutral-700 overflow-hidden">
+                <div className="w-full h-2 rounded-fc-full bg-fc-surface border border-fc-border-faint overflow-hidden">
                   <div
-                    className={`h-full rounded-fc-full transition-all duration-300 ${
-                      score < 3.0 ? 'bg-white shadow-xs' : 'bg-heat-100 shadow-fc-heat-btn'
-                    }`}
+                    className="h-full rounded-fc-full transition-all duration-300 bg-fc-graphite"
                     style={{ width: `${scorePercent}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[10px] font-mono text-neutral-400">
-                  <span className={score < 3.0 ? 'text-white font-medium' : ''}>1.0 Local</span>
-                  <span className="text-neutral-400">3.0 Threshold</span>
-                  <span className={score >= 3.0 ? 'text-heat-100 font-medium' : ''}>5.0 Frontier</span>
+                <div className="flex justify-between text-[10px] font-mono text-fc-muted">
+                  <span>1.0 Local</span>
+                  <span>3.0 Mid-Tier</span>
+                  <span>5.0 Frontier</span>
                 </div>
               </div>
             </div>

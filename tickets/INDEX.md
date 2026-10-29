@@ -12,4 +12,4 @@
 | TKT-010 | bug | medium | P1 | core | merged | jarvis | bug-TKT-010-fix-theme-toggle-increas | false | 2026-10-29 | 2026-10-29 | Fix theme toggle, increase D1 timeout, add fallback alerts, and clarify virtual routing policies |
 | TKT-011 | feature | big | P0 | core | merged | jarvis | feature-TKT-011-model-registry-managemen | false | 2026-10-29 | 2026-10-29 | Model registry management, 10s D1 timeout, interactive decision graph, dynamic telemetry, and policy-aligned responses |
 | TKT-012 | feature | medium | P2 | frontend | merged | jarvis | feature-TKT-012-frontend-redesign-and-an | false | 2026-10-29 | 2026-10-29 | Frontend Redesign and Anti-AI Slop Transformation |
-| TKT-013 | feature | small | P2 | — | backlog | null | null | false | 2026-10-29 | 2026-10-29 | Implement Firecrawl Design System Tokens and Theme |
+| TKT-013 | feature | medium | P2 | frontend | ongoing | jarvis | feature-TKT-013-implement-firecrawl-desi | false | 2026-10-29 | 2026-10-29 | Implement Firecrawl Design System Tokens and Theme |

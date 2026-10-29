@@ -9,13 +9,12 @@ import {
   Gauge,
   Layers,
   Server,
-  ArrowUpRight,
   TrendingDown,
   CheckCircle2,
   Terminal,
-  ExternalLink,
   Flame,
 } from 'lucide-react';
+import { AsciiFlame } from '../components/AsciiFlame';
 
 export const Route = createFileRoute('/')({
   component: DashboardPage,
@@ -154,7 +153,7 @@ export function DashboardPage() {
 
   return (
     <div className="space-y-12 pb-16">
-      {/* Section 01: Firecrawl Blueprint Hero Header */}
+      {/* Section 01: Firecrawl Blueprint Hero Header with ASCII Matrix Visualizer */}
       <section className="space-y-4">
         {/* Firecrawl Section Metadata */}
         <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted">
@@ -166,120 +165,152 @@ export function DashboardPage() {
           <span className="text-fc-muted-soft">//</span>
         </div>
 
-        {/* Title H2 styled per Firecrawl */}
-        <div className="space-y-3">
-          <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">
-            Fast, reliable, token-efficient <br />
-            <span className="text-heat-100">model routing</span>.
-          </h1>
-          <p className="text-base sm:text-lg text-fc-body-soft max-w-2xl font-normal leading-relaxed">
-            Give your AI agents exact model capabilities. Single forward-pass evaluation by Liquid AI d1 routes prompt complexity to the optimal engine in real time.
-          </p>
-        </div>
+        {/* Hero Grid: Left Copy + Right ASCII Ticker */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="lg:col-span-8 space-y-3">
+            <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">
+              Fast, reliable, token-efficient <br />
+              <span className="text-heat-100">model routing</span>.
+            </h1>
+            <p className="text-base sm:text-lg text-fc-body-soft max-w-2xl font-normal leading-relaxed">
+              Give your AI agents exact model capabilities. Single forward-pass evaluation by Liquid AI d1 routes prompt complexity to the optimal engine in real time.
+            </p>
 
-        {/* Action Controls & Ingress Tag */}
-        <div className="pt-2 flex flex-wrap items-center gap-3">
-          <Link
-            to="/playground"
-            className="btn-heat-cta px-5 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
-          >
-            <Gauge className="w-4 h-4" />
-            <span>Launch Playground</span>
-            <ArrowRight className="w-3.5 h-3.5 ml-1" />
-          </Link>
+            {/* Action Controls & Ingress Tag */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <Link
+                to="/playground"
+                className="btn-heat-cta px-5 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
+              >
+                <Gauge className="w-4 h-4" />
+                <span>Launch Playground</span>
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Link>
 
-          <Link
-            to="/registry"
-            className="btn-ghost-outline px-4 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2"
-          >
-            <Layers className="w-4 h-4 text-heat-100" />
-            <span>Model Registry</span>
-          </Link>
+              <Link
+                to="/registry"
+                className="btn-ghost-outline px-4 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2"
+              >
+                <Layers className="w-4 h-4 text-heat-100" />
+                <span>Model Registry</span>
+              </Link>
 
-          <div className="px-3 py-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-xs font-mono text-fc-muted flex items-center space-x-2">
-            <span className="text-heat-100 font-bold">[ .CLI ]</span>
-            <span>npx -y modelrouter-cli@latest</span>
+              <div className="px-3 py-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-xs font-mono text-fc-muted flex items-center space-x-2">
+                <span className="text-heat-100 font-bold">[ .CLI ]</span>
+                <span>npx -y modelrouter-cli@latest</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: ASCII Matrix Hero Terminal Card */}
+          <div className="lg:col-span-4 hidden lg:block">
+            <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-4 space-y-3 widget-halo">
+              <span className="corner-crosshair top-2 left-2">+</span>
+              <span className="corner-crosshair top-2 right-2">+</span>
+              <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2">
+                <span className="flex items-center space-x-1.5 text-heat-100 font-bold">
+                  <Flame className="w-3.5 h-3.5 fill-heat-100" />
+                  <span>ASCII Flame Ticker</span>
+                </span>
+                <span className="text-[11px]">[ 80 ms / frame ]</span>
+              </div>
+              <div className="bg-fc-paper rounded-fc-6 p-3 border border-fc-border-faint flex flex-col items-center justify-center">
+                <AsciiFlame opacity={0.85} />
+              </div>
+              <div className="flex items-center justify-between text-[11px] font-mono text-fc-muted pt-0.5">
+                <span>Evaluator: <strong>d1:systemone</strong></span>
+                <span className="text-fc-forest font-bold">49 ms latency</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Blueprint Bento Grid: 4 Metric Cards with Corner Ticks */}
+      {/* Blueprint Exposed Grid: Recessed Tray Cells with Nested Rounded Cards & ASCII Layer */}
       <section className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Routed Requests */}
-          <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-8 p-5 space-y-2 shadow-xs">
+        <div className="fc-blueprint-grid">
+          {/* Cell 1: Total Routed Requests */}
+          <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium">Routed Requests</span>
-              <Activity className="w-4 h-4 text-heat-100" />
-            </div>
-            <div className="space-y-0.5 pt-1">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
-                {stats?.totalRequests ? stats.totalRequests.toLocaleString() : '0'}
+            <div className="fc-nested-card">
+              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium">Routed Requests</span>
+                <Activity className="w-4 h-4 text-heat-100" />
               </div>
-              <div className="text-xs font-mono text-fc-muted">
-                {stats?.totalTokens ? `${stats.totalTokens.toLocaleString()} tokens handled` : 'Zero egress buffer'}
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                  {stats?.totalRequests ? stats.totalRequests.toLocaleString() : '0'}
+                </div>
+                <div className="text-xs font-mono text-fc-muted">
+                  {stats?.totalTokens ? `${stats.totalTokens.toLocaleString()} tokens handled` : 'Zero egress buffer'}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Decision Latency */}
-          <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-8 p-5 space-y-2 shadow-xs">
+          {/* Cell 2: Decision Latency */}
+          <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium">Mean Decision Latency</span>
-              <Clock className="w-4 h-4 text-fc-forest" />
-            </div>
-            <div className="space-y-0.5 pt-1">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
-                {stats?.avgRoutingLatencyMs ? stats.avgRoutingLatencyMs.toFixed(1) : '<15.0'}{' '}
-                <span className="text-base font-sans font-normal text-fc-muted">ms</span>
+            <div className="fc-nested-card">
+              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium">Mean Decision Latency</span>
+                <Clock className="w-4 h-4 text-fc-forest" />
               </div>
-              <div className="text-xs text-fc-forest font-mono flex items-center space-x-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>P95 &lt;30 ms SLA</span>
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                  {stats?.avgRoutingLatencyMs ? stats.avgRoutingLatencyMs.toFixed(1) : '<15.0'}{' '}
+                  <span className="text-base font-sans font-normal text-fc-muted">ms</span>
+                </div>
+                <div className="text-xs text-fc-forest font-mono flex items-center space-x-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>P95 &lt;30 ms SLA</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Card 3: Cost Savings */}
-          <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-8 p-5 space-y-2 shadow-xs">
+          {/* Cell 3: Cost Savings */}
+          <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium">Cost Saved vs Frontier</span>
-              <Coins className="w-4 h-4 text-fc-honey" />
-            </div>
-            <div className="space-y-0.5 pt-1">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
-                ${stats?.totalSavedUsd ? stats.totalSavedUsd.toFixed(3) : '0.000'}
+            <div className="fc-nested-card">
+              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium">Cost Saved vs Frontier</span>
+                <Coins className="w-4 h-4 text-fc-honey" />
               </div>
-              <div className="text-xs text-heat-100 font-mono flex items-center space-x-1 font-medium">
-                <TrendingDown className="w-3.5 h-3.5" />
-                <span>{stats?.costReductionPercent ? `${stats.costReductionPercent}% saved` : '0% baseline'}</span>
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                  ${stats?.totalSavedUsd ? stats.totalSavedUsd.toFixed(3) : '0.000'}
+                </div>
+                <div className="text-xs text-heat-100 font-mono flex items-center space-x-1 font-medium">
+                  <TrendingDown className="w-3.5 h-3.5" />
+                  <span>{stats?.costReductionPercent ? `${stats.costReductionPercent}% saved` : '0% baseline'}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Card 4: Active Models */}
-          <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-8 p-5 space-y-2 shadow-xs">
+          {/* Cell 4: Active Fleet */}
+          <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-            <div className="flex items-center justify-between text-fc-muted">
-              <span className="text-xs font-mono uppercase tracking-wider font-medium">Active Fleet</span>
-              <Server className="w-4 h-4 text-fc-amethyst" />
-            </div>
-            <div className="space-y-0.5 pt-1">
-              <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
-                {stats?.activeModels ?? 0}{' '}
-                <span className="text-base font-sans font-normal text-fc-muted">
-                  / {stats?.registeredModels ?? 0}
-                </span>
+            <div className="fc-nested-card">
+              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+              <div className="flex items-center justify-between text-fc-muted">
+                <span className="text-xs font-mono uppercase tracking-wider font-medium">Active Fleet</span>
+                <Server className="w-4 h-4 text-fc-amethyst" />
               </div>
-              <div className="text-xs text-fc-muted font-mono">
-                Ollama • 9router • Cloud
+              <div className="space-y-0.5 pt-2">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite">
+                  {stats?.activeModels ?? 0}{' '}
+                  <span className="text-base font-sans font-normal text-fc-muted">
+                    / {stats?.registeredModels ?? 0}
+                  </span>
+                </div>
+                <div className="text-xs text-fc-muted font-mono">
+                  Ollama • 9router • Cloud
+                </div>
               </div>
             </div>
           </div>
@@ -307,7 +338,7 @@ export function DashboardPage() {
           </p>
         </div>
 
-        {/* Blueprint Flow Box */}
+        {/* Blueprint Flow Box with Halo */}
         <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-12 p-6 space-y-5 widget-halo">
           <span className="corner-crosshair top-2 left-2">+</span>
           <span className="corner-crosshair top-2 right-2">+</span>

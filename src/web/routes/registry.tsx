@@ -19,6 +19,7 @@ import {
   X,
   AlertCircle,
 } from 'lucide-react';
+import { AsciiFlame } from '../components/AsciiFlame';
 
 export const Route = createFileRoute('/registry')({
   component: RegistryPage,
@@ -380,8 +381,8 @@ export function RegistryPage() {
         </div>
       </div>
 
-      {/* Model Cards Grid with Corner Markers */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      {/* Blueprint Exposed Grid: Recessed Tray Cells with Nested Rounded Cards */}
+      <div className="fc-blueprint-grid">
         {filteredModels.map((model) => {
           const isEnabled = model.enabled !== false;
           const [minComp, maxComp] = model.complexity_range;
@@ -389,146 +390,147 @@ export function RegistryPage() {
           const widthPercent = ((maxComp - minComp) / 5) * 100;
 
           return (
-            <div
-              key={model.id}
-              className={`relative rounded-fc-12 bg-fc-surface border transition-all p-5 space-y-3.5 flex flex-col justify-between shadow-xs ${
-                isEnabled
-                  ? 'border-fc-border-muted hover:border-fc-border-loud'
-                  : 'border-fc-border-faint opacity-55'
-              }`}
-            >
-              <span className="corner-crosshair top-2 left-2">+</span>
-              <span className="corner-crosshair top-2 right-2">+</span>
+            <div key={model.id} className="fc-grid-cell">
+              <span className="corner-crosshair top-1 left-1.5">+</span>
+              <div
+                className={`fc-nested-card p-5 space-y-3.5 flex flex-col justify-between h-full transition-all ${
+                  isEnabled
+                    ? ''
+                    : 'opacity-50 grayscale-[40%]'
+                }`}
+              >
+                <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
 
-              <div className="space-y-3">
-                {/* Header: Name, Provider, Enabled Status */}
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h2 className="text-sm font-medium text-fc-graphite tracking-tight truncate max-w-[210px]">
-                      {model.display_name || model.id}
-                    </h2>
-                    <span className="text-[11px] font-mono text-fc-muted">
-                      {model.id}
+                <div className="space-y-3">
+                  {/* Header: Name, Provider, Enabled Status */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h2 className="text-sm font-medium text-fc-graphite tracking-tight truncate max-w-[210px]">
+                        {model.display_name || model.id}
+                      </h2>
+                      <span className="text-[11px] font-mono text-fc-muted">
+                        {model.id}
+                      </span>
+                    </div>
+
+                    <span className="px-2 py-0.5 rounded-fc-4 text-[10px] font-mono uppercase font-bold bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint">
+                      {model.provider}
                     </span>
                   </div>
 
-                  <span className="px-2 py-0.5 rounded-fc-4 text-[10px] font-mono uppercase font-bold bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint">
-                    {model.provider}
-                  </span>
+                  {/* Upstream & URL specs */}
+                  <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1 text-xs font-mono">
+                    <div className="flex items-center justify-between text-fc-graphite">
+                      <span className="text-fc-muted text-[11px]">Upstream:</span>
+                      <span className="font-semibold truncate max-w-[170px] text-[11px]">
+                        {model.upstream_model}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-fc-muted text-[10px]">
+                      <span className="text-fc-muted">Endpoint:</span>
+                      <span className="truncate max-w-[170px]">{model.base_url}</span>
+                    </div>
+                  </div>
+
+                  {/* Complexity Spectrum Bar */}
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="text-fc-muted text-[11px]">Complexity Span:</span>
+                      <span className="text-fc-graphite font-bold text-[11px]">
+                        [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden relative">
+                      <div
+                        className="h-full rounded-fc-full bg-heat-100"
+                        style={{
+                          marginLeft: `${leftPercent}%`,
+                          width: `${Math.max(6, widthPercent)}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Capabilities & Pricing Matrix */}
+                  <div className="grid grid-cols-2 gap-2 text-[11px] font-mono pt-1">
+                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
+                      <span className="text-fc-muted">Tools:</span>
+                      <span className={model.capabilities.tools ? 'text-fc-forest font-bold' : 'text-fc-muted'}>
+                        {model.capabilities.tools ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+
+                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
+                      <span className="text-fc-muted">Vision:</span>
+                      <span className={model.capabilities.vision ? 'text-fc-bluetron font-bold' : 'text-fc-muted'}>
+                        {model.capabilities.vision ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+
+                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
+                      <span className="text-fc-muted">Context:</span>
+                      <span className="text-fc-graphite font-medium">
+                        {Math.round(model.capabilities.max_context / 1024)}K
+                      </span>
+                    </div>
+
+                    <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
+                      <span className="text-fc-muted">Cost/1M:</span>
+                      <span className="text-fc-graphite">
+                        ${model.cost.input_per_mtoken}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tags Badges */}
+                  <div className="flex flex-wrap gap-1 pt-0.5">
+                    {model.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-[10px] font-mono text-fc-muted"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Upstream & URL specs */}
-                <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1 text-xs font-mono">
-                  <div className="flex items-center justify-between text-fc-graphite">
-                    <span className="text-fc-muted text-[11px]">Upstream:</span>
-                    <span className="font-semibold truncate max-w-[170px] text-[11px]">
-                      {model.upstream_model}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-fc-muted text-[10px]">
-                    <span className="text-fc-muted">Endpoint:</span>
-                    <span className="truncate max-w-[170px]">{model.base_url}</span>
-                  </div>
-                </div>
+                {/* Card Footer Actions */}
+                <div className="pt-3 border-t border-fc-border-faint flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => handleToggle(model.id, isEnabled)}
+                    className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-fc-6 text-[11px] font-medium border transition-colors cursor-pointer ${
+                      isEnabled
+                        ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:bg-fc-forest/20'
+                        : 'bg-fc-bg-lighter text-fc-muted border-fc-border-faint'
+                    }`}
+                    title={isEnabled ? 'Click to disable' : 'Click to enable'}
+                  >
+                    {isEnabled ? (
+                      <ToggleRight className="w-4 h-4 text-fc-forest" />
+                    ) : (
+                      <ToggleLeft className="w-4 h-4 text-slate-400" />
+                    )}
+                    <span>{isEnabled ? 'Active' : 'Disabled'}</span>
+                  </button>
 
-                {/* Complexity Spectrum Bar */}
-                <div className="space-y-1.5 pt-0.5">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <span className="text-fc-muted text-[11px]">Complexity Span:</span>
-                    <span className="text-fc-graphite font-bold text-[11px]">
-                      [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
-                    </span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden relative">
-                    <div
-                      className="h-full rounded-fc-full bg-heat-100"
-                      style={{
-                        marginLeft: `${leftPercent}%`,
-                        width: `${Math.max(6, widthPercent)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-
-                {/* Capabilities & Pricing Matrix */}
-                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono pt-1">
-                  <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                    <span className="text-fc-muted">Tools:</span>
-                    <span className={model.capabilities.tools ? 'text-fc-forest font-bold' : 'text-fc-muted'}>
-                      {model.capabilities.tools ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-
-                  <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                    <span className="text-fc-muted">Vision:</span>
-                    <span className={model.capabilities.vision ? 'text-fc-bluetron font-bold' : 'text-fc-muted'}>
-                      {model.capabilities.vision ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-
-                  <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                    <span className="text-fc-muted">Context:</span>
-                    <span className="text-fc-graphite font-medium">
-                      {Math.round(model.capabilities.max_context / 1024)}K
-                    </span>
-                  </div>
-
-                  <div className="p-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex items-center justify-between">
-                    <span className="text-fc-muted">Cost/1M:</span>
-                    <span className="text-fc-graphite">
-                      ${model.cost.input_per_mtoken}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Tags Badges */}
-                <div className="flex flex-wrap gap-1 pt-0.5">
-                  {model.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-[10px] font-mono text-fc-muted"
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      onClick={() => openEditModal(model)}
+                      className="p-1.5 rounded-fc-6 bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
+                      title="Edit Model"
                     >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
 
-              {/* Card Footer Actions */}
-              <div className="pt-3 border-t border-fc-border-faint flex items-center justify-between gap-2">
-                <button
-                  onClick={() => handleToggle(model.id, isEnabled)}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-fc-6 text-[11px] font-medium border transition-colors cursor-pointer ${
-                    isEnabled
-                      ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:bg-fc-forest/20'
-                      : 'bg-fc-bg-lighter text-fc-muted border-fc-border-faint'
-                  }`}
-                  title={isEnabled ? 'Click to disable' : 'Click to enable'}
-                >
-                  {isEnabled ? (
-                    <ToggleRight className="w-4 h-4 text-fc-forest" />
-                  ) : (
-                    <ToggleLeft className="w-4 h-4 text-fc-muted" />
-                  )}
-                  <span>{isEnabled ? 'Active' : 'Disabled'}</span>
-                </button>
-
-                <div className="flex items-center space-x-1.5">
-                  <button
-                    onClick={() => openEditModal(model)}
-                    className="p-1.5 rounded-fc-6 bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
-                    title="Edit Model"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(model.id)}
-                    className="p-1.5 rounded-fc-6 bg-fc-crimson/10 hover:bg-fc-crimson/20 text-fc-crimson transition-colors cursor-pointer"
-                    title="Delete Model"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                    <button
+                      onClick={() => handleDelete(model.id)}
+                      className="p-1.5 rounded-fc-6 bg-fc-crimson/10 hover:bg-fc-crimson/20 text-fc-crimson transition-colors cursor-pointer"
+                      title="Delete Model"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

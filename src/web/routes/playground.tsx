@@ -443,19 +443,19 @@ export function PlaygroundPage() {
   const getScoreColor = (val: number) => {
     if (val < 2.0)
       return {
-        text: 'text-emerald-600 dark:text-emerald-400',
-        bg: 'bg-emerald-500',
+        text: 'text-fc-forest',
+        bg: 'bg-fc-forest',
         tier: 'Low Complexity (Local Free Tier)',
       };
     if (val < 3.5)
       return {
-        text: 'text-amber-600 dark:text-amber-400',
-        bg: 'bg-amber-500',
+        text: 'text-fc-honey',
+        bg: 'bg-fc-honey',
         tier: 'Standard Complexity (Mid-tier Engine)',
       };
     return {
-      text: 'text-indigo-600 dark:text-indigo-400',
-      bg: 'bg-indigo-500',
+      text: 'text-heat-100',
+      bg: 'bg-heat-100',
       tier: 'Advanced Complexity (Frontier Engine)',
     };
   };
@@ -465,13 +465,13 @@ export function PlaygroundPage() {
   return (
     <div className="space-y-6 pb-12">
       {/* Workbench Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-fc-border-muted pb-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center space-x-2">
-            <Gauge className="w-5 h-5 text-blue-500" />
+          <h1 className="text-xl font-medium tracking-tight text-fc-accent-black flex items-center space-x-2">
+            <Gauge className="w-5 h-5 text-heat-100" />
             <span>Decision Intelligence Playground</span>
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
           </p>
         </div>
@@ -486,7 +486,7 @@ export function PlaygroundPage() {
                 setPrompt(p.prompt);
                 handleEvaluate(p.prompt);
               }}
-              className="px-2.5 py-1 rounded text-xs font-mono bg-white dark:bg-[#11131B] hover:bg-slate-50 dark:hover:bg-[#1A1D27] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
+              className="px-2.5 py-1 rounded-fc-sm text-xs font-mono bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-accent-black transition-colors cursor-pointer"
             >
               {p.label}
             </button>
@@ -499,21 +499,21 @@ export function PlaygroundPage() {
         {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
           {/* Prompt Editor Card */}
-          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
+          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3.5 shadow-xs transition-colors">
             {/* Top Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
               {/* Policy Segmented Control */}
               <div className="flex items-center space-x-1.5">
-                <span className="text-slate-500 dark:text-slate-400 font-medium">Policy:</span>
-                <div className="flex bg-slate-100 dark:bg-[#171A24] p-0.5 rounded-lg border border-slate-200 dark:border-slate-800 font-mono text-[11px]">
+                <span className="text-slate-500 font-medium">Policy:</span>
+                <div className="flex bg-fc-bg-lighter p-0.5 rounded-fc-sm border border-fc-border-faint font-mono text-[11px]">
                   {(['balanced', 'cost_optimized', 'quality_max', 'local_first'] as const).map((p) => (
                     <button
                       key={p}
                       onClick={() => setPolicy(p)}
-                      className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                      className={`px-2.5 py-0.5 rounded-fc-sm transition-all cursor-pointer ${
                         policy === p
-                          ? 'bg-white dark:bg-[#252938] text-slate-900 dark:text-white font-bold shadow-xs'
-                          : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300'
+                          ? 'bg-heat-100 text-white font-medium shadow-xs'
+                          : 'text-slate-500 hover:text-fc-accent-black'
                       }`}
                     >
                       {p === 'balanced'
@@ -539,7 +539,7 @@ export function PlaygroundPage() {
                     else if (e.target.value === 'd1-router-local') setPolicy('local_first');
                     else if (e.target.value === 'd1-router-auto') setPolicy('balanced');
                   }}
-                  className="bg-slate-100 dark:bg-[#171A24] border border-slate-200 dark:border-slate-800 rounded px-2 py-1 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-blue-500 font-mono"
+                  className="bg-fc-bg-lighter border border-fc-border-muted rounded-fc-sm px-2 py-1 text-fc-accent-black text-xs focus:outline-none focus:border-heat-100 font-mono"
                 >
                   <option value="d1-router-auto">d1-router-auto</option>
                   <option value="d1-router-cost">d1-router-cost</option>
@@ -552,7 +552,7 @@ export function PlaygroundPage() {
                     type="checkbox"
                     checked={isStreaming}
                     onChange={(e) => setIsStreaming(e.target.checked)}
-                    className="rounded bg-slate-100 dark:bg-[#171A24] border-slate-300 dark:border-slate-800 text-blue-600 focus:ring-0 w-3 h-3"
+                    className="rounded bg-fc-bg-lighter border-fc-border-muted text-heat-100 focus:ring-0 w-3 h-3"
                   />
                   <span className="font-mono text-[11px]">Stream</span>
                 </label>
@@ -563,7 +563,7 @@ export function PlaygroundPage() {
                     setChatResponse('');
                     setEvaluation(null);
                   }}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center space-x-1 cursor-pointer"
+                  className="text-slate-400 hover:text-fc-accent-black flex items-center space-x-1 cursor-pointer"
                   title="Clear Prompt"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -587,7 +587,7 @@ export function PlaygroundPage() {
                 }}
                 rows={4}
                 placeholder="Type or paste prompt to analyze (e.g. code generation, greeting, architecture)..."
-                className="w-full bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800/80 rounded-lg p-3 text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500/80 resize-y transition-colors font-sans leading-relaxed"
+                className="w-full bg-fc-bg-base border border-fc-border-muted rounded-fc-sm p-3 text-xs sm:text-sm text-fc-accent-black placeholder-slate-400 focus:outline-none focus:border-heat-100 resize-y transition-colors font-sans leading-relaxed"
               />
               <div className="absolute right-2.5 bottom-2.5 text-[10px] font-mono text-slate-400 pointer-events-none">
                 {prompt.length} chars • ~{Math.round(prompt.length / 4)} tokens
@@ -597,23 +597,23 @@ export function PlaygroundPage() {
             {/* Execute Buttons */}
             <div className="flex items-center justify-between pt-0.5">
               <div className="text-[11px] text-slate-400 font-mono hidden sm:block">
-                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">⌘+Enter</kbd> to execute
+                Press <kbd className="px-1.5 py-0.5 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint text-slate-500">⌘+Enter</kbd> to execute
               </div>
 
               <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleEvaluate()}
                   disabled={isEvaluating || !prompt.trim()}
-                  className="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1D27] dark:hover:bg-[#222634] disabled:opacity-50 text-slate-700 dark:text-slate-200 font-medium text-xs flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700/80 transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-fc-sm bg-fc-bg-lighter hover:bg-fc-surface disabled:opacity-50 text-fc-accent-black font-medium text-xs flex items-center space-x-1.5 border border-fc-border-muted transition-colors cursor-pointer"
                 >
-                  <Gauge className="w-3.5 h-3.5 text-blue-500" />
+                  <Gauge className="w-3.5 h-3.5 text-heat-100" />
                   <span>{isEvaluating ? 'Evaluating...' : 'Score Prompt'}</span>
                 </button>
 
                 <button
                   onClick={handleSendPrompt}
                   disabled={isGenerating || !prompt.trim()}
-                  className="px-4 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium text-xs flex items-center space-x-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="btn-heat-primary px-4 py-2 rounded-fc-sm disabled:opacity-50 font-medium text-xs flex items-center space-x-1.5 cursor-pointer shadow-heat-button"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{isGenerating ? 'Streaming...' : 'Route & Execute'}</span>
@@ -624,21 +624,21 @@ export function PlaygroundPage() {
 
           {/* Upstream Notice Banner (if any) */}
           {upstreamNotice && (
-            <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300 flex items-center space-x-2 transition-all">
-              <Info className="w-4 h-4 text-blue-500 shrink-0" />
+            <div className="p-3 rounded-fc-sm bg-heat-4 border border-heat-20 text-xs text-heat-100 flex items-center space-x-2 transition-all">
+              <Info className="w-4 h-4 text-heat-100 shrink-0" />
               <span>{upstreamNotice}</span>
             </div>
           )}
 
           {/* Streaming Output Card */}
-          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2.5">
+          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3 shadow-xs transition-colors">
+            <div className="flex items-center justify-between border-b border-fc-border-faint pb-2.5">
               <div className="flex items-center space-x-2 text-xs font-mono">
-                <Terminal className="w-3.5 h-3.5 text-blue-500" />
-                <span className="font-semibold text-slate-800 dark:text-slate-200">Execution Output</span>
+                <Terminal className="w-3.5 h-3.5 text-heat-100" />
+                <span className="font-semibold text-fc-accent-black">Execution Output</span>
                 {isGenerating && (
-                  <span className="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400 text-[11px]">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="flex items-center space-x-1 text-heat-100 text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse" />
                     <span>Streaming</span>
                   </span>
                 )}
@@ -654,10 +654,10 @@ export function PlaygroundPage() {
                 {chatResponse && (
                   <button
                     onClick={copyToClipboard}
-                    className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    className="p-1 rounded-fc-sm hover:bg-fc-bg-lighter text-slate-400 hover:text-fc-accent-black transition-colors cursor-pointer"
                     title="Copy output"
                   >
-                    {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                    {copied ? <Check className="w-3 h-3 text-fc-forest" /> : <Copy className="w-3 h-3" />}
                   </button>
                 )}
               </div>
@@ -666,13 +666,13 @@ export function PlaygroundPage() {
             {/* Output Text View */}
             <div
               ref={chatOutputRef}
-              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800/80 p-3.5 text-xs font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-text transition-colors"
+              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-fc-sm bg-fc-bg-base border border-fc-border-muted p-3.5 text-xs font-mono text-fc-accent-black whitespace-pre-wrap leading-relaxed select-text transition-colors"
             >
               {chatResponse ? (
                 <span>{chatResponse}</span>
               ) : isGenerating ? (
                 <span className="text-slate-400 italic flex items-center space-x-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse mr-1.5" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse mr-1.5" />
                   Connecting to upstream model stream...
                 </span>
               ) : (
@@ -688,21 +688,21 @@ export function PlaygroundPage() {
         <div className="lg:col-span-5 space-y-4">
           {/* Decision Fallback / Status Alert */}
           {Boolean(evaluation?.isFallback || evaluation?.fallbackReason) ? (
-            <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 text-xs text-amber-700 dark:text-amber-300 flex items-start space-x-2.5 shadow-xs">
-              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+            <div className="rounded-fc-sm bg-fc-honey/10 border border-fc-honey/30 p-3.5 text-xs text-fc-honey flex items-start space-x-2.5 shadow-xs">
+              <AlertTriangle className="w-4 h-4 text-fc-honey shrink-0 mt-0.5" />
               <div className="space-y-0.5">
-                <div className="font-semibold text-amber-800 dark:text-amber-200 text-xs">
+                <div className="font-semibold text-fc-honey text-xs">
                   Deterministic Fallback Active
                 </div>
-                <p className="text-amber-700/90 dark:text-amber-300/90 text-[11px] leading-snug">
+                <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-snug">
                   {evaluation?.fallbackReason ||
                     'Liquid d1 unreachable or exceeded 10s timeout. Complexity and model choice calculated via heuristic rules.'}
                 </p>
               </div>
             </div>
           ) : evaluation ? (
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-xs text-emerald-700 dark:text-emerald-300 flex items-center space-x-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <div className="rounded-fc-sm bg-fc-forest/10 border border-fc-forest/20 p-2.5 text-xs text-fc-forest flex items-center space-x-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-fc-forest shrink-0" />
               <span className="font-mono text-[11px]">
                 Liquid d1 Neural Forward Pass: <strong>{evaluation.routingLatencyMs || 14} ms</strong>
               </span>
@@ -710,15 +710,15 @@ export function PlaygroundPage() {
           ) : null}
 
           {/* Interactive Decision Pipeline Node Graph */}
-          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2">
-              <h2 className="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
-                <GitBranch className="w-3.5 h-3.5 text-blue-500" />
+          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3 shadow-xs transition-colors">
+            <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
+              <h2 className="font-medium text-fc-accent-black text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
+                <GitBranch className="w-3.5 h-3.5 text-heat-100" />
                 <span>Decision Flow Pipeline</span>
               </h2>
               <button
                 onClick={() => setShowGraph(!showGraph)}
-                className="text-[11px] font-mono text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center space-x-1 cursor-pointer"
+                className="text-[11px] font-mono text-slate-400 hover:text-fc-accent-black flex items-center space-x-1 cursor-pointer"
               >
                 <span>{showGraph ? 'Collapse' : 'Expand'}</span>
                 {showGraph ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -728,10 +728,10 @@ export function PlaygroundPage() {
             {showGraph && (
               <div className="space-y-1.5 pt-0.5 font-mono text-xs">
                 {/* Node 1: Ingestion */}
-                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-3 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint space-y-1">
                   <div className="flex items-center justify-between text-slate-500">
-                    <span className="font-semibold text-slate-900 dark:text-slate-200">1. Prompt State Ingestion</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                    <span className="font-medium text-fc-accent-black">1. Prompt State Ingestion</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-sm bg-fc-surface border border-fc-border-faint text-fc-accent-black">
                       ~{Math.round(prompt.length / 4)} tokens
                     </span>
                   </div>
@@ -740,35 +740,35 @@ export function PlaygroundPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-300 dark:text-slate-700">
+                <div className="flex justify-center text-slate-400">
                   <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 2: D1 System One Evaluation */}
-                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-3 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">2. Liquid d1 Evaluation</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                    <span className="font-medium text-fc-forest">2. Liquid d1 Evaluation</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-sm bg-fc-forest/10 text-fc-forest font-bold border border-fc-forest/20">
                       Score: {score.toFixed(2)}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-500">
-                    <div>Domain: <span className="text-slate-900 dark:text-slate-200 font-bold">{evaluation?.domain || 'general'}</span></div>
-                    <div>Latency: <span className="text-slate-900 dark:text-slate-200 font-bold">{evaluation?.routingLatencyMs || 14}ms</span></div>
-                    <div>Tools: <span className={evaluation?.requiresTools ? 'text-purple-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresTools ? 'Yes' : 'No'}</span></div>
-                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-blue-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
+                    <div>Domain: <span className="text-fc-accent-black font-bold">{evaluation?.domain || 'general'}</span></div>
+                    <div>Latency: <span className="text-fc-accent-black font-bold">{evaluation?.routingLatencyMs || 14}ms</span></div>
+                    <div>Tools: <span className={evaluation?.requiresTools ? 'text-fc-amethyst font-bold' : 'text-slate-400'}>{evaluation?.requiresTools ? 'Yes' : 'No'}</span></div>
+                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-fc-bluetron font-bold' : 'text-slate-400'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-300 dark:text-slate-700">
+                <div className="flex justify-center text-slate-400">
                   <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 3: Policy Engine */}
-                <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 space-y-1">
+                <div className="p-3 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-purple-600 dark:text-purple-400">3. Policy Engine Resolution</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20 uppercase">
+                    <span className="font-medium text-fc-amethyst">3. Policy Engine Resolution</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-fc-sm bg-fc-amethyst/10 text-fc-amethyst font-bold border border-fc-amethyst/20 uppercase">
                       {policy}
                     </span>
                   </div>
@@ -777,22 +777,22 @@ export function PlaygroundPage() {
                   </div>
                 </div>
 
-                <div className="flex justify-center text-slate-300 dark:text-slate-700">
+                <div className="flex justify-center text-slate-400">
                   <ArrowRight className="w-3 h-3 rotate-90" />
                 </div>
 
                 {/* Node 4: Selected Target Model */}
-                <div className="p-2.5 rounded-lg bg-blue-50/60 dark:bg-[#171A24] border border-blue-500/30 text-blue-700 dark:text-blue-300 space-y-1">
+                <div className="p-3 rounded-fc-sm bg-heat-4 border border-heat-40 text-fc-accent-black space-y-1">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-                      <Sparkles className="w-3 h-3 text-blue-500" />
+                    <span className="font-bold text-fc-accent-black flex items-center space-x-1.5">
+                      <Sparkles className="w-3 h-3 text-heat-100" />
                       <span>4. Target Engine Selected</span>
                     </span>
-                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-white dark:bg-[#11131B] border border-blue-500/30">
+                    <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-fc-sm bg-fc-surface border border-heat-40 text-heat-100">
                       {evaluation?.selectedModel?.provider || 'ollama'}
                     </span>
                   </div>
-                  <div className="text-xs font-bold text-blue-700 dark:text-blue-300">
+                  <div className="text-xs font-bold text-heat-100">
                     {evaluation?.selectedModel?.display_name || 'Local Chat'} ({evaluation?.selectedModel?.upstream_model || 'lfm3:latest'})
                   </div>
                   <div className="text-[10px] text-slate-500 flex items-center justify-between pt-0.5">
@@ -805,10 +805,10 @@ export function PlaygroundPage() {
           </div>
 
           {/* Calibrated Complexity Spectrum Card */}
-          <div className="rounded-xl bg-white dark:bg-[#11131B] border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 shadow-sm transition-colors">
-            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-2">
-              <h2 className="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
-                <Gauge className="w-3.5 h-3.5 text-blue-500" />
+          <div className="rounded-fc-md bg-fc-surface border border-fc-border-muted p-5 space-y-3 shadow-xs transition-colors">
+            <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
+              <h2 className="font-medium text-fc-accent-black text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
+                <Gauge className="w-3.5 h-3.5 text-heat-100" />
                 <span>Complexity Spectrum</span>
               </h2>
               <span className="text-[11px] font-mono text-slate-400">
@@ -817,22 +817,22 @@ export function PlaygroundPage() {
             </div>
 
             {/* Readout & Meter */}
-            <div className="rounded-lg bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 p-3 flex flex-col items-center justify-center space-y-2.5">
+            <div className="rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint p-4 flex flex-col items-center justify-center space-y-2.5">
               <div className="text-center space-y-0.5">
-                <div className="text-3xl font-bold font-mono tracking-tight text-slate-900 dark:text-white">
+                <div className="text-3xl font-bold font-mono tracking-tight text-fc-accent-black">
                   <span className={scoreStyle.text}>{score.toFixed(2)}</span>
                   <span className="text-sm text-slate-400 font-sans font-normal ml-1">/ 5.0</span>
                 </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                <div className="text-xs text-slate-500 font-medium">
                   {scoreStyle.tier}
                 </div>
               </div>
 
               {/* Calibrated Bar with Ticks */}
               <div className="w-full space-y-1 pt-1">
-                <div className="w-full h-2 rounded bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div className="w-full h-2 rounded-fc-full bg-fc-surface border border-fc-border-faint overflow-hidden">
                   <div
-                    className={`h-full rounded transition-all duration-300 ${scoreStyle.bg}`}
+                    className={`h-full rounded-fc-full transition-all duration-300 ${scoreStyle.bg}`}
                     style={{ width: `${scorePercent}%` }}
                   />
                 </div>
@@ -846,22 +846,22 @@ export function PlaygroundPage() {
 
             {/* Classified Capabilities */}
             <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
-              <div className="p-2 rounded bg-slate-50 dark:bg-[#0D0F16] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+              <div className="p-2.5 rounded-fc-sm bg-fc-bg-lighter border border-fc-border-faint text-fc-accent-black">
                 <div className="text-slate-400 text-[10px]">Domain</div>
                 <div className="font-bold">{evaluation?.domain || 'general'}</div>
               </div>
-              <div className={`p-2 rounded border text-[11px] font-mono ${
+              <div className={`p-2.5 rounded-fc-sm border text-[11px] font-mono ${
                 evaluation?.requiresTools
-                  ? 'bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400 font-bold'
-                  : 'bg-slate-50 dark:bg-[#0D0F16] border-slate-200 dark:border-slate-800 text-slate-500'
+                  ? 'bg-fc-amethyst/10 border-fc-amethyst/30 text-fc-amethyst font-bold'
+                  : 'bg-fc-bg-lighter border-fc-border-faint text-slate-500'
               }`}>
                 <div className="text-slate-400 text-[10px]">Tools</div>
                 <div>{evaluation?.requiresTools ? 'Required' : 'None'}</div>
               </div>
-              <div className={`p-2 rounded border text-[11px] font-mono ${
+              <div className={`p-2.5 rounded-fc-sm border text-[11px] font-mono ${
                 evaluation?.requiresVision
-                  ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400 font-bold'
-                  : 'bg-slate-50 dark:bg-[#0D0F16] border-slate-200 dark:border-slate-800 text-slate-500'
+                  ? 'bg-fc-bluetron/10 border-fc-bluetron/30 text-fc-bluetron font-bold'
+                  : 'bg-fc-bg-lighter border-fc-border-faint text-slate-500'
               }`}>
                 <div className="text-slate-400 text-[10px]">Vision</div>
                 <div>{evaluation?.requiresVision ? 'Required' : 'None'}</div>

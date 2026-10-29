@@ -6,6 +6,7 @@ import {
   Sun,
   Moon,
   Gauge,
+  Flame,
 } from 'lucide-react';
 
 export const Route = createRootRoute({
@@ -55,38 +56,38 @@ function RootLayout() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 dark:bg-[#090A0F] dark:text-slate-100 flex flex-col font-sans transition-colors duration-150">
+    <div className="min-h-screen bg-fc-bg-base text-fc-accent-black flex flex-col font-sans transition-colors duration-150">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-[#090A0F]/90 border-b border-slate-200 dark:border-slate-800/80">
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-fc-surface/90 border-b border-fc-border-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           {/* Brand & Engine Status */}
           <div className="flex items-center space-x-3.5">
-            <Link to="/" className="flex items-center space-x-2.5">
-              <div className="w-7 h-7 rounded-lg bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 flex items-center justify-center font-mono font-bold text-xs tracking-tighter">
-                MR
+            <Link to="/" className="flex items-center space-x-2.5 group">
+              <div className="w-7 h-7 rounded-fc-sm bg-heat-100 text-white flex items-center justify-center font-mono font-bold text-xs shadow-heat-button group-hover:brightness-105 transition-all">
+                <Flame className="w-4 h-4 fill-white" />
               </div>
               <div className="flex items-center space-x-2">
-                <span className="font-semibold text-sm tracking-tight text-slate-900 dark:text-white">
-                  ModelRouter
+                <span className="font-medium text-sm tracking-tight text-fc-accent-black">
+                  Model<span className="text-heat-100 font-semibold">Router</span>
                 </span>
-                <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                <span className="text-[11px] font-mono text-slate-400">
                   v0.1
                 </span>
               </div>
             </Link>
 
             {/* Precision Status Dot */}
-            <div className="hidden sm:flex items-center space-x-1.5 pl-3 border-l border-slate-200 dark:border-slate-800 text-xs font-mono">
+            <div className="hidden sm:flex items-center space-x-1.5 pl-3 border-l border-fc-border-faint text-xs font-mono">
               <span
                 className={`w-2 h-2 rounded-full ${
                   isHealthOk === true
-                    ? 'bg-emerald-500'
+                    ? 'bg-fc-forest'
                     : isHealthOk === false
-                    ? 'bg-amber-500'
+                    ? 'bg-fc-honey'
                     : 'bg-slate-400 animate-pulse'
                 }`}
               />
-              <span className="text-slate-600 dark:text-slate-400 text-[11px]">
+              <span className="text-slate-500 text-[11px]">
                 {isHealthOk === true
                   ? 'd1:online'
                   : isHealthOk === false
@@ -97,13 +98,13 @@ function RootLayout() {
           </div>
 
           {/* Segmented Nav Controls */}
-          <nav className="flex items-center bg-slate-100 dark:bg-[#12141C] p-1 rounded-lg border border-slate-200 dark:border-slate-800/80 text-xs font-medium">
+          <nav className="flex items-center bg-fc-bg-lighter p-1 rounded-fc-sm border border-fc-border-faint text-xs font-medium">
             <Link
               to="/"
               activeProps={{
-                className: 'bg-white dark:bg-[#1C1F2B] text-slate-900 dark:text-white shadow-sm font-semibold',
+                className: 'bg-fc-surface text-fc-accent-black shadow-xs font-semibold',
               }}
-              className="flex items-center space-x-1.5 px-3 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1 rounded-fc-sm text-slate-500 hover:text-fc-accent-black transition-all"
             >
               <Activity className="w-3.5 h-3.5" />
               <span>Overview</span>
@@ -112,9 +113,9 @@ function RootLayout() {
             <Link
               to="/playground"
               activeProps={{
-                className: 'bg-white dark:bg-[#1C1F2B] text-slate-900 dark:text-white shadow-sm font-semibold',
+                className: 'bg-fc-surface text-fc-accent-black shadow-xs font-semibold',
               }}
-              className="flex items-center space-x-1.5 px-3 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1 rounded-fc-sm text-slate-500 hover:text-fc-accent-black transition-all"
             >
               <Gauge className="w-3.5 h-3.5" />
               <span>Playground</span>
@@ -123,9 +124,9 @@ function RootLayout() {
             <Link
               to="/registry"
               activeProps={{
-                className: 'bg-white dark:bg-[#1C1F2B] text-slate-900 dark:text-white shadow-sm font-semibold',
+                className: 'bg-fc-surface text-fc-accent-black shadow-xs font-semibold',
               }}
-              className="flex items-center space-x-1.5 px-3 py-1 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all"
+              className="flex items-center space-x-1.5 px-3 py-1 rounded-fc-sm text-slate-500 hover:text-fc-accent-black transition-all"
             >
               <Layers className="w-3.5 h-3.5" />
               <span>Models</span>
@@ -137,10 +138,10 @@ function RootLayout() {
             <button
               onClick={toggleTheme}
               aria-label="Toggle color theme"
-              className="p-1.5 rounded-lg bg-slate-100 dark:bg-[#12141C] border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-fc-sm bg-fc-surface hover:bg-fc-bg-lighter border border-fc-border-muted text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
             >
               {theme === 'dark' ? (
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <Sun className="w-3.5 h-3.5 text-fc-honey" />
               ) : (
                 <Moon className="w-3.5 h-3.5 text-slate-600" />
               )}
@@ -155,9 +156,11 @@ function RootLayout() {
       </main>
 
       {/* Clean Utility Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#090A0F] py-4 text-xs font-mono text-slate-500">
+      <footer className="border-t border-fc-border-muted bg-fc-surface/60 py-4 text-xs font-mono text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center space-x-2">
+            <span className="text-heat-100 font-bold">Firecrawl-Aligned</span>
+            <span>•</span>
             <span>Liquid AI d1 (System One)</span>
             <span>•</span>
             <span>Zero-Buffer SSE Streaming</span>

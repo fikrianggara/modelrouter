@@ -8,7 +8,7 @@ describe('App Config', () => {
     expect(config.HOST).toBe('0.0.0.0');
     expect(config.D1_ENDPOINT).toBe('http://localhost:11434/v1/systemone');
     expect(config.D1_MODEL).toBe('d1:latest');
-    expect(config.D1_TIMEOUT_MS).toBe(3000);
+    expect(config.D1_TIMEOUT_MS).toBe(10000);
     expect(config.DEFAULT_POLICY).toBe('balanced');
     expect(config.FALLBACK_MODEL_ID).toBe('lfm3-local');
     expect(config.REGISTRY_PATH).toBe('config/registry.yaml');

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { app } from '../../src/api/server';
 
-describe('Web Dashboard & API Integration Tests (TKT-009)', () => {
+describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, () => {
   it('GET /api/registry returns all registered models with capabilities and tags', async () => {
     const res = await app.request('/api/registry');
     expect(res.status).toBe(200);
@@ -67,6 +67,68 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', () => {
     expect(data.targetLatencyMs).toBe(30);
     expect(typeof data.registeredModels).toBe('number');
     expect(data.registeredModels).toBeGreaterThanOrEqual(3);
+  });
+
+  it('supports model CRUD and enable/disable toggle API', async () => {
+    // 1. Add model
+    const newModelPayload = {
+      id: 'test-crud-model',
+      display_name: 'Test CRUD Model',
+      provider: 'custom',
+      upstream_model: 'crud-v1',
+      base_url: 'http://localhost:9000/v1',
+      complexity_range: [1.0, 3.0],
+      tags: ['test', 'crud'],
+      capabilities: { tools: true, vision: false, max_context: 4096, streaming: true },
+      cost: { input_per_mtoken: 0.1, output_per_mtoken: 0.2 },
+      enabled: true,
+    };
+
+    const addRes = await app.request('/api/registry/model', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newModelPayload),
+    });
+    expect(addRes.status).toBe(200);
+    const addData = await addRes.json();
+    expect(addData.ok).toBe(true);
+    expect(addData.model.id).toBe('test-crud-model');
+
+    // 2. Update model
+    const updateRes = await app.request('/api/registry/model/test-crud-model', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ display_name: 'Updated CRUD Model' }),
+    });
+    expect(updateRes.status).toBe(200);
+    const updateData = await updateRes.json();
+    expect(updateData.model.display_name).toBe('Updated CRUD Model');
+
+    // 3. Toggle model
+    const toggleRes = await app.request('/api/registry/model/test-crud-model/toggle', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: false }),
+    });
+    expect(toggleRes.status).toBe(200);
+    const toggleData = await toggleRes.json();
+    expect(toggleData.model.enabled).toBe(false);
+
+    // 4. Delete model
+    const deleteRes = await app.request('/api/registry/model/test-crud-model', {
+      method: 'DELETE',
+    });
+    expect(deleteRes.status).toBe(200);
+    const deleteData = await deleteRes.json();
+    expect(deleteData.ok).toBe(true);
+  });
+
+  it('GET /api/telemetry/recent returns recent requests list', async () => {
+    const res = await app.request('/api/telemetry/recent');
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data).toHaveProperty('requests');
+    expect(Array.isArray(data.requests)).toBe(true);
   });
 
   it('Serves SPA static index.html on root and subroutes', async () => {

@@ -215,5 +215,67 @@ models:
     it('should return all models via getAllModels()', () => {
       expect(reg.getAllModels().length).toBe(3);
     });
+
+    it('should add, update, toggle, delete model and exclude disabled from candidates', () => {
+      const editableReg = ModelRegistry.fromYaml(sampleYaml);
+      expect(editableReg.models.length).toBe(3);
+
+      // Add Model
+      editableReg.addModel({
+        id: 'new-model',
+        display_name: 'New Custom Model',
+        provider: 'custom',
+        upstream_model: 'custom-v2',
+        base_url: 'http://localhost:9000/v1',
+        complexity_range: [1.0, 3.0],
+        tags: ['custom', 'test'],
+        capabilities: { tools: true, vision: false, max_context: 4096, streaming: true },
+        cost: { input_per_mtoken: 0.5, output_per_mtoken: 1.0 },
+        enabled: true,
+      });
+      expect(editableReg.models.length).toBe(4);
+      expect(editableReg.getModel('new-model')).toBeDefined();
+
+      // Duplicate add throws
+      expect(() =>
+        editableReg.addModel({
+          id: 'new-model',
+          provider: 'custom',
+          upstream_model: 'custom-v2',
+          base_url: 'http://localhost:9000/v1',
+          complexity_range: [1.0, 3.0],
+          tags: [],
+          capabilities: { tools: true, vision: false, max_context: 4096, streaming: true },
+          cost: { input_per_mtoken: 0, output_per_mtoken: 0 },
+          enabled: true,
+        })
+      ).toThrow();
+
+      // Update Model
+      editableReg.updateModel('new-model', { display_name: 'Updated Custom Model' });
+      expect(editableReg.getModel('new-model')?.display_name).toBe('Updated Custom Model');
+
+      // Toggle Model (disable)
+      editableReg.toggleModel('new-model', false);
+      expect(editableReg.getModel('new-model')?.enabled).toBe(false);
+
+      // Disabled model excluded from findCandidates by default
+      const candidates = editableReg.findCandidates({ tag: 'custom' });
+      expect(candidates.find(c => c.id === 'new-model')).toBeUndefined();
+
+      // Disabled model included when includeDisabled: true
+      const candidatesWithDisabled = editableReg.findCandidates({ tag: 'custom', includeDisabled: true });
+      expect(candidatesWithDisabled.find(c => c.id === 'new-model')).toBeDefined();
+
+      // Toggle Model back to true
+      editableReg.toggleModel('new-model');
+      expect(editableReg.getModel('new-model')?.enabled).toBe(true);
+
+      // Delete Model
+      const deleted = editableReg.deleteModel('new-model');
+      expect(deleted).toBe(true);
+      expect(editableReg.getModel('new-model')).toBeUndefined();
+      expect(editableReg.models.length).toBe(3);
+    });
   });
 });

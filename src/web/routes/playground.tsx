@@ -14,6 +14,12 @@ import {
   Terminal,
   AlertTriangle,
   Info,
+  GitBranch,
+  ArrowRight,
+  Sparkles,
+  Layers,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/playground')({
@@ -29,6 +35,9 @@ interface EvaluationResult {
   isFallback?: boolean;
   fallbackReason?: string;
   reasoning?: string;
+  policy?: string;
+  candidatesCount?: number;
+  poolSize?: number;
   selectedModel: {
     id: string;
     display_name?: string;
@@ -52,36 +61,31 @@ interface EvaluationResult {
 const PRESET_PROMPTS = [
   {
     label: 'Simple Greeting',
-    prompt:
-      'Hello! Can you give me a quick definition of idempotent operations?',
+    prompt: 'Hello! Can you give me a quick definition of idempotent operations?',
     expectedScore: 1.2,
     domain: 'general',
   },
   {
     label: 'Node.js Event Loop',
-    prompt:
-      'Explain the phases of the Node.js libuv event loop and how setImmediate differs from setTimeout(fn, 0).',
+    prompt: 'Explain the phases of the Node.js libuv event loop and how setImmediate differs from setTimeout(fn, 0).',
     expectedScore: 2.6,
     domain: 'coding',
   },
   {
     label: 'Raft Consensus',
-    prompt:
-      'Design a fault-tolerant Raft consensus module in TypeScript. Include election timers, AppendEntries RPC handling, term increments, and split-vote edge cases.',
+    prompt: 'Design a fault-tolerant Raft consensus module in TypeScript. Include election timers, AppendEntries RPC handling, term increments, and split-vote edge cases.',
     expectedScore: 4.8,
     domain: 'coding',
   },
   {
     label: 'Philosophical Synthesis',
-    prompt:
-      'Synthesize Cartesian mind-body dualism with modern functionalist theories of consciousness. Highlight hard problems of consciousness vs physicalism.',
+    prompt: 'Synthesize Cartesian mind-body dualism with modern functionalist theories of consciousness. Highlight hard problems of consciousness vs physicalism.',
     expectedScore: 3.8,
     domain: 'analysis',
   },
   {
-    label: 'Distributed Systems Analysis',
-    prompt:
-      'analyze an e commerce apps that has machine learning system recommendation based on users and other users purchase, resource caching using redis, payment processing using message broker like rabbit mq, and real time notification. the search filtering should be hybrid search using lexical and semantic search.',
+    label: 'Distributed Systems & ML',
+    prompt: 'Analyze an e-commerce platform that implements real-time machine learning recommendations, distributed cache invalidation with Redis, asynchronous transactional sagas via RabbitMQ, and hybrid BM25 + dense vector semantic search.',
     expectedScore: 4.5,
     domain: 'analysis',
   },
@@ -96,7 +100,9 @@ export function PlaygroundPage() {
   const [evaluation, setEvaluation] = useState<EvaluationResult | null>(null);
   const [chatResponse, setChatResponse] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [upstreamNotice, setUpstreamNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [showGraph, setShowGraph] = useState<boolean>(true);
   const [streamStats, setStreamStats] = useState<{
     tokens: number;
     elapsedMs: number;
@@ -127,7 +133,6 @@ export function PlaygroundPage() {
         const data = await res.json();
         setEvaluation(data);
       } else {
-        // Local heuristic fallback if server evaluate endpoint fails
         fallbackClientEvaluation(textToEvaluate);
       }
     } catch {
@@ -137,7 +142,7 @@ export function PlaygroundPage() {
     }
   };
 
-  // Client-side heuristic fallback if server is unreachable
+  // Client-side fallback evaluator
   const fallbackClientEvaluation = (text: string) => {
     const lower = text.toLowerCase();
     let score = 1.2;
@@ -227,13 +232,14 @@ export function PlaygroundPage() {
       domain,
       requiresTools,
       requiresVision,
-      reasoning: 'Heuristic fallback evaluator',
+      isFallback: true,
+      fallbackReason: 'Evaluated via client fallback guard',
       selectedModel,
       routingLatencyMs: 14.2,
+      policy,
     });
   };
 
-  // Run initial evaluation on mount
   useEffect(() => {
     handleEvaluate(prompt);
   }, []);
@@ -242,11 +248,11 @@ export function PlaygroundPage() {
   const handleSendPrompt = async () => {
     if (!prompt.trim() || isGenerating) return;
 
-    // First evaluate
     await handleEvaluate();
 
     setIsGenerating(true);
     setChatResponse('');
+    setUpstreamNotice(null);
     setStreamStats({ tokens: 0, elapsedMs: 0, tokensPerSec: 0 });
 
     const startTime = performance.now();
@@ -260,6 +266,7 @@ export function PlaygroundPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: virtualModel,
+          policy: policy,
           messages: [{ role: 'user', content: prompt }],
           stream: isStreaming,
         }),
@@ -317,16 +324,25 @@ export function PlaygroundPage() {
             Math.round((estimatedTokens / (elapsed / 1000)) * 10) / 10,
         });
       } else {
-        // If upstream endpoint is unreachable, simulate realistic streaming response
+        // Upstream returned non-200 (e.g. 401 unauthenticated or 404)
+        const errText = await res.text().catch(() => '');
+        setUpstreamNotice(
+          `Upstream endpoint returned HTTP ${res.status}. Showing policy-aligned simulated output for ${evaluation?.selectedModel?.display_name || 'selected model'}.`
+        );
         await simulateStreamingResponse(
           prompt,
           evaluation?.selectedModel?.display_name || 'Selected Model',
+          policy
         );
       }
     } catch {
+      setUpstreamNotice(
+        `Local gateway simulation active for ${evaluation?.selectedModel?.display_name || 'selected model'}.`
+      );
       await simulateStreamingResponse(
         prompt,
         evaluation?.selectedModel?.display_name || 'Selected Model',
+        policy
       );
     } finally {
       setIsGenerating(false);
@@ -334,27 +350,46 @@ export function PlaygroundPage() {
     }
   };
 
-  // Realistic fallback streamer if upstream model is offline
+  // Generate dynamic, policy-aligned response
   const simulateStreamingResponse = async (
     userPrompt: string,
     modelName: string,
+    activePolicy: string
   ) => {
     const startTime = performance.now();
     let text = '';
 
+    const getPolicyRationale = (p: string) => {
+      switch (p) {
+        case 'quality_max':
+          return 'ModelRouter selected this engine under Quality-Max policy to provide maximum reasoning depth, capability headroom, and architectural synthesis capability, prioritizing accuracy over token cost.';
+        case 'cost_optimized':
+          return 'ModelRouter selected this engine under Cost-Optimized policy to minimize operational cost per token while fulfilling the required task complexity.';
+        case 'local_first':
+          return 'ModelRouter prioritized local Ollama inference ($0.00 marginal cost) to ensure complete data privacy and zero cloud egress.';
+        case 'balanced':
+        default:
+          return 'ModelRouter determined this model offers the optimal Pareto frontier balance between processing latency, cost per token, and reasoning quality.';
+      }
+    };
+
+    const rationale = getPolicyRationale(activePolicy);
+
     if (userPrompt.toLowerCase().includes('idempotent')) {
       text =
-        `[Routed via D1 System One -> ${modelName}]\n\n` +
-        `An **idempotent operation** is one that produces the exact same result no matter how many times it is executed with the identical parameters.\n\n` +
-        `Key characteristics:\n` +
-        `1. **HTTP Methods**: GET, PUT, DELETE are idempotent (calling DELETE /item/1 multiple times leaves the item deleted).\n` +
-        `2. **Distributed Systems**: Safe to retry during network timeouts without duplicate side effects.\n` +
-        `3. **Database Operations**: UPDATE counters like \`SET balance = 100\` is idempotent, whereas \`balance = balance + 10\` is not.`;
+        `[Routed via D1 System One -> ${modelName} | Policy: ${activePolicy}]\n\n` +
+        `An **idempotent operation** is an operation that produces the exact same state outcome no matter how many times it is executed with identical parameters.\n\n` +
+        `### Key Characteristics\n` +
+        `1. **REST APIs**: HTTP \`GET\`, \`PUT\`, and \`DELETE\` are idempotent. Retrying \`PUT /orders/123\` with identical state does not duplicate the resource.\n` +
+        `2. **Distributed Messaging**: Consumers use deduplication keys or transaction IDs to safely handle redelivered messages.\n` +
+        `3. **Database Ledger**: \`SET balance = 1000\` is idempotent; \`balance = balance + 100\` is not.\n\n` +
+        `### Policy Rationale\n` +
+        `${rationale}`;
     } else if (userPrompt.toLowerCase().includes('raft')) {
       text =
-        `[Routed via D1 System One -> ${modelName}]\n\n` +
+        `[Routed via D1 System One -> ${modelName} | Policy: ${activePolicy}]\n\n` +
         `### Raft Consensus State Machine in TypeScript\n\n` +
-        `Raft achieves consensus via three discrete server states: **Leader**, **Candidate**, and **Follower**.\n\n` +
+        `Raft achieves consensus via three server states: **Leader**, **Candidate**, and **Follower**.\n\n` +
         `\`\`\`typescript\n` +
         `enum Role { Follower, Candidate, Leader }\n\n` +
         `interface LogEntry<T> {\n` +
@@ -367,23 +402,20 @@ export function PlaygroundPage() {
         `  private votedFor: string | null = null;\n` +
         `  private log: LogEntry<T>[] = [];\n` +
         `  private role = Role.Follower;\n` +
-        `  private electionTimeoutMs = 150 + Math.random() * 150;\n\n` +
-        `  public handleAppendEntries(rpc: AppendEntriesArgs<T>): AppendEntriesResult {\n` +
-        `    if (rpc.term < this.currentTerm) return { term: this.currentTerm, success: false };\n` +
-        `    this.resetElectionTimer();\n` +
-        `    return { term: this.currentTerm, success: true };\n` +
-        `  }\n` +
         `}\n` +
         `\`\`\`\n\n` +
-        `This implementation guarantees monotonic log matching and leader completeness.`;
+        `### Policy Execution Analysis\n` +
+        `${rationale}`;
     } else {
       text =
-        `[Routed via D1 System One -> ${modelName}]\n\n` +
+        `[Routed via D1 System One -> ${modelName} | Policy: ${activePolicy}]\n\n` +
         `Prompt successfully processed by ModelRouter gateway.\n\n` +
         `- Evaluated Complexity: ${evaluation?.complexityScore.toFixed(2) || '2.40'} / 5.00\n` +
-        `- Domain: ${evaluation?.domain || 'general'}\n` +
-        `- Selected Engine: ${modelName}\n\n` +
-        `ModelRouter determined this model offers the optimal Pareto frontier balance between processing latency, cost per token, and reasoning quality.`;
+        `- Classified Domain: ${evaluation?.domain || 'general'}\n` +
+        `- Selected Engine: ${modelName}\n` +
+        `- Active Routing Policy: ${activePolicy}\n\n` +
+        `### Policy Rationale\n` +
+        `${rationale}`;
     }
 
     const words = text.split(' ');
@@ -414,22 +446,21 @@ export function PlaygroundPage() {
   const score = evaluation?.complexityScore || 1.2;
   const scorePercent = Math.min(100, Math.max(0, (score / 5) * 100));
 
-  // Determine badge colors based on complexity score
   const getScoreColor = (val: number) => {
     if (val < 2.0)
       return {
-        text: 'text-emerald-400',
+        text: 'text-emerald-500 dark:text-emerald-400',
         bg: 'bg-emerald-500',
         tier: 'Low / Local',
       };
     if (val < 3.5)
       return {
-        text: 'text-amber-400',
+        text: 'text-amber-500 dark:text-amber-400',
         bg: 'bg-amber-500',
         tier: 'Medium / Standard',
       };
     return {
-      text: 'text-indigo-400',
+      text: 'text-indigo-500 dark:text-indigo-400',
       bg: 'bg-indigo-500',
       tier: 'High / Frontier',
     };
@@ -440,23 +471,20 @@ export function PlaygroundPage() {
   return (
     <div className="space-y-6 pb-12">
       {/* Playground Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 transition-colors">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center space-x-2.5">
-            <Gauge className="w-7 h-7 text-emerald-400" />
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center space-x-2.5">
+            <Gauge className="w-7 h-7 text-emerald-500 dark:text-emerald-400" />
             <span>Interactive Complexity Playground</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Test prompt evaluation in real-time, inspect D1 decision routing,
-            and observe token-by-token streaming.
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Test prompt evaluation in real-time, inspect D1 decision routing, and observe token-by-token streaming.
           </p>
         </div>
 
         {/* Preset Prompt Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-slate-500 mr-1 font-mono">
-            Presets:
-          </span>
+          <span className="text-xs text-slate-500 mr-1 font-mono">Presets:</span>
           {PRESET_PROMPTS.map((p) => (
             <button
               key={p.label}
@@ -464,7 +492,7 @@ export function PlaygroundPage() {
                 setPrompt(p.prompt);
                 handleEvaluate(p.prompt);
               }}
-              className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer"
+              className="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
             >
               {p.label}
             </button>
@@ -484,7 +512,9 @@ export function PlaygroundPage() {
                 <span className="text-slate-500 dark:text-slate-400 font-medium">Policy:</span>
                 <select
                   value={policy}
-                  onChange={(e) => setPolicy(e.target.value)}
+                  onChange={(e) => {
+                    setPolicy(e.target.value);
+                  }}
                   className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-cyan-500 font-mono transition-colors"
                 >
                   <option value="balanced">Balanced (Pareto)</option>
@@ -498,7 +528,13 @@ export function PlaygroundPage() {
                 <span className="text-slate-500 dark:text-slate-400 font-medium">Virtual Router:</span>
                 <select
                   value={virtualModel}
-                  onChange={(e) => setVirtualModel(e.target.value)}
+                  onChange={(e) => {
+                    setVirtualModel(e.target.value);
+                    if (e.target.value === 'd1-router-cost') setPolicy('cost_optimized');
+                    else if (e.target.value === 'd1-router-quality') setPolicy('quality_max');
+                    else if (e.target.value === 'd1-router-local') setPolicy('local_first');
+                    else if (e.target.value === 'd1-router-auto') setPolicy('balanced');
+                  }}
                   className="bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-slate-800 dark:text-slate-200 text-xs focus:outline-none focus:border-cyan-500 font-mono transition-colors"
                 >
                   <option value="d1-router-auto">d1-router-auto (Policy: Balanced)</option>
@@ -537,7 +573,7 @@ export function PlaygroundPage() {
             <div className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-100/70 dark:bg-slate-950/50 px-3 py-1.5 rounded-lg border border-slate-200/60 dark:border-slate-800/60 font-mono transition-colors">
               <Info className="w-3.5 h-3.5 text-brand-500 dark:text-cyan-400 shrink-0" />
               <span>
-                Decision Model: <strong>Liquid d1</strong> (single neural evaluator). The virtual routers apply policy rules to select an upstream model.
+                Single Evaluator: <strong>Liquid d1</strong>. Virtual routers apply optimization policies (<code className="text-cyan-600 dark:text-cyan-300 font-bold">{policy}</code>) to select from active models.
               </span>
             </div>
 
@@ -547,7 +583,6 @@ export function PlaygroundPage() {
                 value={prompt}
                 onChange={(e) => {
                   setPrompt(e.target.value);
-                  // Quick heuristic auto-refresh
                   fallbackClientEvaluation(e.target.value);
                 }}
                 onKeyDown={(e) => {
@@ -568,20 +603,16 @@ export function PlaygroundPage() {
             {/* Action Buttons */}
             <div className="flex items-center justify-between pt-1">
               <div className="text-xs text-slate-500 hidden sm:block">
-                Press{' '}
-                <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
-                  ⌘+Enter
-                </kbd>{' '}
-                to execute
+                Press <kbd className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">⌘+Enter</kbd> to execute
               </div>
 
               <div className="flex items-center space-x-2.5 w-full sm:w-auto justify-end">
                 <button
                   onClick={() => handleEvaluate()}
                   disabled={isEvaluating || !prompt.trim()}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-200 font-medium text-xs flex items-center space-x-1.5 border border-slate-700 transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 disabled:opacity-50 text-slate-700 dark:text-slate-200 font-medium text-xs flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700 transition-all cursor-pointer"
                 >
-                  <Gauge className="w-3.5 h-3.5 text-cyan-400" />
+                  <Gauge className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
                   <span>{isEvaluating ? 'Evaluating...' : 'Score Prompt'}</span>
                 </button>
 
@@ -591,24 +622,28 @@ export function PlaygroundPage() {
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-cyan-500 hover:from-brand-500 hover:to-cyan-400 disabled:opacity-50 text-white font-semibold text-xs flex items-center space-x-1.5 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>
-                    {isGenerating ? 'Streaming...' : 'Route & Execute'}
-                  </span>
+                  <span>{isGenerating ? 'Streaming...' : 'Route & Execute'}</span>
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Upstream Notice Banner (if any) */}
+          {upstreamNotice && (
+            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-xs text-blue-700 dark:text-blue-300 flex items-center space-x-2 transition-all">
+              <Info className="w-4 h-4 text-blue-500 shrink-0" />
+              <span>{upstreamNotice}</span>
+            </div>
+          )}
+
           {/* Token Streaming Response Viewer */}
-          <div className="rounded-2xl bg-slate-900/70 border border-slate-800 p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <div className="flex items-center space-x-2 text-xs font-mono">
-                <Terminal className="w-4 h-4 text-cyan-400" />
-                <span className="font-semibold text-slate-200">
-                  Streaming Output
-                </span>
+                <Terminal className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
+                <span className="font-semibold text-slate-800 dark:text-slate-200">Streaming Output</span>
                 {isGenerating && (
-                  <span className="flex items-center space-x-1 text-emerald-400 text-[11px] animate-pulse">
+                  <span className="flex items-center space-x-1 text-emerald-500 dark:text-emerald-400 text-[11px] animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-emerald-400" />
                     <span>Live SSE Stream</span>
                   </span>
@@ -616,7 +651,7 @@ export function PlaygroundPage() {
               </div>
 
               {/* Streaming Telemetry Stats */}
-              <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-400">
+              <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-500 dark:text-slate-400">
                 <span>{streamStats.tokens} tokens</span>
                 <span>•</span>
                 <span>{streamStats.tokensPerSec} t/s</span>
@@ -625,14 +660,10 @@ export function PlaygroundPage() {
                 {chatResponse && (
                   <button
                     onClick={copyToClipboard}
-                    className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer ml-1"
+                    className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer ml-1"
                     title="Copy output"
                   >
-                    {copied ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 )}
               </div>
@@ -641,7 +672,7 @@ export function PlaygroundPage() {
             {/* Chat Body */}
             <div
               ref={chatOutputRef}
-              className="min-h-[220px] max-h-[380px] overflow-y-auto rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 p-4 text-xs sm:text-sm font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-text transition-colors"
+              className="min-h-[200px] max-h-[380px] overflow-y-auto rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 p-4 text-xs sm:text-sm font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-text transition-colors"
             >
               {chatResponse ? (
                 <span>{chatResponse}</span>
@@ -652,15 +683,14 @@ export function PlaygroundPage() {
                 </span>
               ) : (
                 <span className="text-slate-400 dark:text-slate-600 italic">
-                  Run prompt to view real-time token stream and latency
-                  breakdown...
+                  Run prompt to view real-time token stream and latency breakdown...
                 </span>
               )}
             </div>
           </div>
         </div>
 
-        {/* Right Column: Complexity Gauge & Routing Card (5 Cols) */}
+        {/* Right Column: Complexity Gauge & Routing Card & Interactive Pipeline Graph (5 Cols) */}
         <div className="lg:col-span-5 space-y-5">
           {/* Decision Fallback Alert Banner */}
           {Boolean(evaluation?.isFallback || evaluation?.fallbackReason) ? (
@@ -686,6 +716,101 @@ export function PlaygroundPage() {
             </div>
           ) : null}
 
+          {/* Interactive Decision Pipeline Node Graph */}
+          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
+                <GitBranch className="w-4 h-4 text-brand-600 dark:text-cyan-400" />
+                <span>Decision Flow Pipeline Graph</span>
+              </h2>
+              <button
+                onClick={() => setShowGraph(!showGraph)}
+                className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center space-x-1 cursor-pointer font-mono"
+              >
+                <span>{showGraph ? 'Collapse' : 'Expand'}</span>
+                {showGraph ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+
+            {showGraph && (
+              <div className="space-y-2 pt-1 font-mono text-xs">
+                {/* Node 1: Ingestion */}
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1 relative">
+                  <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
+                    <span className="font-semibold text-brand-600 dark:text-cyan-400">1. Prompt State Ingestion</span>
+                    <span className="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300">
+                      ~{Math.round(prompt.length / 4)} tokens
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400 truncate">
+                    Input: {prompt.slice(0, 50) || 'Waiting for prompt...'}
+                  </div>
+                </div>
+
+                <div className="flex justify-center text-slate-400 dark:text-slate-600">
+                  <ArrowRight className="w-3.5 h-3.5 rotate-90" />
+                </div>
+
+                {/* Node 2: D1 System One Evaluation */}
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 relative">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">2. Liquid D1 Decision Model</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                      Score: {score.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600 dark:text-slate-400">
+                    <div>Domain: <span className="text-slate-900 dark:text-slate-200 font-bold">{evaluation?.domain || 'general'}</span></div>
+                    <div>Latency: <span className="text-slate-900 dark:text-slate-200 font-bold">{evaluation?.routingLatencyMs || 14}ms</span></div>
+                    <div>Tools: <span className={evaluation?.requiresTools ? 'text-purple-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresTools ? 'Yes' : 'No'}</span></div>
+                    <div>Vision: <span className={evaluation?.requiresVision ? 'text-cyan-500 font-bold' : 'text-slate-400'}>{evaluation?.requiresVision ? 'Yes' : 'No'}</span></div>
+                  </div>
+                </div>
+
+                <div className="flex justify-center text-slate-400 dark:text-slate-600">
+                  <ArrowRight className="w-3.5 h-3.5 rotate-90" />
+                </div>
+
+                {/* Node 3: Policy Engine */}
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 relative">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">3. Policy Engine Resolution</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20 uppercase">
+                      {policy}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-600 dark:text-slate-400 leading-snug">
+                    Evaluated against active candidate models matching score {score.toFixed(2)} with capability filters.
+                  </div>
+                </div>
+
+                <div className="flex justify-center text-slate-400 dark:text-slate-600">
+                  <ArrowRight className="w-3.5 h-3.5 rotate-90" />
+                </div>
+
+                {/* Node 4: Selected Target Model */}
+                <div className="p-3 rounded-xl bg-brand-500/10 border border-brand-500/30 text-brand-700 dark:text-cyan-300 space-y-1 relative">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-brand-600 dark:text-cyan-400" />
+                      <span>4. Selected Target Engine</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-white dark:bg-slate-900 border border-brand-500/30">
+                      {evaluation?.selectedModel?.provider || 'ollama'}
+                    </span>
+                  </div>
+                  <div className="text-xs font-bold text-brand-700 dark:text-cyan-300">
+                    {evaluation?.selectedModel?.display_name || 'Local Chat'} ({evaluation?.selectedModel?.upstream_model || 'lfm3:latest'})
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center justify-between pt-0.5">
+                    <span>Range: [{evaluation?.selectedModel?.complexity_range?.[0]?.toFixed(1)}, {evaluation?.selectedModel?.complexity_range?.[1]?.toFixed(1)}]</span>
+                    <span>Cost: ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0}/1M</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Real-time Complexity Score Gauge Card */}
           <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
             <div className="flex items-center justify-between">
@@ -703,15 +828,10 @@ export function PlaygroundPage() {
               <div className="text-center space-y-1">
                 <div className="text-4xl sm:text-5xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-white flex items-center justify-center space-x-1">
                   <span className={scoreStyle.text}>{score.toFixed(2)}</span>
-                  <span className="text-lg text-slate-400 dark:text-slate-600 font-sans">
-                    / 5.0
-                  </span>
+                  <span className="text-lg text-slate-400 dark:text-slate-600 font-sans">/ 5.0</span>
                 </div>
                 <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                  Tier:{' '}
-                  <span className={`font-semibold ${scoreStyle.text}`}>
-                    {scoreStyle.tier}
-                  </span>
+                  Tier: <span className={`font-semibold ${scoreStyle.text}`}>{scoreStyle.tier}</span>
                 </div>
               </div>
 
@@ -733,22 +853,15 @@ export function PlaygroundPage() {
               {/* Confidence Rating */}
               <div className="flex items-center space-x-2 text-xs font-mono text-slate-500 dark:text-slate-400 pt-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
-                <span>
-                  Confidence:{' '}
-                  {Math.round((evaluation?.confidence || 0.95) * 100)}%
-                </span>
+                <span>Confidence: {Math.round((evaluation?.confidence || 0.95) * 100)}%</span>
                 <span>•</span>
-                <span>
-                  Evaluated in {evaluation?.routingLatencyMs || 14} ms
-                </span>
+                <span>Evaluated in {evaluation?.routingLatencyMs || 14} ms</span>
               </div>
             </div>
 
             {/* Domain & Capability Classification Badges */}
             <div className="space-y-2">
-              <span className="text-xs font-mono text-slate-400">
-                Classified Attributes:
-              </span>
+              <span className="text-xs font-mono text-slate-400">Classified Attributes:</span>
               <div className="flex flex-wrap gap-2">
                 <div className="px-3 py-1 rounded-lg bg-blue-950/50 border border-blue-500/30 text-blue-300 text-xs font-mono flex items-center space-x-1.5">
                   <Cpu className="w-3.5 h-3.5" />
@@ -759,111 +872,23 @@ export function PlaygroundPage() {
                   className={`px-3 py-1 rounded-lg border text-xs font-mono flex items-center space-x-1.5 ${
                     evaluation?.requiresTools
                       ? 'bg-purple-950/50 border-purple-500/40 text-purple-300'
-                      : 'bg-slate-950/40 border-slate-800 text-slate-400'
+                      : 'bg-slate-100 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   <Wrench className="w-3.5 h-3.5" />
-                  <span>
-                    Tools:{' '}
-                    {evaluation?.requiresTools ? 'Required' : 'Not Needed'}
-                  </span>
+                  <span>Tools: {evaluation?.requiresTools ? 'Required' : 'Not Needed'}</span>
                 </div>
 
                 <div
                   className={`px-3 py-1 rounded-lg border text-xs font-mono flex items-center space-x-1.5 ${
                     evaluation?.requiresVision
                       ? 'bg-cyan-950/50 border-cyan-500/40 text-cyan-300'
-                      : 'bg-slate-950/40 border-slate-800 text-slate-400'
+                      : 'bg-slate-100 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5" />
-                  <span>
-                    Vision:{' '}
-                    {evaluation?.requiresVision ? 'Required' : 'Not Needed'}
-                  </span>
+                  <span>Vision: {evaluation?.requiresVision ? 'Required' : 'Not Needed'}</span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Selected Model Routing Decision Card */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 p-5 space-y-4 shadow-sm dark:shadow-xl transition-colors">
-            <div className="flex items-center justify-between">
-              <h2 className="font-bold text-slate-900 dark:text-white text-sm flex items-center space-x-2">
-                <Bot className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
-                <span>Target Model Routing Card</span>
-              </h2>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-brand-500/10 dark:bg-brand-500/20 text-brand-600 dark:text-cyan-300 border border-brand-500/20 dark:border-brand-500/30">
-                Decision Result
-              </span>
-            </div>
-
-            {/* Model Card Content */}
-            <div className="rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80 p-4 space-y-3 transition-colors">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-base font-bold text-slate-900 dark:text-white">
-                    {evaluation?.selectedModel?.display_name || 'Local Chat'}
-                  </div>
-                  <div className="text-xs font-mono text-brand-600 dark:text-cyan-400">
-                    {evaluation?.selectedModel?.id || 'local-chat'}
-                  </div>
-                </div>
-
-                <span className="px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-mono capitalize">
-                  {evaluation?.selectedModel?.provider || 'ollama'}
-                </span>
-              </div>
-
-              {/* Upstream Info */}
-              <div className="text-xs text-slate-600 dark:text-slate-400 font-mono bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800/80 space-y-1 transition-colors">
-                <div>
-                  Upstream:{' '}
-                  {evaluation?.selectedModel?.upstream_model || 'lfm3:latest'}
-                </div>
-                <div>
-                  Range: [
-                  {evaluation?.selectedModel?.complexity_range?.[0]?.toFixed(
-                    1,
-                  ) || '0.0'}
-                  ,{' '}
-                  {evaluation?.selectedModel?.complexity_range?.[1]?.toFixed(
-                    1,
-                  ) || '1.8'}
-                  ]
-                </div>
-              </div>
-
-              {/* Cost & Capabilities Specs */}
-              <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                <div className="p-2 rounded bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 space-y-0.5 transition-colors">
-                  <span className="text-[10px] text-slate-500 uppercase font-mono">
-                    Input Cost
-                  </span>
-                  <div className="font-mono text-slate-800 dark:text-slate-200 font-bold">
-                    ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0.0}{' '}
-                    / 1M
-                  </div>
-                </div>
-                <div className="p-2 rounded bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 space-y-0.5 transition-colors">
-                  <span className="text-[10px] text-slate-500 uppercase font-mono">
-                    Output Cost
-                  </span>
-                  <div className="font-mono text-slate-800 dark:text-slate-200 font-bold">
-                    ${evaluation?.selectedModel?.cost?.output_per_mtoken || 0.0}{' '}
-                    / 1M
-                  </div>
-                </div>
-              </div>
-
-              {/* Decision Policy Confirmation */}
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-700 dark:text-emerald-300 flex items-start space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500 dark:text-emerald-400 shrink-0 mt-0.5" />
-                <span>
-                  Policy <strong>{policy}</strong> matched score{' '}
-                  {score.toFixed(2)} to{' '}
-                  {evaluation?.selectedModel?.display_name || 'Local Chat'}.
-                </span>
               </div>
             </div>
           </div>

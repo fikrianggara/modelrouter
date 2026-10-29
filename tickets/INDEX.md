@@ -8,4 +8,4 @@
 | TKT-006 | feature | medium | P1 | core | merged | jarvis | feature-TKT-006-policy-routing-resolver | false | 2026-10-29 | 2026-10-29 | Policy Routing Resolver Engine |
 | TKT-007 | feature | medium | P0 | core | merged | jarvis | feature-TKT-007-bidirectional-sse-stream | false | 2026-10-29 | 2026-10-29 | Bidirectional SSE Stream Transcoder for OpenAI and Anthropic |
 | TKT-008 | feature | big | P0 | core | merged | jarvis | feature-TKT-008-hono-gateway-server-with | false | 2026-10-29 | 2026-10-29 | Hono Gateway Server with OpenAI and Anthropic endpoints |
-| TKT-009 | feature | big | P1 | core | ongoing | jarvis | feature-TKT-009-tanstack-router-web-dash | false | 2026-10-29 | 2026-10-29 | TanStack Router Web Dashboard and Interactive Complexity Playground |
+| TKT-009 | feature | big | P1 | core | done | jarvis | feature-TKT-009-tanstack-router-web-dash | true | 2026-10-29 | 2026-10-29 | TanStack Router Web Dashboard and Interactive Complexity Playground |

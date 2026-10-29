@@ -12,7 +12,6 @@ import {
   TrendingDown,
   CheckCircle2,
   Terminal,
-  Flame,
 } from 'lucide-react';
 import { AsciiFlame } from '../components/AsciiFlame';
 
@@ -165,62 +164,38 @@ export function DashboardPage() {
           <span className="text-fc-muted-soft">//</span>
         </div>
 
-        {/* Hero Grid: Left Copy + Right ASCII Ticker */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          <div className="lg:col-span-8 space-y-3">
-            <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">
-              Fast, reliable, token-efficient <br />
-              <span className="text-heat-100">model routing</span>.
-            </h1>
-            <p className="text-base sm:text-lg text-fc-body-soft max-w-2xl font-normal leading-relaxed">
-              Give your AI agents exact model capabilities. Single forward-pass evaluation by Liquid AI d1 routes prompt complexity to the optimal engine in real time.
-            </p>
+        {/* Hero Content */}
+        <div className="space-y-4 max-w-3xl">
+          <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">
+            Fast, reliable, token-efficient <br />
+            <span className="text-heat-100">model routing</span>.
+          </h1>
+          <p className="text-base sm:text-lg text-fc-body-soft font-normal leading-relaxed">
+            Give your AI agents exact model capabilities. Single forward-pass evaluation by Liquid AI d1 routes prompt complexity to the optimal engine in real time.
+          </p>
 
-            {/* Action Controls & Ingress Tag */}
-            <div className="pt-2 flex flex-wrap items-center gap-3">
-              <Link
-                to="/playground"
-                className="btn-heat-cta px-5 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
-              >
-                <Gauge className="w-4 h-4" />
-                <span>Launch Playground</span>
-                <ArrowRight className="w-3.5 h-3.5 ml-1" />
-              </Link>
+          {/* Action Controls & Ingress Tag */}
+          <div className="pt-2 flex flex-wrap items-center gap-3">
+            <Link
+              to="/playground"
+              className="btn-heat-cta px-5 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
+            >
+              <Gauge className="w-4 h-4" />
+              <span>Launch Playground</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
+            </Link>
 
-              <Link
-                to="/registry"
-                className="btn-ghost-outline px-4 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2"
-              >
-                <Layers className="w-4 h-4 text-heat-100" />
-                <span>Model Registry</span>
-              </Link>
+            <Link
+              to="/registry"
+              className="btn-ghost-outline px-4 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2"
+            >
+              <Layers className="w-4 h-4 text-heat-100" />
+              <span>Model Registry</span>
+            </Link>
 
-              <div className="px-3 py-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-xs font-mono text-fc-muted flex items-center space-x-2">
-                <span className="text-heat-100 font-bold">[ .CLI ]</span>
-                <span>npx -y modelrouter-cli@latest</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: ASCII Matrix Hero Terminal Card */}
-          <div className="lg:col-span-4 hidden lg:block">
-            <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-4 space-y-3 widget-halo">
-              <span className="corner-crosshair top-2 left-2">+</span>
-              <span className="corner-crosshair top-2 right-2">+</span>
-              <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2">
-                <span className="flex items-center space-x-1.5 text-heat-100 font-bold">
-                  <Flame className="w-3.5 h-3.5 fill-heat-100" />
-                  <span>ASCII Flame Ticker</span>
-                </span>
-                <span className="text-[11px]">[ 80 ms / frame ]</span>
-              </div>
-              <div className="bg-fc-paper rounded-fc-6 p-3 border border-fc-border-faint flex flex-col items-center justify-center">
-                <AsciiFlame opacity={0.85} />
-              </div>
-              <div className="flex items-center justify-between text-[11px] font-mono text-fc-muted pt-0.5">
-                <span>Evaluator: <strong>d1:systemone</strong></span>
-                <span className="text-fc-forest font-bold">49 ms latency</span>
-              </div>
+            <div className="px-3 py-2 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-xs font-mono text-fc-muted flex items-center space-x-2">
+              <span className="text-heat-100 font-bold">[ .CLI ]</span>
+              <span>npx -y modelrouter-cli@latest</span>
             </div>
           </div>
         </div>

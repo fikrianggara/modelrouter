@@ -151,11 +151,22 @@ export function DashboardPage() {
   const p3 = totalInDist > 0 ? Math.round(((dist['3.0-4.0'] + dist['4.0-5.0']) / totalInDist) * 100) : 25;
 
   return (
-    <div className="space-y-12 pb-16">
-      {/* Section 01: Firecrawl Blueprint Hero Header with ASCII Matrix Visualizer */}
-      <section className="space-y-4">
+    <div className="flex flex-col bg-fc-canvas-paper">
+      {/* Section 01: Firecrawl Blueprint Hero Header with ASCII Flame */}
+      <section className="relative border-b border-fc-border-faint p-6 sm:p-10 bg-fc-canvas-paper">
+        <span className="corner-crosshair top-2 left-2">+</span>
+        <span className="corner-crosshair top-2 right-2">+</span>
+        <span className="corner-crosshair bottom-2 left-2">+</span>
+        <span className="corner-crosshair bottom-2 right-2">+</span>
+
+        {/* Flame ASCII Animation in Top-Right of Hero Section */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none select-none flex flex-col items-end">
+          <span className="text-[10px] font-mono text-fc-muted-soft mb-1 hidden sm:inline">[ ASCII // ENGINE ]</span>
+          <AsciiFlame className="text-heat-100" opacity={0.65} variant="flame" />
+        </div>
+
         {/* Firecrawl Section Metadata */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted">
+        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-4">
           <span className="text-heat-100 font-bold">[ 01 / 04 ]</span>
           <span>·</span>
           <span>Core Architecture</span>
@@ -165,20 +176,20 @@ export function DashboardPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="space-y-4 max-w-3xl">
-          <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12] mb-3">
             Fast, reliable, token-efficient <br />
             <span className="text-heat-100">model routing</span>.
           </h1>
-          <p className="text-base sm:text-lg text-fc-body-soft font-normal leading-relaxed">
+          <p className="text-base sm:text-lg text-fc-body-soft font-normal leading-relaxed mb-6">
             Give your AI agents exact model capabilities. Single forward-pass evaluation by Liquid AI d1 routes prompt complexity to the optimal engine in real time.
           </p>
 
           {/* Action Controls & Ingress Tag */}
-          <div className="pt-2 flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Link
               to="/playground"
-              className="btn-heat-cta px-5 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
+              className="btn-heat-cta px-5 py-2.5 rounded-fc-6 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
             >
               <Gauge className="w-4 h-4" />
               <span>Launch Playground</span>
@@ -187,7 +198,7 @@ export function DashboardPage() {
 
             <Link
               to="/registry"
-              className="btn-ghost-outline px-4 py-2.5 rounded-fc-8 text-sm font-medium inline-flex items-center space-x-2"
+              className="btn-ghost-outline px-4 py-2.5 rounded-fc-6 text-sm font-medium inline-flex items-center space-x-2"
             >
               <Layers className="w-4 h-4 text-heat-100" />
               <span>Model Registry</span>
@@ -201,9 +212,14 @@ export function DashboardPage() {
         </div>
       </section>
 
+      {/* Filler Grid Spacer Row */}
+      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
+        <span className="corner-crosshair top-0 left-1.5">+</span>
+        <span className="corner-crosshair top-0 right-1.5">+</span>
+      </div>
+
       {/* Blueprint Exposed Grid: Monochromatic Statistic Cards with Nested Rounded Cards & ASCII Layer */}
-      <section className="space-y-3">
-        <div className="fc-blueprint-grid">
+      <section className="fc-blueprint-grid border-b border-fc-border-faint">
           {/* Cell 1: Total Routed Requests */}
           <div className="fc-grid-cell">
             <span className="corner-crosshair top-1 left-1.5">+</span>
@@ -289,23 +305,30 @@ export function DashboardPage() {
               </div>
             </div>
           </div>
-        </div>
       </section>
 
-      {/* Section 02: Execution Pipeline Topology Map */}
-      <section className="space-y-4">
-        {/* Section Metadata */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted">
-          <span className="text-heat-100 font-bold">[ 02 / 04 ]</span>
-          <span>·</span>
-          <span>Pipeline Stages</span>
-          <span className="text-fc-muted-soft">//</span>
-          <span className="text-fc-muted-soft">Zero Configuration</span>
-          <span className="text-fc-muted-soft">//</span>
-        </div>
+      {/* Filler Grid Spacer Row */}
+      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
+        <span className="corner-crosshair top-0 left-1.5">+</span>
+        <span className="corner-crosshair top-0 right-1.5">+</span>
+      </div>
 
-        <div className="space-y-1">
-          <h2 className="text-2xl font-medium tracking-tight text-fc-graphite">
+      {/* Section 02: Execution Pipeline Topology Map */}
+      <section className="border-b border-fc-border-faint bg-fc-canvas-paper">
+        {/* Section Header */}
+        <div className="p-6 border-b border-fc-border-faint relative">
+          <span className="corner-crosshair top-2 left-2">+</span>
+          <span className="corner-crosshair top-2 right-2">+</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2">
+            <span className="text-heat-100 font-bold">[ 02 / 04 ]</span>
+            <span>·</span>
+            <span>Pipeline Stages</span>
+            <span className="text-fc-muted-soft">//</span>
+            <span className="text-fc-muted-soft">Zero Configuration</span>
+            <span className="text-fc-muted-soft">//</span>
+          </div>
+
+          <h2 className="text-2xl font-medium tracking-tight text-fc-graphite mb-1">
             We handle the <span className="text-heat-100">hard stuff</span>.
           </h2>
           <p className="text-sm text-fc-body-soft">
@@ -313,237 +336,269 @@ export function DashboardPage() {
           </p>
         </div>
 
-        {/* Blueprint Flow Box with Halo */}
-        <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-12 p-6 space-y-5 widget-halo">
-          <span className="corner-crosshair top-2 left-2">+</span>
-          <span className="corner-crosshair top-2 right-2">+</span>
-          <span className="corner-crosshair bottom-2 left-2">+</span>
-          <span className="corner-crosshair bottom-2 right-2">+</span>
+        {/* Blueprint Flow Bento Box */}
+        <div className="p-3 sm:p-4 bg-fc-canvas-paper">
+          <div className="fc-nested-card rounded-fc-6 p-6 widget-halo relative">
+            <span className="corner-crosshair top-2 left-2">+</span>
+            <span className="corner-crosshair top-2 right-2">+</span>
+            <span className="corner-crosshair bottom-2 left-2">+</span>
+            <span className="corner-crosshair bottom-2 right-2">+</span>
 
-          {/* Stage Buttons */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+            {/* Stage Buttons */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-5">
+              {architectureSteps.map((s) => {
+                const isSelected = activeStep === s.step;
+                return (
+                  <button
+                    key={s.step}
+                    onClick={() => setActiveStep(s.step)}
+                    className={`text-left p-3.5 rounded-fc-6 border transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-heat-4 border-heat-100 text-fc-graphite shadow-xs'
+                        : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted hover:border-fc-border-muted'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span
+                        className={`w-5 h-5 rounded-fc-4 flex items-center justify-center text-[10px] font-bold font-mono ${
+                          isSelected
+                            ? 'bg-heat-100 text-white'
+                            : 'bg-fc-surface border border-fc-border-faint text-fc-graphite'
+                        }`}
+                      >
+                        {s.step}
+                      </span>
+                      <span className="text-[11px] font-mono text-heat-100 font-medium">{s.latency}</span>
+                    </div>
+                    <div className="font-medium text-xs text-fc-graphite truncate">{s.title}</div>
+                    <div className="text-[11px] text-fc-muted truncate">{s.subtitle}</div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Active Stage Inspector Detail */}
             {architectureSteps.map((s) => {
-              const isSelected = activeStep === s.step;
+              if (s.step !== activeStep) return null;
               return (
-                <button
+                <div
                   key={s.step}
-                  onClick={() => setActiveStep(s.step)}
-                  className={`text-left p-3.5 rounded-fc-6 border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-heat-4 border-heat-100 text-fc-graphite shadow-xs'
-                      : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted hover:border-fc-border-muted'
-                  }`}
+                  className="p-4 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs font-mono"
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span
-                      className={`w-5 h-5 rounded-fc-4 flex items-center justify-center text-[10px] font-bold font-mono ${
-                        isSelected
-                          ? 'bg-heat-100 text-white'
-                          : 'bg-fc-surface border border-fc-border-faint text-fc-graphite'
-                      }`}
-                    >
-                      {s.step}
-                    </span>
-                    <span className="text-[11px] font-mono text-heat-100 font-medium">{s.latency}</span>
+                  <div className="space-y-1 max-w-3xl">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-bold text-fc-graphite">
+                        Stage {s.step}: {s.title}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-fc-4 bg-fc-surface border border-fc-border-faint text-fc-graphite text-[10px]">
+                        {s.badge}
+                      </span>
+                    </div>
+                    <p className="text-fc-body font-sans leading-relaxed text-xs">
+                      {s.description}
+                    </p>
+                    <div className="text-fc-muted text-[11px] flex items-center space-x-1.5 pt-0.5">
+                      <Terminal className="w-3.5 h-3.5 text-fc-muted-soft" />
+                      <span>Module: {s.component}</span>
+                    </div>
                   </div>
-                  <div className="font-medium text-xs text-fc-graphite truncate">{s.title}</div>
-                  <div className="text-[11px] text-fc-muted truncate">{s.subtitle}</div>
-                </button>
+                  <div className="px-3.5 py-1.5 rounded-fc-6 bg-fc-surface border border-fc-border-muted text-heat-100 whitespace-nowrap self-stretch md:self-auto text-center font-bold">
+                    Latency Budget: {s.latency}
+                  </div>
+                </div>
               );
             })}
           </div>
-
-          {/* Active Stage Inspector Detail */}
-          {architectureSteps.map((s) => {
-            if (s.step !== activeStep) return null;
-            return (
-              <div
-                key={s.step}
-                className="p-4 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs font-mono"
-              >
-                <div className="space-y-1 max-w-3xl">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-bold text-fc-graphite">
-                      Stage {s.step}: {s.title}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-fc-4 bg-fc-surface border border-fc-border-faint text-fc-graphite text-[10px]">
-                      {s.badge}
-                    </span>
-                  </div>
-                  <p className="text-fc-body font-sans leading-relaxed text-xs">
-                    {s.description}
-                  </p>
-                  <div className="text-fc-muted text-[11px] flex items-center space-x-1.5 pt-0.5">
-                    <Terminal className="w-3.5 h-3.5 text-fc-muted-soft" />
-                    <span>Module: {s.component}</span>
-                  </div>
-                </div>
-                <div className="px-3.5 py-1.5 rounded-fc-6 bg-fc-surface border border-fc-border-muted text-heat-100 whitespace-nowrap self-stretch md:self-auto text-center font-bold">
-                  Latency Budget: {s.latency}
-                </div>
-              </div>
-            );
-          })}
         </div>
       </section>
 
+      {/* Filler Grid Spacer Row */}
+      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
+        <span className="corner-crosshair top-0 left-1.5">+</span>
+        <span className="corner-crosshair top-0 right-1.5">+</span>
+      </div>
+
       {/* Section 03: Live Decision Stream & Complexity Benchmarks */}
-      <section className="space-y-4">
-        {/* Section Metadata */}
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted">
-          <span className="text-heat-100 font-bold">[ 03 / 04 ]</span>
-          <span>·</span>
-          <span>Telemetry & Benchmarks</span>
-          <span className="text-fc-muted-soft">//</span>
-          <span className="text-fc-muted-soft">Verified Output</span>
-          <span className="text-fc-muted-soft">//</span>
+      <section className="border-b border-fc-border-faint bg-fc-canvas-paper">
+        {/* Section Header */}
+        <div className="p-6 border-b border-fc-border-faint relative">
+          <span className="corner-crosshair top-2 left-2">+</span>
+          <span className="corner-crosshair top-2 right-2">+</span>
+          <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2">
+            <span className="text-heat-100 font-bold">[ 03 / 04 ]</span>
+            <span>·</span>
+            <span>Telemetry & Benchmarks</span>
+            <span className="text-fc-muted-soft">//</span>
+            <span className="text-fc-muted-soft">Verified Output</span>
+            <span className="text-fc-muted-soft">//</span>
+          </div>
+
+          <h2 className="text-2xl font-medium tracking-tight text-fc-graphite mb-1">
+            Real-time Telemetry & <span className="text-heat-100">Decision Logs</span>.
+          </h2>
+          <p className="text-sm text-fc-body-soft">
+            Continuous complexity telemetry and live prompt routing decisions.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Bento Grid: 4 Cols for Complexity, 8 Cols for Live Feed */}
+        <div className="fc-blueprint-grid grid-cols-1 lg:grid-cols-12">
           {/* Complexity Distribution Column */}
-          <div className="lg:col-span-1 relative bg-fc-surface border border-fc-border-muted rounded-fc-8 p-6 space-y-4 shadow-xs">
+          <div className="lg:col-span-4 fc-grid-cell p-2">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-            <div className="flex items-center justify-between border-b border-fc-border-faint pb-3">
-              <h3 className="font-medium text-fc-graphite text-sm flex items-center space-x-2">
-                <Gauge className="w-4 h-4 text-heat-100" />
-                <span>Complexity Spectrum</span>
-              </h3>
-              <span className="text-[11px] font-mono text-fc-muted">[ 1.0 – 5.0 ]</span>
-            </div>
+            <div className="fc-nested-card rounded-fc-6 p-6 h-full flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between border-b border-fc-border-faint pb-3 mb-4">
+                  <h3 className="font-medium text-fc-graphite text-sm flex items-center space-x-2">
+                    <Gauge className="w-4 h-4 text-heat-100" />
+                    <span>Complexity Spectrum</span>
+                  </h3>
+                  <span className="text-[11px] font-mono text-fc-muted">[ 1.0 – 5.0 ]</span>
+                </div>
 
-            <div className="space-y-3.5">
-              {/* Level 1: Low */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-fc-body font-medium">1.0 – 1.8 (Local Ollama)</span>
-                  <span className="font-mono text-fc-graphite font-bold">{p1}%</span>
+                <div className="space-y-3.5">
+                  {/* Level 1: Low */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-fc-body font-medium">1.0 – 1.8 (Local Ollama)</span>
+                      <span className="font-mono text-fc-graphite font-bold">{p1}%</span>
+                    </div>
+                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                      <div className="h-full bg-fc-graphite rounded-fc-full" style={{ width: `${p1}%` }} />
+                    </div>
+                    <p className="text-[10px] text-fc-muted font-mono">Zero token egress ($0.00)</p>
+                  </div>
+
+                  {/* Level 2: Medium */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-fc-body font-medium">1.9 – 3.5 (Mid-tier / 9router)</span>
+                      <span className="font-mono text-fc-graphite font-bold">{p2}%</span>
+                    </div>
+                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                      <div className="h-full bg-fc-muted rounded-fc-full" style={{ width: `${p2}%` }} />
+                    </div>
+                    <p className="text-[10px] text-fc-muted font-mono">Frugal code & structured data</p>
+                  </div>
+
+                  {/* Level 3: Frontier */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-fc-body font-medium">3.6 – 5.0 (Frontier Cloud)</span>
+                      <span className="font-mono text-fc-graphite font-bold">{p3}%</span>
+                    </div>
+                    <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                      <div className="h-full bg-heat-100 rounded-fc-full" style={{ width: `${p3}%` }} />
+                    </div>
+                    <p className="text-[10px] text-fc-muted font-mono">Formal reasoning & architecture</p>
+                  </div>
                 </div>
-                <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
-                  <div className="h-full bg-fc-forest rounded-fc-full" style={{ width: `${p1}%` }} />
-                </div>
-                <p className="text-[10px] text-fc-muted font-mono">Zero token egress ($0.00)</p>
               </div>
 
-              {/* Level 2: Medium */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-fc-body font-medium">1.9 – 3.5 (Mid-tier / 9router)</span>
-                  <span className="font-mono text-fc-graphite font-bold">{p2}%</span>
-                </div>
-                <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
-                  <div className="h-full bg-fc-honey rounded-fc-full" style={{ width: `${p2}%` }} />
-                </div>
-                <p className="text-[10px] text-fc-muted font-mono">Frugal code & structured data</p>
+              <div className="pt-3 mt-4 border-t border-fc-border-faint flex items-center justify-between text-xs text-fc-muted font-mono">
+                <span>Traffic Evaluated:</span>
+                <span className="font-bold text-fc-graphite">
+                  {stats?.totalRequests ? `${stats.totalRequests} queries` : '0 queries'}
+                </span>
               </div>
-
-              {/* Level 3: Frontier */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span className="text-fc-body font-medium">3.6 – 5.0 (Frontier Cloud)</span>
-                  <span className="font-mono text-fc-graphite font-bold">{p3}%</span>
-                </div>
-                <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
-                  <div className="h-full bg-heat-100 rounded-fc-full" style={{ width: `${p3}%` }} />
-                </div>
-                <p className="text-[10px] text-fc-muted font-mono">Formal reasoning & architecture</p>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-fc-border-faint flex items-center justify-between text-xs text-fc-muted font-mono">
-              <span>Traffic Evaluated:</span>
-              <span className="font-bold text-fc-graphite">
-                {stats?.totalRequests ? `${stats.totalRequests} queries` : '0 queries'}
-              </span>
             </div>
           </div>
 
           {/* Live Decision Feed */}
-          <div className="lg:col-span-2 relative bg-fc-surface border border-fc-border-muted rounded-fc-8 p-6 space-y-4 shadow-xs">
+          <div className="lg:col-span-8 fc-grid-cell p-2">
             <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-            <div className="flex items-center justify-between border-b border-fc-border-faint pb-3">
+            <div className="fc-nested-card rounded-fc-6 p-6 h-full flex flex-col justify-between">
               <div>
-                <h3 className="font-medium text-fc-graphite text-sm flex items-center space-x-2">
-                  <Activity className="w-4 h-4 text-heat-100" />
-                  <span>Live Decision Stream</span>
-                </h3>
-                <p className="text-xs text-fc-muted">
-                  Real-time prompt classifications processed by Liquid AI d1
-                </p>
-              </div>
-              <Link
-                to="/playground"
-                className="text-xs font-mono text-heat-100 hover:underline flex items-center space-x-1"
-              >
-                <span>Launch Playground</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
+                <div className="flex items-center justify-between border-b border-fc-border-faint pb-3 mb-4">
+                  <div>
+                    <h3 className="font-medium text-fc-graphite text-sm flex items-center space-x-2">
+                      <Activity className="w-4 h-4 text-heat-100" />
+                      <span>Live Decision Stream</span>
+                    </h3>
+                    <p className="text-xs text-fc-muted">
+                      Real-time prompt classifications processed by Liquid AI d1
+                    </p>
+                  </div>
+                  <Link
+                    to="/playground"
+                    className="text-xs font-mono text-heat-100 hover:underline flex items-center space-x-1"
+                  >
+                    <span>Launch Playground</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-fc-border-muted text-fc-muted font-mono">
-                    <th className="pb-2 font-medium">Time</th>
-                    <th className="pb-2 font-medium">Prompt Excerpt</th>
-                    <th className="pb-2 font-medium">Score</th>
-                    <th className="pb-2 font-medium">Domain</th>
-                    <th className="pb-2 font-medium">Target Engine</th>
-                    <th className="pb-2 font-medium text-right">Latency</th>
-                    <th className="pb-2 font-medium text-right">Saved</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-fc-border-faint font-sans">
-                  {recentRequests.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="py-8 text-center text-fc-muted italic font-mono text-xs">
-                        No routed requests recorded yet. Test a prompt in the Playground.
-                      </td>
-                    </tr>
-                  ) : (
-                    recentRequests.map((r) => (
-                      <tr key={r.id} className="hover:bg-fc-bg-lighter transition-colors">
-                        <td className="py-2.5 text-fc-muted font-mono whitespace-nowrap text-[11px]">{r.time}</td>
-                        <td className="py-2.5 text-fc-graphite max-w-xs truncate pr-3 text-xs">
-                          {r.promptSnippet}
-                        </td>
-                        <td className="py-2.5 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded-fc-4 text-[11px] font-mono font-bold ${
-                              r.level === 'low'
-                                ? 'bg-fc-forest/10 text-fc-forest border border-fc-forest/20'
-                                : r.level === 'med'
-                                ? 'bg-fc-honey/10 text-fc-honey border border-fc-honey/20'
-                                : 'bg-heat-12 text-heat-100 border border-heat-40'
-                            }`}
-                          >
-                            {r.score.toFixed(1)}
-                          </span>
-                        </td>
-                        <td className="py-2.5 whitespace-nowrap">
-                          <span className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-fc-body font-mono text-[11px]">
-                            {r.domain}
-                          </span>
-                        </td>
-                        <td className="py-2.5 font-mono text-fc-graphite whitespace-nowrap text-xs">
-                          {r.model}
-                        </td>
-                        <td className="py-2.5 text-right font-mono text-fc-muted whitespace-nowrap text-[11px]">
-                          {r.latency}
-                        </td>
-                        <td className="py-2.5 text-right font-mono text-fc-forest font-bold whitespace-nowrap text-[11px]">
-                          {r.saving}
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-fc-border-muted text-fc-muted font-mono">
+                        <th className="pb-2 font-medium">Time</th>
+                        <th className="pb-2 font-medium">Prompt Excerpt</th>
+                        <th className="pb-2 font-medium">Score</th>
+                        <th className="pb-2 font-medium">Domain</th>
+                        <th className="pb-2 font-medium">Target Engine</th>
+                        <th className="pb-2 font-medium text-right">Latency</th>
+                        <th className="pb-2 font-medium text-right">Saved</th>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody className="divide-y divide-fc-border-faint font-sans">
+                      {recentRequests.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="py-8 text-center text-fc-muted italic font-mono text-xs">
+                            No routed requests recorded yet. Test a prompt in the Playground.
+                          </td>
+                        </tr>
+                      ) : (
+                        recentRequests.map((r) => (
+                          <tr key={r.id} className="hover:bg-fc-bg-lighter transition-colors">
+                            <td className="py-2.5 text-fc-muted font-mono whitespace-nowrap text-[11px]">{r.time}</td>
+                            <td className="py-2.5 text-fc-graphite max-w-xs truncate pr-3 text-xs">
+                              {r.promptSnippet}
+                            </td>
+                            <td className="py-2.5 whitespace-nowrap">
+                              <span
+                                className={`inline-flex items-center px-1.5 py-0.5 rounded-fc-4 text-[11px] font-mono font-bold ${
+                                  r.level === 'low'
+                                    ? 'bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint'
+                                    : r.level === 'med'
+                                    ? 'bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint'
+                                    : 'bg-heat-12 text-heat-100 border border-heat-40'
+                                }`}
+                              >
+                                {r.score.toFixed(1)}
+                              </span>
+                            </td>
+                            <td className="py-2.5 whitespace-nowrap">
+                              <span className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-fc-body font-mono text-[11px]">
+                                {r.domain}
+                              </span>
+                            </td>
+                            <td className="py-2.5 font-mono text-fc-graphite whitespace-nowrap text-xs">
+                              {r.model}
+                            </td>
+                            <td className="py-2.5 text-right font-mono text-fc-muted whitespace-nowrap text-[11px]">
+                              {r.latency}
+                            </td>
+                            <td className="py-2.5 text-right font-mono text-fc-graphite font-bold whitespace-nowrap text-[11px]">
+                              {r.saving}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* Bottom Spacer Row */}
+      <div className="h-8 sm:h-12 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
+        <span className="corner-crosshair top-0 left-1.5">+</span>
+        <span className="corner-crosshair top-0 right-1.5">+</span>
+      </div>
     </div>
   );
 }

@@ -238,10 +238,21 @@ export function RegistryPage() {
   };
 
   return (
-    <div className="space-y-8 pb-16">
-      {/* Section Metadata & Header */}
-      <section className="space-y-3">
-        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted">
+    <div className="flex flex-col bg-fc-canvas-paper">
+      {/* Section Metadata & Header with ASCII Flame */}
+      <section className="relative border-b border-fc-border-faint p-6 sm:p-8 bg-fc-canvas-paper">
+        <span className="corner-crosshair top-2 left-2">+</span>
+        <span className="corner-crosshair top-2 right-2">+</span>
+        <span className="corner-crosshair bottom-2 left-2">+</span>
+        <span className="corner-crosshair bottom-2 right-2">+</span>
+
+        {/* Flame ASCII Animation in Top-Right of Hero Section */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 pointer-events-none select-none flex flex-col items-end">
+          <span className="text-[10px] font-mono text-fc-muted-soft mb-1 hidden sm:inline">[ ASCII // REGISTRY ]</span>
+          <AsciiFlame className="text-heat-100" opacity={0.65} variant="flame" />
+        </div>
+
+        <div className="flex items-center space-x-2 text-xs font-mono text-fc-muted mb-2">
           <span className="text-heat-100 font-bold">[ 01 / 01 ]</span>
           <span>·</span>
           <span>Model Registry</span>
@@ -250,12 +261,12 @@ export function RegistryPage() {
           <span className="text-fc-muted-soft">//</span>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-w-2xl">
           <div>
-            <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite">
+            <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-1">
               Registered <span className="text-heat-100">execution engines</span>.
             </h1>
-            <p className="text-xs sm:text-sm text-fc-body-soft mt-1">
+            <p className="text-xs sm:text-sm text-fc-body-soft">
               Configure upstream models, active status, complexity intervals, and pricing metrics.
             </p>
           </div>
@@ -263,7 +274,7 @@ export function RegistryPage() {
           <div className="flex items-center space-x-2.5">
             <button
               onClick={openAddModal}
-              className="btn-heat-cta px-4 py-2 rounded-fc-8 text-xs font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
+              className="btn-heat-cta px-4 py-2 rounded-fc-6 text-xs font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Model</span>
@@ -271,7 +282,7 @@ export function RegistryPage() {
 
             <button
               onClick={() => setShowRawYaml(!showRawYaml)}
-              className="btn-ghost-outline px-3.5 py-2 rounded-fc-8 text-xs font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
+              className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 text-xs font-mono flex items-center space-x-1.5 transition-colors cursor-pointer"
             >
               <FileText className="w-3.5 h-3.5 text-heat-100" />
               <span>{showRawYaml ? 'Hide YAML' : 'View [ .YAML ]'}</span>
@@ -280,109 +291,121 @@ export function RegistryPage() {
         </div>
       </section>
 
+      {/* Filler Grid Spacer Row */}
+      <div className="h-4 sm:h-6 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
+        <span className="corner-crosshair top-0 left-1.5">+</span>
+        <span className="corner-crosshair top-0 right-1.5">+</span>
+      </div>
+
       {/* Architecture Clarification Note with Halo */}
-      <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-5 text-xs text-fc-muted flex items-start space-x-3.5 widget-halo">
-        <span className="corner-crosshair top-2 left-2">+</span>
-        <span className="corner-crosshair top-2 right-2">+</span>
-        <Info className="w-4 h-4 text-heat-100 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <div className="font-semibold text-fc-graphite text-xs">
-            Architecture Blueprint: Evaluator Head vs. Upstream Execution Engines
+      <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
+        <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-5 text-xs text-fc-muted flex items-start space-x-3.5 widget-halo">
+          <span className="corner-crosshair top-2 left-2">+</span>
+          <span className="corner-crosshair top-2 right-2">+</span>
+          <Info className="w-4 h-4 text-heat-100 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <div className="font-semibold text-fc-graphite text-xs">
+              Architecture Blueprint: Evaluator Head vs. Upstream Execution Engines
+            </div>
+            <p className="leading-relaxed text-[11px] text-fc-body">
+              <strong>Liquid AI d1</strong> is our dedicated System One Decision Model running locally in Ollama (<code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">/v1/systemone</code>). It consumes zero output tokens to classify task complexity (1–5). The entries below represent the <strong>Upstream Execution Engines</strong> that receive the request payload once routing is resolved.
+            </p>
           </div>
-          <p className="leading-relaxed text-[11px] text-fc-body">
-            <strong>Liquid AI d1</strong> is our dedicated System One Decision Model running locally in Ollama (<code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">/v1/systemone</code>). It consumes zero output tokens to classify task complexity (1–5). The entries below represent the <strong>Upstream Execution Engines</strong> that receive the request payload once routing is resolved.
-          </p>
         </div>
       </div>
 
       {/* Raw YAML Drawer */}
       {showRawYaml && (
-        <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-6 space-y-3 animate-in fade-in duration-150 widget-halo">
-          <span className="corner-crosshair top-2 left-2">+</span>
-          <span className="corner-crosshair top-2 right-2">+</span>
-          <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
-            <span className="text-heat-100 font-bold">[ config/registry.yaml ]</span>
-            <button
-              onClick={copyYaml}
-              className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
-            >
-              {copiedYaml ? <Check className="w-3.5 h-3.5 text-fc-forest" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
-            </button>
+        <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
+          <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-6 space-y-3 animate-in fade-in duration-150 widget-halo">
+            <span className="corner-crosshair top-2 left-2">+</span>
+            <span className="corner-crosshair top-2 right-2">+</span>
+            <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
+              <span className="text-heat-100 font-bold">[ config/registry.yaml ]</span>
+              <button
+                onClick={copyYaml}
+                className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
+              >
+                {copiedYaml ? <Check className="w-3.5 h-3.5 text-fc-forest" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
+              </button>
+            </div>
+            <pre className="text-xs font-mono text-fc-graphite overflow-x-auto p-4 bg-fc-bg-lighter border border-fc-border-faint rounded-fc-6 leading-relaxed">
+              {rawYamlContent}
+            </pre>
           </div>
-          <pre className="text-xs font-mono text-fc-graphite overflow-x-auto p-4 bg-fc-paper border border-fc-border-faint rounded-fc-8 leading-relaxed">
-            {rawYamlContent}
-          </pre>
         </div>
       )}
 
       {/* Search & Provider Filter Toolbar with Corner Markers */}
-      <div className="relative rounded-fc-12 bg-fc-surface border border-fc-border-muted p-4 sm:p-5 space-y-3.5 shadow-xs">
-        <span className="corner-crosshair top-2 left-2">+</span>
-        <span className="corner-crosshair top-2 right-2">+</span>
+      <div className="p-3 sm:p-4 border-b border-fc-border-faint bg-fc-canvas-paper">
+        <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-4 sm:p-5 space-y-3.5 shadow-xs">
+          <span className="corner-crosshair top-2 left-2">+</span>
+          <span className="corner-crosshair top-2 right-2">+</span>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          {/* Search Box */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-fc-muted absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by ID, name, or tag (e.g. coding, local, frontier)..."
-              className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-8 pl-9 pr-3.5 py-2 text-xs text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors font-sans"
-            />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+            {/* Search Box */}
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-fc-muted absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by ID, name, or tag (e.g. coding, local, frontier)..."
+                className="w-full bg-fc-bg-lighter border border-fc-border-muted rounded-fc-6 pl-9 pr-3.5 py-2 text-xs text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors font-sans"
+              />
+            </div>
+
+            {/* Provider Filter Segment */}
+            <div className="flex items-center bg-fc-bg-lighter p-0.5 rounded-fc-6 border border-fc-border-faint text-xs font-mono self-start md:self-auto">
+              {['all', 'ollama', '9router', 'anthropic', 'openai'].map((prov) => (
+                <button
+                  key={prov}
+                  onClick={() => setSelectedProvider(prov)}
+                  className={`px-3 py-1 rounded-fc-4 capitalize transition-all cursor-pointer ${
+                    selectedProvider === prov
+                      ? 'bg-heat-100 text-white font-medium shadow-fc-heat-btn'
+                      : 'text-fc-muted hover:text-fc-graphite'
+                  }`}
+                >
+                  {prov === 'ollama' ? 'Ollama' : prov}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Provider Filter Segment */}
-          <div className="flex items-center bg-fc-bg-lighter p-0.5 rounded-fc-6 border border-fc-border-faint text-xs font-mono self-start md:self-auto">
-            {['all', 'ollama', '9router', 'anthropic', 'openai'].map((prov) => (
-              <button
-                key={prov}
-                onClick={() => setSelectedProvider(prov)}
-                className={`px-3 py-1 rounded-fc-4 capitalize transition-all cursor-pointer ${
-                  selectedProvider === prov
-                    ? 'bg-heat-100 text-white font-medium shadow-fc-heat-btn'
-                    : 'text-fc-muted hover:text-fc-graphite'
-                }`}
-              >
-                {prov === 'ollama' ? 'Ollama' : prov}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Tags Row */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-fc-border-faint">
-          <span className="text-[11px] font-mono text-fc-muted mr-1">Tags:</span>
-          <button
-            onClick={() => setSelectedTag('all')}
-            className={`px-2.5 py-0.5 rounded-fc-4 text-[11px] font-mono transition-colors cursor-pointer ${
-              selectedTag === 'all'
-                ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
-                : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-fc-border-faint'
-            }`}
-          >
-            all ({models.length})
-          </button>
-          {allTags.map((tag) => (
+          {/* Tags Row */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-fc-border-faint">
+            <span className="text-[11px] font-mono text-fc-muted mr-1">Tags:</span>
             <button
-              key={tag}
-              onClick={() => setSelectedTag(tag)}
+              onClick={() => setSelectedTag('all')}
               className={`px-2.5 py-0.5 rounded-fc-4 text-[11px] font-mono transition-colors cursor-pointer ${
-                selectedTag === tag
+                selectedTag === 'all'
                   ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
                   : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-fc-border-faint'
               }`}
             >
-              #{tag}
+              all ({models.length})
             </button>
-          ))}
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setSelectedTag(tag)}
+                className={`px-2.5 py-0.5 rounded-fc-4 text-[11px] font-mono transition-colors cursor-pointer ${
+                  selectedTag === tag
+                    ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
+                    : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-fc-border-faint'
+                }`}
+              >
+                #{tag}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Blueprint Exposed Grid: Recessed Tray Cells with Nested Rounded Cards */}
-      <div className="fc-blueprint-grid">
+      <div className="fc-blueprint-grid border-b border-fc-border-faint">
         {filteredModels.map((model) => {
           const isEnabled = model.enabled !== false;
           const [minComp, maxComp] = model.complexity_range;
@@ -796,6 +819,12 @@ export function RegistryPage() {
           </div>
         </div>
       )}
+
+      {/* Bottom Spacer Row */}
+      <div className="h-8 sm:h-12 border-b border-fc-border-faint bg-fc-canvas-paper relative flex items-center justify-between px-3" aria-hidden="true">
+        <span className="corner-crosshair top-0 left-1.5">+</span>
+        <span className="corner-crosshair top-0 right-1.5">+</span>
+      </div>
     </div>
   );
 }

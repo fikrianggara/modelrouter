@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
 import fs from 'fs';
 import path from 'path';
 import { config, AppConfig } from '../core/config';
@@ -171,6 +172,57 @@ export function createApp(options?: ServerOptions): Hono {
     const latencyMs = (performance.now() - t0).toFixed(2);
     return { evalResult, selectedModel, latencyMs };
   }
+
+  // Web Dashboard & Playground API routes
+  app.get('/api/registry', (c) => {
+    return c.json({
+      models: registry.getAllModels(),
+    });
+  });
+
+  app.post('/api/evaluate', async (c) => {
+    let body: any = {};
+    try {
+      body = await c.req.json();
+    } catch {
+      // ignore empty body
+    }
+    const prompt = typeof body.prompt === 'string' ? body.prompt : '';
+    const requestedModel = body.model || 'd1-router-auto';
+    const explicitPolicy = body.policy;
+    const canonical: CanonicalRequest = {
+      messages: [{ role: 'user', content: prompt }],
+      stream: false,
+    };
+    try {
+      const result = await routeRequest(canonical, requestedModel, explicitPolicy);
+      return c.json({
+        ok: true,
+        complexityScore: result.evalResult.complexityScore,
+        confidence: result.evalResult.confidence,
+        domain: result.evalResult.domain,
+        requiresTools: result.evalResult.requiresTools,
+        requiresVision: result.evalResult.requiresVision,
+        fallbackReason: result.evalResult.fallbackReason,
+        selectedModel: result.selectedModel,
+        routingLatencyMs: parseFloat(result.latencyMs),
+      });
+    } catch (err: any) {
+      return c.json({ ok: false, error: err?.message || 'Evaluation failed' }, 500);
+    }
+  });
+
+  app.get('/api/stats', (c) => {
+    const models = registry.getAllModels();
+    return c.json({
+      status: 'online',
+      uptime: process.uptime(),
+      registeredModels: models.length,
+      defaultPolicy: appConfig.DEFAULT_POLICY,
+      targetLatencyMs: 30,
+      d1Endpoint: appConfig.D1_ENDPOINT,
+    });
+  });
 
   // 2. POST /v1/chat/completions - OpenAI API format
   app.post('/v1/chat/completions', async (c) => {
@@ -567,6 +619,33 @@ export function createApp(options?: ServerOptions): Hono {
 
     return c.json(anthropicRes, upstreamRes.status as any);
   });
+
+  // 4. Static client serving (dist/client)
+  const clientDist = path.resolve(process.cwd(), 'dist/client');
+  if (fs.existsSync(clientDist)) {
+    app.use('/*', async (c, next) => {
+      // Do not intercept API or health endpoints
+      if (
+        c.req.path.startsWith('/v1/') ||
+        c.req.path.startsWith('/api/') ||
+        c.req.path === '/health'
+      ) {
+        return next();
+      }
+      return serveStatic({ root: './dist/client' })(c, next);
+    });
+
+    app.get('*', (c, next) => {
+      if (
+        c.req.path.startsWith('/v1/') ||
+        c.req.path.startsWith('/api/') ||
+        c.req.path === '/health'
+      ) {
+        return next();
+      }
+      return serveStatic({ path: './dist/client/index.html' })(c, next);
+    });
+  }
 
   return app;
 }

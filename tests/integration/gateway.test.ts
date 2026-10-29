@@ -494,6 +494,35 @@ describe('Hono Gateway Integration Tests (TKT-008)', () => {
       expect(res.headers.get('x-d1-selected-model')).toBeDefined();
     });
 
+    it('sets X-D1-Fallback header and reason when D1 endpoint fails', async () => {
+      const originalFetch = global.fetch;
+      global.fetch = vi.fn().mockImplementation((url, opts) => {
+        if (typeof url === 'string' && url.includes('systemone')) {
+          return Promise.reject(new Error('Connection refused'));
+        }
+        return originalFetch(url, opts);
+      });
+
+      try {
+        const payload = {
+          model: 'd1-router-auto',
+          messages: [{ role: 'user', content: 'test fallback notification' }],
+        };
+
+        const res = await app.request('/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        expect(res.status).toBe(200);
+        expect(res.headers.get('x-d1-fallback')).toBe('true');
+        expect(res.headers.get('x-d1-fallback-reason')).toContain('Connection refused');
+      } finally {
+        global.fetch = originalFetch;
+      }
+    });
+
     it('returns 400 when invalid JSON is sent', async () => {
       const res = await app.request('/v1/chat/completions', {
         method: 'POST',

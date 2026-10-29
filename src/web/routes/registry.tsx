@@ -11,6 +11,7 @@ import {
   FileText,
   Copy,
   Check,
+  Info,
 } from 'lucide-react';
 
 export const Route = createFileRoute('/registry')({
@@ -172,11 +173,25 @@ export function RegistryPage() {
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowRawYaml(!showRawYaml)}
-            className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-mono text-slate-300 hover:text-white flex items-center space-x-1.5 transition-all cursor-pointer"
+            className="px-3.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-xs font-mono text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center space-x-1.5 transition-all cursor-pointer"
           >
-            <FileText className="w-3.5 h-3.5 text-cyan-400" />
+            <FileText className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
             <span>{showRawYaml ? 'Hide YAML' : 'View YAML Spec'}</span>
           </button>
+        </div>
+      </div>
+
+      {/* Decision Evaluator vs. Upstream Models Architecture Note */}
+      <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 text-xs text-brand-700 dark:text-cyan-300 flex items-start space-x-3 shadow-sm transition-colors">
+        <Info className="w-5 h-5 text-brand-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-bold text-slate-900 dark:text-white text-sm">
+            Architecture Clarification: Evaluator vs. Upstream Execution Models
+          </p>
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-xs">
+            <strong>Liquid AI d1</strong> is our sole, dedicated Decision Model running via Ollama (<code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[11px] font-mono">/v1/systemone</code>). It evaluates task complexity (1–5) and attributes with 0 output tokens.
+            The models cataloged in this registry below are <strong>Upstream Execution Models</strong> (from Ollama local, 9router gateway, and cloud providers). Virtual routing endpoints (<code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[11px] font-mono">d1-router-auto</code>, <code className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[11px] font-mono">d1-router-cost</code>, etc.) apply different optimization policies over d1's score to dispatch requests to the best model below.
+          </p>
         </div>
       </div>
 

@@ -54,7 +54,7 @@ export class D1Client {
   constructor(
     public endpoint: string = 'http://localhost:11434/v1/systemone',
     public model: string = 'd1:latest',
-    public timeoutMs: number = 150
+    public timeoutMs: number = 3000
   ) {}
 
   /**

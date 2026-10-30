@@ -408,5 +408,19 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('Client Ingress');
       expect(bundleContent).toContain('Policy Resolution');
     });
+
+    it('Built frontend assets reflect Zero-Gap Bento Workbench Ingress layout (TKT-031)', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const assetsDir = path.resolve(process.cwd(), 'dist/client/assets');
+      const files = fs.readdirSync(assetsDir);
+      const jsBundle = files.find((f: string) => f.endsWith('.js'));
+      expect(jsBundle).toBeDefined();
+
+      const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
+      expect(bundleContent).toContain('WORKBENCH & INGRESS');
+      expect(bundleContent).toContain('Decision Flow Pipeline');
+      expect(bundleContent).toContain('Complexity Spectrum');
+    });
   });
 });

@@ -241,7 +241,7 @@ export function DecisionProviderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="relative bg-fc-surface border border-fc-border-faint dark:border-[#23252a] rounded-fc-12 max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+      <div className="relative bg-fc-surface border border-fc-border-faint rounded-fc-12 max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
         {/* Firecrawl Blueprint Crosshair Accents */}
         <span className="corner-crosshair top-2 left-2 text-fc-muted/60 font-mono select-none">+</span>
         <span className="corner-crosshair top-2 right-2 text-fc-muted/60 font-mono select-none">+</span>
@@ -249,7 +249,7 @@ export function DecisionProviderModal({
         <span className="corner-crosshair bottom-2 right-2 text-fc-muted/60 font-mono select-none">+</span>
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-fc-border-faint dark:border-[#23252a] pb-3">
+        <div className="flex items-center justify-between border-b border-fc-border-faint pb-3">
           <div className="flex items-center space-x-2.5">
             <div className="w-7 h-7 rounded-fc-6 bg-heat-8 text-heat-100 flex items-center justify-center border border-heat-16">
               <Cpu className="w-4 h-4" />
@@ -308,7 +308,7 @@ export function DecisionProviderModal({
                 className={`p-2.5 rounded-fc-8 border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 ${
                   provider === 'ollama'
                     ? 'border-heat-100 bg-heat-4 dark:bg-heat-8/30 ring-1 ring-heat-100'
-                    : 'border-fc-border-faint dark:border-[#23252a] bg-fc-bg-lighter hover:border-fc-border-muted'
+                    : 'border-fc-border-faint bg-fc-bg-lighter hover:border-fc-border-muted'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
@@ -332,7 +332,7 @@ export function DecisionProviderModal({
                 className={`p-2.5 rounded-fc-8 border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 ${
                   provider === 'liquid'
                     ? 'border-heat-100 bg-heat-4 dark:bg-heat-8/30 ring-1 ring-heat-100'
-                    : 'border-fc-border-faint dark:border-[#23252a] bg-fc-bg-lighter hover:border-fc-border-muted'
+                    : 'border-fc-border-faint bg-fc-bg-lighter hover:border-fc-border-muted'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
@@ -356,7 +356,7 @@ export function DecisionProviderModal({
                 className={`p-2.5 rounded-fc-8 border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 ${
                   provider === 'custom'
                     ? 'border-heat-100 bg-heat-4 dark:bg-heat-8/30 ring-1 ring-heat-100'
-                    : 'border-fc-border-faint dark:border-[#23252a] bg-fc-bg-lighter hover:border-fc-border-muted'
+                    : 'border-fc-border-faint bg-fc-bg-lighter hover:border-fc-border-muted'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
@@ -387,7 +387,7 @@ export function DecisionProviderModal({
                 value={endpoint}
                 onChange={(e) => setEndpoint(e.target.value)}
                 placeholder="http://localhost:11434/v1/systemone"
-                className="w-full bg-fc-paper border border-fc-border-faint dark:border-[#23252a] rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
               />
             </div>
 
@@ -402,7 +402,7 @@ export function DecisionProviderModal({
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   placeholder="d1:latest"
-                  className="w-full bg-fc-paper border border-fc-border-faint dark:border-[#23252a] rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                  className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
                 />
               </div>
 
@@ -418,7 +418,7 @@ export function DecisionProviderModal({
                   value={timeoutMs}
                   onChange={(e) => setTimeoutMs(Number(e.target.value))}
                   placeholder="10000"
-                  className="w-full bg-fc-paper border border-fc-border-faint dark:border-[#23252a] rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                  className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
                 />
               </div>
             </div>
@@ -450,7 +450,7 @@ export function DecisionProviderModal({
                       ? 'sk-liq-...'
                       : 'Optional API key for authenticated proxies'
                   }
-                  className="w-full bg-fc-paper border border-fc-border-faint dark:border-[#23252a] rounded-fc-6 p-2 pr-9 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                  className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 pr-9 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
                 />
                 <button
                   type="button"
@@ -492,7 +492,7 @@ export function DecisionProviderModal({
           )}
 
           {/* Modal Action Buttons */}
-          <div className="flex items-center justify-between pt-2 border-t border-fc-border-faint dark:border-[#23252a]">
+          <div className="flex items-center justify-between pt-2 border-t border-fc-border-faint">
             <button
               type="button"
               onClick={handleTestConnection}

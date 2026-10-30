@@ -476,7 +476,7 @@ export function PlaygroundPage() {
         {/* ================= BARIS 2: SECTION HEADER [ 01 / 02 ] ================= */}
         <div className="border-b border-r border-fc-border-faint" />
         <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-heat-100" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">01</strong> / 02 ]</span>
             <span>·</span>
@@ -508,7 +508,7 @@ export function PlaygroundPage() {
         <div className="border-b border-r border-fc-border-faint" />
         <div className="border-b border-fc-border-faint grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {/* Stat Cell 1: Calibrated Complexity Score */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-bento-tile-hover transition-colors relative group">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Task Complexity</span>
               <Gauge className="w-4 h-4 text-fc-graphite" />
@@ -526,7 +526,7 @@ export function PlaygroundPage() {
           </div>
 
           {/* Stat Cell 2: Decision Latency */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 lg:border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="p-6 sm:p-8 border-b sm:border-b-0 lg:border-r border-fc-border-faint hover:bg-bento-tile-hover transition-colors relative group">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Decision Latency</span>
               <Clock className="w-4 h-4 text-fc-graphite" />
@@ -545,7 +545,7 @@ export function PlaygroundPage() {
           </div>
 
           {/* Stat Cell 3: Target Execution Engine */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-bento-tile-hover transition-colors relative group">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Target Engine</span>
               <Cpu className="w-4 h-4 text-fc-graphite" />
@@ -562,7 +562,7 @@ export function PlaygroundPage() {
           </div>
 
           {/* Stat Cell 4: Stream Execution Telemetry */}
-          <div className="p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="p-6 sm:p-8 hover:bg-bento-tile-hover transition-colors relative group">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Stream Telemetry</span>
               <Terminal className="w-4 h-4 text-fc-graphite" />
@@ -589,7 +589,7 @@ export function PlaygroundPage() {
         {/* ================= BARIS 6: SECTION HEADER [ 02 / 02 ] ================= */}
         <div className="border-b border-r border-fc-border-faint" />
         <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-heat-100" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">02</strong> / 02 ]</span>
             <span>·</span>

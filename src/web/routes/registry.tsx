@@ -254,7 +254,7 @@ export function RegistryPage() {
         {/* ================= BARIS 2: SECTION HEADER [ 01 / 01 ] ================= */}
         <div className="border-b border-r border-fc-border-faint" />
         <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-heat-100" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">01</strong> / 01 ]</span>
             <span>·</span>

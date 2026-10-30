@@ -28,6 +28,14 @@
     --fc-border-muted: #e8e8e8;
     --fc-border-loud: #e6e6e6;
 
+    /* Bento Grid Architecture Tokens */
+    --fc-bento-canvas: #eaeaea;
+    --fc-bento-gutter: #f8f8f8;
+    --fc-bento-tile: #fafafa;
+    --fc-bento-tile-hover: #ffffff;
+    --fc-bento-border: rgba(229, 229, 229, 0.8);
+    --fc-bento-accent: #ff4f00;
+
     /* Shadows & Halos */
     --fc-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(0, 0, 0, 0.05);
     --fc-shadow-halo: 0 0 0 6px rgba(0, 0, 0, 0.025), 0 4px 20px rgba(0, 0, 0, 0.04);
@@ -53,6 +61,14 @@
     --fc-border-faint: #222222;
     --fc-border-muted: #2e2e2e;
     --fc-border-loud: #3d3d3d;
+
+    /* Bento Grid Architecture Tokens */
+    --fc-bento-canvas: #0c0c0c;
+    --fc-bento-gutter: #141414;
+    --fc-bento-tile: #161616;
+    --fc-bento-tile-hover: #1c1c1c;
+    --fc-bento-border: rgba(255, 255, 255, 0.08);
+    --fc-bento-accent: #ff4f00;
 
     /* Shadows & Halos in Dark */
     --fc-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);

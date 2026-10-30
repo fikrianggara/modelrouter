@@ -30,3 +30,4 @@
 | TKT-028 | bug | medium | P1 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Implement SSRF IP Subnet Validator for Outbound Endpoints and Update Vulnerable Dependencies (VULN-04, VULN-09) |
 | TKT-029 | feature | medium | P1 | frontend | merged | jarvis | feature-TKT-029-hero-ascii-animation-and | false | 2026-10-30 | 2026-10-30 | Hero ASCII animation and graph-based pipeline visualization |
 | TKT-030 | feature | small | P2 | frontend | merged | jarvis | feature-TKT-030-align-hero-ascii-with-re | false | 2026-10-30 | 2026-10-30 | Align Hero ASCII with Registry cards and streamline Navbar provider badge |
+| TKT-031 | feature | small | P2 | frontend | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Align Playground Workbench Ingress with Zero-Gap Bento Design System |

@@ -313,4 +313,64 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       });
     });
   });
+
+  describe('Web UI Settings & Decision Provider Modal (TKT-023)', () => {
+    it('Provides valid presets required by DecisionProviderModal', async () => {
+      const res = await app.request('/api/decision-provider');
+      expect(res.status).toBe(200);
+      const data = await res.json();
+
+      expect(data.presets).toBeDefined();
+      expect(data.presets.ollama.defaultEndpoint).toBe('http://localhost:11434/v1/systemone');
+      expect(data.presets.ollama.defaultModel).toBe('d1:latest');
+      expect(data.presets.ollama.requiresKey).toBe(false);
+
+      expect(data.presets.liquid.defaultEndpoint).toBe('https://api.liquid.ai/v1/systemone');
+      expect(data.presets.liquid.defaultModel).toBe('d1');
+      expect(data.presets.liquid.requiresKey).toBe(true);
+
+      expect(data.presets.custom.requiresKey).toBe(false);
+    });
+
+    it('Live connection test roundtrip returns latencyMs for UI feedback', async () => {
+      const testRes = await app.request('/api/decision-provider/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: 'ollama',
+          endpoint: 'http://localhost:11434/v1/systemone',
+          model: 'd1:latest',
+        }),
+      });
+
+      expect(testRes.status).toBe(200);
+      const testData = await testRes.json();
+      expect(testData.ok).toBe(true);
+      expect(typeof testData.latencyMs).toBe('number');
+      expect(testData.latencyMs).toBeGreaterThanOrEqual(0);
+      expect(testData.provider).toBe('ollama');
+    });
+
+    it('Built frontend assets contain DecisionProviderModal and Navbar status pill components', async () => {
+      const res = await app.request('/');
+      expect(res.status).toBe(200);
+      const html = await res.text();
+      expect(html).toContain('ModelRouter');
+
+      // Check bundled JS asset exists and contains BYOK components
+      const fs = await import('fs');
+      const path = await import('path');
+      const assetsDir = path.resolve(process.cwd(), 'dist/client/assets');
+      expect(fs.existsSync(assetsDir)).toBe(true);
+
+      const files = fs.readdirSync(assetsDir);
+      const jsBundle = files.find((f: string) => f.endsWith('.js'));
+      expect(jsBundle).toBeDefined();
+
+      const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
+      expect(bundleContent).toContain('Decision Model Provider');
+      expect(bundleContent).toContain('BYOK');
+      expect(bundleContent).toContain('Configure BYOK Decision Provider');
+    });
+  });
 });

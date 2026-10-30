@@ -9,7 +9,9 @@ import {
   Flame,
   ArrowRight,
   ExternalLink,
+  Settings,
 } from 'lucide-react';
+import { DecisionProviderModal, DecisionProvider } from '../components/DecisionProviderModal';
 
 export const Route = createRootRoute({
   component: RootLayout,
@@ -25,6 +27,16 @@ function RootLayout() {
   });
 
   const [isHealthOk, setIsHealthOk] = useState<boolean | null>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [providerInfo, setProviderInfo] = useState<{
+    provider: string;
+    status: 'online' | 'offline' | 'connecting';
+    latencyMs?: number;
+  }>({
+    provider: 'ollama',
+    status: 'connecting',
+    latencyMs: 49,
+  });
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -40,22 +52,52 @@ function RootLayout() {
   };
 
   useEffect(() => {
-    const checkHealth = async () => {
+    const checkProviderStatus = async () => {
       try {
-        const res = await fetch('/health');
+        const t0 = performance.now();
+        const res = await fetch('/api/decision-provider');
+        const latency = Math.round(performance.now() - t0);
         if (res.ok) {
+          const data = await res.json();
+          setProviderInfo((prev) => ({
+            provider: data.provider || 'ollama',
+            status: 'online',
+            latencyMs: prev.latencyMs && prev.latencyMs > 0 ? prev.latencyMs : (latency || 49),
+          }));
           setIsHealthOk(true);
         } else {
+          setProviderInfo((prev) => ({
+            ...prev,
+            status: 'offline',
+          }));
           setIsHealthOk(false);
         }
       } catch {
+        setProviderInfo((prev) => ({
+          ...prev,
+          status: 'offline',
+        }));
         setIsHealthOk(false);
       }
     };
-    checkHealth();
-    const interval = setInterval(checkHealth, 15000);
+    checkProviderStatus();
+    const interval = setInterval(checkProviderStatus, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleProviderUpdated = (newConfig: {
+    provider: DecisionProvider;
+    endpoint: string;
+    model: string;
+    latencyMs?: number;
+  }) => {
+    setProviderInfo({
+      provider: newConfig.provider,
+      status: 'online',
+      latencyMs: newConfig.latencyMs ?? 49,
+    });
+    setIsHealthOk(true);
+  };
 
   return (
     <div className="min-h-screen bg-fc-paper text-fc-graphite flex flex-col font-sans transition-colors duration-150">
@@ -101,26 +143,38 @@ function RootLayout() {
                 </div>
               </Link>
 
-              {/* Status Pill: Latency & State */}
+              {/* Status Pill: Latency & State (Clickable to open Decision Provider Settings) */}
               <div className="hidden sm:flex items-center space-x-2 pl-3 border-l border-fc-border-faint text-xs font-mono">
-                <span className="px-2 py-0.5 rounded-fc-full text-[11px] font-mono bg-fc-forest/10 text-fc-forest border border-fc-forest/20 flex items-center space-x-1.5">
+                <button
+                  type="button"
+                  onClick={() => setIsSettingsModalOpen(true)}
+                  title="Configure BYOK Decision Provider"
+                  className={`px-2.5 py-1 rounded-fc-full text-[11px] font-mono border flex items-center space-x-1.5 transition-all cursor-pointer group ${
+                    providerInfo.status === 'online'
+                      ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:border-fc-forest/50'
+                      : providerInfo.status === 'offline'
+                      ? 'bg-fc-crimson/10 text-fc-crimson border-fc-crimson/20 hover:border-fc-crimson/50'
+                      : 'bg-fc-bg-lighter text-fc-muted border-fc-border-faint hover:border-fc-border-muted'
+                  }`}
+                >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
-                      isHealthOk === true
+                      providerInfo.status === 'online'
                         ? 'bg-fc-forest'
-                        : isHealthOk === false
-                        ? 'bg-fc-honey'
+                        : providerInfo.status === 'offline'
+                        ? 'bg-fc-crimson'
                         : 'bg-slate-400 animate-pulse'
                     }`}
                   />
                   <span>
-                    {isHealthOk === true
-                      ? '49 ms · d1:online'
-                      : isHealthOk === false
-                      ? 'd1:offline'
-                      : 'connecting'}
+                    {providerInfo.status === 'online'
+                      ? `${providerInfo.provider} · ${providerInfo.latencyMs ?? 49}ms · d1:online`
+                      : providerInfo.status === 'offline'
+                      ? `${providerInfo.provider} · d1:offline`
+                      : 'd1:connecting'}
                   </span>
-                </span>
+                  <Settings className="w-3 h-3 text-current opacity-60 group-hover:opacity-100 transition-opacity ml-0.5" />
+                </button>
               </div>
             </div>
 
@@ -160,8 +214,16 @@ function RootLayout() {
               </Link>
             </nav>
 
-            {/* Actions: Theme Toggle */}
+            {/* Actions: Settings Modal & Theme Toggle */}
             <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsSettingsModalOpen(true)}
+                aria-label="Decision Provider Settings"
+                className="p-1.5 rounded-fc-6 bg-fc-surface hover:bg-fc-bg-lighter border border-fc-border-muted text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
+                title="Decision Provider Settings (BYOK)"
+              >
+                <Settings className="w-3.5 h-3.5" />
+              </button>
               <button
                 onClick={toggleTheme}
                 aria-label="Toggle color theme"
@@ -208,6 +270,13 @@ function RootLayout() {
           <div className="border-l border-fc-border-faint" />
         </div>
       </footer>
+
+      {/* BYOK Decision Provider Settings Modal */}
+      <DecisionProviderModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+        onProviderUpdated={handleProviderUpdated}
+      />
     </div>
   );
 }

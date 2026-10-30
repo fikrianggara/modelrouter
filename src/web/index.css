@@ -4,8 +4,12 @@
 
 @layer base {
   :root {
-    --font-sans: 'Geist', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-sans:
+      'Geist', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont,
+      'Segoe UI', Roboto, sans-serif;
+    --font-mono:
+      'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      monospace;
     --font-ascii: 'Roboto Mono', 'JetBrains Mono', monospace;
     --fc-font-ascii: 'Roboto Mono', 'JetBrains Mono', monospace;
 
@@ -33,13 +37,18 @@
     --fc-bento-gutter: #f8f8f8;
     --fc-bento-tile: #fafafa;
     --fc-bento-tile-hover: #ffffff;
-    --fc-bento-border: rgba(229, 229, 229, 0.8);
+    --fc-bento-border: #fafafa;
     --fc-bento-accent: #ff4f00;
 
     /* Shadows & Halos */
-    --fc-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02), 0 0 0 1px rgba(0, 0, 0, 0.05);
-    --fc-shadow-halo: 0 0 0 6px rgba(0, 0, 0, 0.025), 0 4px 20px rgba(0, 0, 0, 0.04);
-    --fc-shadow-heat-btn: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 1px 2px 0 rgba(250, 69, 0, 0.35), 0 0 0 1px #fa4500;
+    --fc-shadow-card:
+      0 1px 3px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.02),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    --fc-shadow-halo:
+      0 0 0 6px rgba(0, 0, 0, 0.025), 0 4px 20px rgba(0, 0, 0, 0.04);
+    --fc-shadow-heat-btn:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
+      0 1px 2px 0 rgba(250, 69, 0, 0.35), 0 0 0 1px #fa4500;
   }
 
   .dark {
@@ -67,13 +76,18 @@
     --fc-bento-gutter: #141414;
     --fc-bento-tile: #161616;
     --fc-bento-tile-hover: #1c1c1c;
-    --fc-bento-border: rgba(255, 255, 255, 0.08);
+    --fc-bento-border: #161616;
     --fc-bento-accent: #ff4f00;
 
     /* Shadows & Halos in Dark */
-    --fc-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.06);
-    --fc-shadow-halo: 0 0 0 6px rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
-    --fc-shadow-heat-btn: inset 0 1px 0 0 rgba(255, 255, 255, 0.24), 0 1px 2px 0 rgba(250, 69, 0, 0.45), 0 0 0 1px #fa4500;
+    --fc-shadow-card:
+      0 1px 3px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
+    --fc-shadow-halo:
+      0 0 0 6px rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.4);
+    --fc-shadow-heat-btn:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.24),
+      0 1px 2px 0 rgba(250, 69, 0, 0.45), 0 0 0 1px #fa4500;
   }
 
   body {
@@ -84,7 +98,9 @@
     letter-spacing: -0.01em;
   }
 
-  code, pre, kbd {
+  code,
+  pre,
+  kbd {
     font-family: var(--font-mono);
   }
 }

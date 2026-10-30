@@ -1,14 +1,18 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    './index.html',
-    './src/web/**/*.{js,ts,jsx,tsx}',
-  ],
+  content: ['./index.html', './src/web/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Geist', 'Plus Jakarta Sans', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: [
+          'Geist',
+          'Plus Jakarta Sans',
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'sans-serif',
+        ],
         mono: ['JetBrains Mono', 'Roboto Mono', 'ui-monospace', 'monospace'],
       },
       maxWidth: {
@@ -63,7 +67,7 @@ export default {
         },
       },
       borderRadius: {
-        'xs': '2px',
+        xs: '6px',
         'fc-4': '4px',
         'fc-6': '6px',
         'fc-8': '8px',

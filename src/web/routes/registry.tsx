@@ -244,17 +244,18 @@ export function RegistryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-fc-paper text-fc-graphite font-sans">
-      <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
-        {/* ================= BARIS 1: SPACER KOSONG TOP ================= */}
-        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+    <div className="min-h-screen bg-bento-canvas text-fc-graphite font-sans p-px selection:bg-bento-accent selection:text-white">
+      {/* Architectural Bento Grid Wrapper: 3 Columns [Gutter Kiri | Konten Utama 1180px | Gutter Kanan] */}
+      <div className="grid grid-cols-[1fr_minmax(0,1180px)_1fr] gap-px">
+        {/* ================= BARIS 1: SPACER PENDEK TOP ================= */}
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
 
         {/* ================= BARIS 2: SECTION HEADER [ 01 / 01 ] ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-heat-100" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="bg-bento-tile rounded-xs border border-bento-border py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-5 bg-bento-accent rounded-r-xs" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">01</strong> / 01 ]</span>
             <span>·</span>
@@ -266,12 +267,17 @@ export function RegistryPage() {
             {models.length} ENGINES REGISTERED
           </span>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
         {/* ================= BARIS 3: HERO BANNER & ACTIONS ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint p-8 sm:p-12 relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="bg-bento-tile rounded-xs border border-bento-border p-8 sm:p-12 relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-6 group">
           <div className="max-w-2xl relative z-10">
+            <div className="font-mono text-xs text-fc-muted mb-2 flex items-center gap-2.5">
+              <span className="text-fc-muted-soft">//</span>
+              <span className="bg-bento-accent text-white px-1.5 py-0.5 rounded-xs text-[10px] font-bold">&gt;_</span>
+              <span className="text-fc-graphite font-medium">Model Directory</span>
+            </div>
             <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-2">
               Registered{' '}
               <span className="text-heat-100 font-semibold">execution engines</span>.
@@ -285,7 +291,7 @@ export function RegistryPage() {
           <div className="flex items-center space-x-2.5 relative z-10">
             <button
               onClick={openAddModal}
-              className="btn-heat-cta px-4 py-2.5 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn w-36"
+              className="btn-heat-cta px-4 py-2.5 rounded-xs text-xs font-sans font-medium flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn w-36"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Model</span>
@@ -293,21 +299,20 @@ export function RegistryPage() {
 
             <button
               onClick={() => setShowRawYaml(!showRawYaml)}
-              className="btn-ghost-outline px-3.5 py-2.5 rounded-fc-6 text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer w-36"
+              className="btn-ghost-outline px-3.5 py-2.5 rounded-xs text-xs font-sans font-medium flex items-center space-x-1.5 transition-colors cursor-pointer w-36"
             >
               <FileText className="w-3.5 h-3.5 text-heat-100" />
               <span>{showRawYaml ? 'Hide YAML' : 'View [ .YAML ]'}</span>
             </button>
           </div>
+          <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
         {/* ================= BARIS 4: NOTE BANNER ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint p-6 sm:p-8 bg-fc-bg-lighter">
-          <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-5 text-xs text-fc-muted flex items-start space-x-3.5 widget-halo">
-            <span className="corner-crosshair top-2 left-2">+</span>
-            <span className="corner-crosshair top-2 right-2">+</span>
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 relative group overflow-hidden">
+          <div className="p-4 sm:p-5 rounded-xs bg-fc-bg-lighter border border-bento-border text-xs text-fc-muted flex items-start space-x-3.5">
             <Info className="w-4 h-4 text-heat-100 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <div className="font-semibold text-fc-graphite text-xs">
@@ -317,7 +322,7 @@ export function RegistryPage() {
               <p className="leading-relaxed text-[11px] text-fc-body">
                 <strong>Liquid AI d1</strong> is our dedicated System One Decision
                 Model running locally in Ollama (
-                <code className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint font-mono font-bold text-heat-100">
+                <code className="px-1.5 py-0.5 rounded-xs bg-fc-surface border border-bento-border font-mono font-bold text-heat-100">
                   /v1/systemone
                 </code>
                 ). It consumes zero output tokens to classify task complexity
@@ -327,119 +332,112 @@ export function RegistryPage() {
               </p>
             </div>
           </div>
+          <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
       {/* Raw YAML Drawer */}
       {showRawYaml && (
         <>
-          <div className="border-b border-r border-fc-border-faint" />
-          <div className="p-6 sm:p-8 border-b border-fc-border-faint bg-fc-bg-lighter">
-            <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-6 space-y-3 animate-in fade-in duration-150 widget-halo">
-              <span className="corner-crosshair top-2 left-2">+</span>
-              <span className="corner-crosshair top-2 right-2">+</span>
-              <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
-                <span className="text-heat-100 font-bold">
-                  [ config/registry.yaml ]
-                </span>
-                <button
-                  onClick={copyYaml}
-                  className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
-                >
-                  {copiedYaml ? (
-                    <Check className="w-3.5 h-3.5 text-fc-forest" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5" />
-                  )}
-                  <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
-                </button>
-              </div>
-              <pre className="text-xs font-mono text-fc-graphite overflow-x-auto p-4 bg-fc-bg-lighter border border-fc-border-faint rounded-fc-6 leading-relaxed">
-                {rawYamlContent}
-              </pre>
+          <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+          <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 space-y-3 relative group overflow-hidden">
+            <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-2.5">
+              <span className="text-heat-100 font-bold">
+                [ config/registry.yaml ]
+              </span>
+              <button
+                onClick={copyYaml}
+                className="flex items-center space-x-1 text-fc-muted hover:text-fc-graphite cursor-pointer"
+              >
+                {copiedYaml ? (
+                  <Check className="w-3.5 h-3.5 text-fc-forest" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+                <span>{copiedYaml ? 'Copied' : 'Copy YAML'}</span>
+              </button>
             </div>
+            <pre className="text-xs font-mono text-fc-graphite overflow-x-auto p-4 bg-fc-bg-lighter border border-bento-border rounded-xs leading-relaxed">
+              {rawYamlContent}
+            </pre>
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
-          <div className="border-b border-l border-fc-border-faint" />
+          <div className="bg-bento-gutter rounded-xs border border-bento-border" />
         </>
       )}
 
       {/* ================= BARIS 5: SEARCH & FILTER TOOLBAR ================= */}
-      <div className="border-b border-r border-fc-border-faint" />
-      <div className="p-6 sm:p-8 border-b border-fc-border-faint">
-        <div className="relative rounded-fc-6 bg-fc-surface border border-fc-border-muted p-4 sm:p-5 space-y-3.5 shadow-xs">
-          <span className="corner-crosshair top-2 left-2">+</span>
-          <span className="corner-crosshair top-2 right-2">+</span>
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            {/* Search Box */}
-            <div className="relative flex-1">
-              <Search className="w-4 h-4 text-fc-muted absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by ID, name, or tag (e.g. coding, local, frontier)..."
-                className="w-full bg-fc-bg-lighter border border-fc-border-muted rounded-fc-6 pl-9 pr-3.5 py-2 text-xs text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors font-sans"
-              />
-            </div>
-
-            {/* Provider Filter Segment */}
-            <div className="flex items-center bg-fc-bg-lighter p-0.5 rounded-fc-6 border border-fc-border-faint text-xs font-mono self-start md:self-auto">
-              {['all', 'ollama', '9router', 'anthropic', 'openai'].map(
-                (prov) => (
-                  <button
-                    key={prov}
-                    onClick={() => setSelectedProvider(prov)}
-                    className={`px-3 py-1 rounded-fc-4 capitalize transition-all cursor-pointer ${
-                      selectedProvider === prov
-                        ? 'bg-heat-100 text-white font-medium shadow-fc-heat-btn'
-                        : 'text-fc-muted hover:text-fc-graphite'
-                    }`}
-                  >
-                    {prov === 'ollama' ? 'Ollama' : prov}
-                  </button>
-                ),
-              )}
-            </div>
+      <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+      <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 space-y-3.5 relative group overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-fc-muted absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by ID, name, or tag (e.g. coding, local, frontier)..."
+              className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs pl-9 pr-3.5 py-2 text-xs text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors font-sans"
+            />
           </div>
 
-          {/* Tags Row */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-fc-border-faint">
-            <span className="text-[11px] font-mono text-fc-muted mr-1">
-              Tags:
-            </span>
-            <button
-              onClick={() => setSelectedTag('all')}
-              className={`px-2.5 py-0.5 rounded-fc-4 text-[11px] font-mono transition-colors cursor-pointer ${
-                selectedTag === 'all'
-                  ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
-                  : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-fc-border-faint'
-              }`}
-            >
-              all ({models.length})
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setSelectedTag(tag)}
-                className={`px-2.5 py-0.5 rounded-fc-4 text-[11px] font-mono transition-colors cursor-pointer ${
-                  selectedTag === tag
-                    ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
-                    : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-fc-border-faint'
-                }`}
-              >
-                #{tag}
-              </button>
-            ))}
+          {/* Provider Filter Segment */}
+          <div className="flex items-center bg-fc-bg-lighter p-0.5 rounded-xs border border-bento-border text-xs font-mono self-start md:self-auto">
+            {['all', 'ollama', '9router', 'anthropic', 'openai'].map(
+              (prov) => (
+                <button
+                  key={prov}
+                  onClick={() => setSelectedProvider(prov)}
+                  className={`px-3 py-1 rounded-xs capitalize transition-all cursor-pointer ${
+                    selectedProvider === prov
+                      ? 'bg-heat-100 text-white font-medium shadow-fc-heat-btn'
+                      : 'text-fc-muted hover:text-fc-graphite'
+                  }`}
+                >
+                  {prov === 'ollama' ? 'Ollama' : prov}
+                </button>
+              ),
+            )}
           </div>
         </div>
-      </div>
-      <div className="border-b border-l border-fc-border-faint" />
 
-      {/* ================= BARIS 6: MODEL CARDS GRID ================= */}
-      <div className="border-b border-r border-fc-border-faint" />
-      <div className="border-b border-fc-border-faint">
-        <div className="fc-blueprint-grid">
+        {/* Tags Row */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1.5 border-t border-fc-border-faint">
+          <span className="text-[11px] font-mono text-fc-muted mr-1">
+            Tags:
+          </span>
+          <button
+            onClick={() => setSelectedTag('all')}
+            className={`px-2.5 py-0.5 rounded-xs text-[11px] font-mono transition-colors cursor-pointer ${
+              selectedTag === 'all'
+                ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
+                : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-bento-border'
+            }`}
+          >
+            all ({models.length})
+          </button>
+          {allTags.map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag)}
+              className={`px-2.5 py-0.5 rounded-xs text-[11px] font-mono transition-colors cursor-pointer ${
+                selectedTag === tag
+                  ? 'bg-heat-8 text-heat-100 border border-heat-20 font-bold'
+                  : 'bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite border border-bento-border'
+              }`}
+            >
+              #{tag}
+            </button>
+          ))}
+        </div>
+        <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+      </div>
+      <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+
+      {/* ================= BARIS 6: MODEL CARDS BENTO GRID ================= */}
+      <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px">
         {filteredModels.map((model) => {
           const isEnabled = model.enabled !== false;
           const [minComp, maxComp] = model.complexity_range;
@@ -447,197 +445,202 @@ export function RegistryPage() {
           const widthPercent = ((maxComp - minComp) / 5) * 100;
 
           return (
-            <div key={model.id} className="fc-grid-cell">
-              <span className="corner-crosshair top-1 left-1.5">+</span>
-              <div
-                className={`fc-nested-card p-3.5 sm:p-4 space-y-2.5 sm:space-y-3 flex flex-col justify-between h-full transition-all ${
-                  isEnabled ? '' : 'opacity-50 grayscale-[40%]'
-                }`}
-              >
-                <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+            <div
+              key={model.id}
+              className={`bg-bento-tile rounded-xs border border-bento-border p-5 space-y-3 flex flex-col justify-between hover:bg-bento-tile-hover transition-colors relative group overflow-hidden ${
+                isEnabled ? '' : 'opacity-50 grayscale-[40%]'
+              }`}
+            >
+              <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
 
-                <div className="space-y-2.5">
-                  {/* Header: Name, Provider, Enabled Status (Responsive, Zero Overflow, Normal Font Weight) */}
-                  <div className="flex items-start justify-between gap-2 min-w-0">
-                    <div className="min-w-0 flex-1">
-                      <h2
-                        className="text-xs sm:text-sm font-normal text-fc-graphite tracking-tight truncate whitespace-nowrap"
-                        title={model.display_name || model.id}
-                      >
-                        {model.display_name || model.id}
-                      </h2>
-                      <div
-                        className="text-[10px] font-mono text-fc-muted truncate whitespace-nowrap"
-                        title={model.id}
-                      >
-                        {model.id}
-                      </div>
+              <div className="space-y-2.5 relative z-10">
+                {/* Header: Name, Provider, Enabled Status */}
+                <div className="flex items-start justify-between gap-2 min-w-0">
+                  <div className="min-w-0 flex-1">
+                    <h2
+                      className="text-xs sm:text-sm font-normal text-fc-graphite tracking-tight truncate whitespace-nowrap"
+                      title={model.display_name || model.id}
+                    >
+                      {model.display_name || model.id}
+                    </h2>
+                    <div
+                      className="text-[10px] font-mono text-fc-muted truncate whitespace-nowrap"
+                      title={model.id}
+                    >
+                      {model.id}
                     </div>
+                  </div>
 
-                    <span className="shrink-0 px-2 py-0.5 rounded-fc-4 text-[9px] font-mono uppercase font-normal bg-fc-bg-lighter text-fc-graphite border border-fc-border-faint whitespace-nowrap">
-                      {model.provider}
+                  <span className="shrink-0 px-2 py-0.5 rounded-xs text-[9px] font-mono uppercase font-normal bg-fc-bg-lighter text-fc-graphite border border-bento-border whitespace-nowrap">
+                    {model.provider}
+                  </span>
+                </div>
+
+                {/* Upstream & URL specs */}
+                <div className="px-2.5 py-1.5 rounded-xs bg-fc-bg-lighter/70 border border-bento-border text-[10px] font-mono space-y-0.5 overflow-hidden">
+                  <div className="flex items-center justify-between text-fc-graphite min-w-0 gap-2 whitespace-nowrap">
+                    <span className="text-fc-muted shrink-0 text-[10px]">
+                      Upstream:
+                    </span>
+                    <span
+                      className="font-normal truncate text-right text-[10px] min-w-0"
+                      title={model.upstream_model}
+                    >
+                      {model.upstream_model}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-fc-muted text-[9px] min-w-0 gap-2 whitespace-nowrap">
+                    <span className="shrink-0 text-[9px]">Endpoint:</span>
+                    <span
+                      className="truncate text-right min-w-0 text-[9px]"
+                      title={model.base_url}
+                    >
+                      {model.base_url}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Complexity Spectrum Bar */}
+                <div className="space-y-1 pt-0.5">
+                  <div className="flex items-center justify-between text-xs font-mono whitespace-nowrap">
+                    <span className="text-fc-muted text-[10px]">
+                      Complexity Span:
+                    </span>
+                    <span className="font-mono font-normal text-[10px] text-heat-100">
+                      [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-fc-full bg-fc-bg-lighter border border-bento-border overflow-hidden relative">
+                    <div
+                      className="h-full rounded-fc-full bg-heat-100 transition-all"
+                      style={{
+                        marginLeft: `${leftPercent}%`,
+                        width: `${Math.max(6, widthPercent)}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Capabilities & Pricing Matrix */}
+                <div className="grid grid-cols-4 gap-1.5 pt-0.5 text-[10px] font-mono">
+                  <div className="flex flex-col items-center justify-center py-1 px-1 rounded-xs bg-fc-bg-lighter/60 border border-bento-border text-center min-w-0 whitespace-nowrap">
+                    <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                      Tools
+                    </span>
+                    <span
+                      className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}
+                    >
+                      {model.capabilities.tools ? 'Yes' : 'No'}
                     </span>
                   </div>
 
-                  {/* Upstream & URL specs (Clean compact row, strictly 1 line) */}
-                  <div className="px-2.5 py-1.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[10px] font-mono space-y-0.5 overflow-hidden">
-                    <div className="flex items-center justify-between text-fc-graphite min-w-0 gap-2 whitespace-nowrap">
-                      <span className="text-fc-muted shrink-0 text-[10px]">
-                        Upstream:
-                      </span>
-                      <span
-                        className="font-normal truncate text-right text-[10px] min-w-0"
-                        title={model.upstream_model}
-                      >
-                        {model.upstream_model}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between text-fc-muted text-[9px] min-w-0 gap-2 whitespace-nowrap">
-                      <span className="shrink-0 text-[9px]">Endpoint:</span>
-                      <span
-                        className="truncate text-right min-w-0 text-[9px]"
-                        title={model.base_url}
-                      >
-                        {model.base_url}
-                      </span>
-                    </div>
+                  <div className="flex flex-col items-center justify-center py-1 px-1 rounded-xs bg-fc-bg-lighter/60 border border-bento-border text-center min-w-0 whitespace-nowrap">
+                    <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                      Vision
+                    </span>
+                    <span
+                      className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}
+                    >
+                      {model.capabilities.vision ? 'Yes' : 'No'}
+                    </span>
                   </div>
 
-                  {/* Complexity Spectrum Bar (Restored Progress Bar Styling) */}
-                  <div className="space-y-1 pt-0.5">
-                    <div className="flex items-center justify-between text-xs font-mono whitespace-nowrap">
-                      <span className="text-fc-muted text-[10px]">
-                        Complexity Span:
-                      </span>
-                      <span className="font-mono font-normal text-[10px] text-heat-100">
-                        [{minComp.toFixed(1)} – {maxComp.toFixed(1)}]
-                      </span>
-                    </div>
-                    <div className="w-full h-1.5 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden relative">
-                      <div
-                        className="h-full rounded-fc-full bg-heat-100 transition-all"
-                        style={{
-                          marginLeft: `${leftPercent}%`,
-                          width: `${Math.max(6, widthPercent)}%`,
-                        }}
-                      />
-                    </div>
+                  <div className="flex flex-col items-center justify-center py-1 px-1 rounded-xs bg-fc-bg-lighter/60 border border-bento-border text-center min-w-0 whitespace-nowrap">
+                    <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                      Context
+                    </span>
+                    <span className="text-fc-graphite font-normal whitespace-nowrap text-[10px]">
+                      {Math.round(model.capabilities.max_context / 1024)}K
+                    </span>
                   </div>
 
-                  {/* Capabilities & Pricing Matrix (Compact 1-line columns, normal font) */}
-                  <div className="grid grid-cols-4 gap-1.5 pt-0.5 text-[10px] font-mono">
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
-                        Tools
-                      </span>
-                      <span
-                        className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.tools ? 'text-fc-forest' : 'text-fc-muted'}`}
-                      >
-                        {model.capabilities.tools ? 'Yes' : 'No'}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
-                        Vision
-                      </span>
-                      <span
-                        className={`font-normal whitespace-nowrap text-[10px] ${model.capabilities.vision ? 'text-fc-bluetron' : 'text-fc-muted'}`}
-                      >
-                        {model.capabilities.vision ? 'Yes' : 'No'}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
-                        Context
-                      </span>
-                      <span className="text-fc-graphite font-normal whitespace-nowrap text-[10px]">
-                        {Math.round(model.capabilities.max_context / 1024)}K
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center py-1 px-1 rounded-fc-4 bg-fc-bg-lighter/60 border border-fc-border-faint text-center min-w-0 whitespace-nowrap">
-                      <span className="text-[9px] text-fc-muted whitespace-nowrap">
-                        Cost
-                      </span>
-                      <span
-                        className="text-fc-graphite font-normal whitespace-nowrap truncate text-[10px]"
-                        title={`$${model.cost.input_per_mtoken}/1M`}
-                      >
-                        ${model.cost.input_per_mtoken}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Tags Badges (Clean, compact font, 1-line badge) */}
-                  <div className="flex flex-wrap gap-1 items-center pt-0.5">
-                    {model.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter/70 border border-fc-border-faint text-[9px] font-mono text-fc-muted whitespace-nowrap"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
+                  <div className="flex flex-col items-center justify-center py-1 px-1 rounded-xs bg-fc-bg-lighter/60 border border-bento-border text-center min-w-0 whitespace-nowrap">
+                    <span className="text-[9px] text-fc-muted whitespace-nowrap">
+                      Cost
+                    </span>
+                    <span
+                      className="text-fc-graphite font-normal whitespace-nowrap truncate text-[10px]"
+                      title={`$${model.cost.input_per_mtoken}/1M`}
+                    >
+                      ${model.cost.input_per_mtoken}
+                    </span>
                   </div>
                 </div>
 
-                {/* Card Footer Actions */}
-                <div className="pt-2.5 border-t border-fc-border-faint flex items-center justify-between gap-1.5">
-                  <button
-                    onClick={() => handleToggle(model.id, isEnabled)}
-                    className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-fc-4 text-[10px] font-mono font-medium border transition-colors cursor-pointer ${
-                      isEnabled
-                        ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:bg-fc-forest/20'
-                        : 'bg-fc-bg-lighter text-fc-muted border-fc-border-faint'
-                    }`}
-                    title={isEnabled ? 'Click to disable' : 'Click to enable'}
-                  >
-                    {isEnabled ? (
-                      <ToggleRight className="w-3.5 h-3.5 text-fc-forest" />
-                    ) : (
-                      <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />
-                    )}
-                    <span>{isEnabled ? 'Active' : 'Disabled'}</span>
-                  </button>
-
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={() => openEditModal(model)}
-                      className="p-1 rounded-fc-4 bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
-                      title="Edit Model"
+                {/* Tags Badges */}
+                <div className="flex flex-wrap gap-1 items-center pt-0.5">
+                  {model.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-1.5 py-0.5 rounded-xs bg-fc-bg-lighter/70 border border-bento-border text-[9px] font-mono text-fc-muted whitespace-nowrap"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(model.id)}
-                      className="p-1 rounded-fc-4 bg-fc-crimson/10 hover:bg-fc-crimson/20 text-fc-crimson transition-colors cursor-pointer"
-                      title="Delete Model"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                      #{tag}
+                    </span>
+                  ))}
                 </div>
               </div>
+
+              {/* Card Footer Actions */}
+              <div className="pt-2.5 border-t border-fc-border-faint flex items-center justify-between gap-1.5 relative z-10">
+                <button
+                  onClick={() => handleToggle(model.id, isEnabled)}
+                  className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-xs text-[10px] font-mono font-medium border transition-colors cursor-pointer ${
+                    isEnabled
+                      ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:bg-fc-forest/20'
+                      : 'bg-fc-bg-lighter text-fc-muted border-bento-border'
+                  }`}
+                  title={isEnabled ? 'Click to disable' : 'Click to enable'}
+                >
+                  {isEnabled ? (
+                    <ToggleRight className="w-3.5 h-3.5 text-fc-forest" />
+                  ) : (
+                    <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />
+                  )}
+                  <span>{isEnabled ? 'Active' : 'Disabled'}</span>
+                </button>
+
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => openEditModal(model)}
+                    className="p-1 rounded-xs bg-fc-bg-lighter hover:bg-fc-surface border border-bento-border text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
+                    title="Edit Model"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(model.id)}
+                    className="p-1 rounded-xs bg-fc-crimson/10 hover:bg-fc-crimson/20 text-fc-crimson transition-colors cursor-pointer"
+                    title="Delete Model"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Bottom Orange Line Accent */}
+              <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           );
         })}
-        </div>
+        {filteredModels.length === 0 && (
+          <div className="col-span-full bg-bento-tile rounded-xs border border-bento-border p-12 text-center text-xs font-mono text-fc-muted">
+            No models match the filter criteria.
+          </div>
+        )}
       </div>
-      <div className="border-b border-l border-fc-border-faint" />
+      <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
       {/* ================= BARIS 7: BOTTOM SPACER ================= */}
-      <div className="border-b border-r border-fc-border-faint h-16 sm:h-20" />
-      <div className="border-b border-fc-border-faint h-16 sm:h-20" />
-      <div className="border-b border-l border-fc-border-faint h-16 sm:h-20" />
+      <div className="bg-bento-gutter rounded-xs border border-bento-border h-16 sm:h-20" />
+      <div className="bg-bento-gutter rounded-xs border border-bento-border h-16 sm:h-20" />
+      <div className="bg-bento-gutter rounded-xs border border-bento-border h-16 sm:h-20" />
     </div>
 
       {/* Add / Edit Modal Drawer */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative bg-fc-surface border border-fc-border-muted rounded-fc-12 max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-bento-tile border border-bento-border rounded-xs max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <span className="corner-crosshair top-2 left-2">+</span>
             <span className="corner-crosshair top-2 right-2">+</span>
 
@@ -683,7 +686,7 @@ export function RegistryPage() {
                       setFormData({ ...formData, id: e.target.value })
                     }
                     placeholder="e.g. qwen-coder-local"
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   />
                 </div>
 
@@ -698,7 +701,7 @@ export function RegistryPage() {
                       setFormData({ ...formData, display_name: e.target.value })
                     }
                     placeholder="e.g. Qwen 2.5 Coder 7B"
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite"
                   />
                 </div>
               </div>
@@ -716,7 +719,7 @@ export function RegistryPage() {
                         provider: e.target.value as any,
                       })
                     }
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   >
                     <option value="ollama">ollama (Local)</option>
                     <option value="9router">9router (Local Gateway)</option>
@@ -742,7 +745,7 @@ export function RegistryPage() {
                       })
                     }
                     placeholder="e.g. qwen2.5-coder:7b"
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   />
                 </div>
               </div>
@@ -757,7 +760,7 @@ export function RegistryPage() {
                     setFormData({ ...formData, base_url: e.target.value })
                   }
                   placeholder="e.g. http://localhost:11434/v1"
-                  className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                  className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                 />
               </div>
 
@@ -775,7 +778,7 @@ export function RegistryPage() {
                     })
                   }
                   placeholder="e.g. OPENAI_API_KEY (leave blank for local)"
-                  className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                  className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                 />
               </div>
 
@@ -799,7 +802,7 @@ export function RegistryPage() {
                         ],
                       })
                     }
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   />
                 </div>
 
@@ -822,7 +825,7 @@ export function RegistryPage() {
                         ],
                       })
                     }
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   />
                 </div>
               </div>
@@ -844,7 +847,7 @@ export function RegistryPage() {
                     })
                   }
                   placeholder="e.g. local, coding, fast, tools"
-                  className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                  className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                 />
               </div>
 
@@ -867,7 +870,7 @@ export function RegistryPage() {
                         },
                       })
                     }
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   />
                 </div>
 
@@ -889,7 +892,7 @@ export function RegistryPage() {
                         },
                       })
                     }
-                    className="w-full bg-fc-paper border border-fc-border-muted rounded-fc-6 p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
                   />
                 </div>
               </div>
@@ -948,13 +951,13 @@ export function RegistryPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="btn-ghost-outline px-4 py-2 rounded-fc-8 text-xs font-medium cursor-pointer"
+                  className="btn-ghost-outline px-4 py-2 rounded-xs text-xs font-medium cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-heat-cta px-5 py-2 rounded-fc-8 text-xs font-medium cursor-pointer shadow-fc-heat-btn"
+                  className="btn-heat-cta px-5 py-2 rounded-xs text-xs font-medium cursor-pointer shadow-fc-heat-btn"
                 >
                   {modalMode === 'add' ? 'Save Model' : 'Update Model'}
                 </button>

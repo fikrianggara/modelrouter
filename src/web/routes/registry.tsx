@@ -378,7 +378,7 @@ export function RegistryPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by ID, name, or tag (e.g. coding, local, frontier)..."
-              className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs pl-9 pr-3.5 py-2 text-xs text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors font-sans"
+              className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs pl-9 pr-3.5 py-2 text-xs text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors font-sans"
             />
           </div>
 
@@ -686,7 +686,7 @@ export function RegistryPage() {
                       setFormData({ ...formData, id: e.target.value })
                     }
                     placeholder="e.g. qwen-coder-local"
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
 
@@ -701,7 +701,7 @@ export function RegistryPage() {
                       setFormData({ ...formData, display_name: e.target.value })
                     }
                     placeholder="e.g. Qwen 2.5 Coder 7B"
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
               </div>
@@ -719,7 +719,7 @@ export function RegistryPage() {
                         provider: e.target.value as any,
                       })
                     }
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   >
                     <option value="ollama">ollama (Local)</option>
                     <option value="9router">9router (Local Gateway)</option>
@@ -745,7 +745,7 @@ export function RegistryPage() {
                       })
                     }
                     placeholder="e.g. qwen2.5-coder:7b"
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
               </div>
@@ -760,7 +760,7 @@ export function RegistryPage() {
                     setFormData({ ...formData, base_url: e.target.value })
                   }
                   placeholder="e.g. http://localhost:11434/v1"
-                  className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                 />
               </div>
 
@@ -778,7 +778,7 @@ export function RegistryPage() {
                     })
                   }
                   placeholder="e.g. OPENAI_API_KEY (leave blank for local)"
-                  className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                 />
               </div>
 
@@ -802,7 +802,7 @@ export function RegistryPage() {
                         ],
                       })
                     }
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
 
@@ -825,7 +825,7 @@ export function RegistryPage() {
                         ],
                       })
                     }
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
               </div>
@@ -847,7 +847,7 @@ export function RegistryPage() {
                     })
                   }
                   placeholder="e.g. local, coding, fast, tools"
-                  className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                 />
               </div>
 
@@ -870,7 +870,7 @@ export function RegistryPage() {
                         },
                       })
                     }
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
 
@@ -892,7 +892,7 @@ export function RegistryPage() {
                         },
                       })
                     }
-                    className="w-full bg-fc-paper border border-bento-border rounded-xs p-2 text-fc-graphite font-mono"
+                    className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                   />
                 </div>
               </div>

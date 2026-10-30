@@ -653,7 +653,7 @@ export function PlaygroundPage() {
                       else if (e.target.value === 'd1-router-local') setPolicy('local_first');
                       else if (e.target.value === 'd1-router-auto') setPolicy('balanced');
                     }}
-                    className="bg-fc-bg-lighter border border-bento-border rounded-xs px-2 py-1 text-fc-graphite text-xs focus:outline-none focus:border-heat-100 font-mono"
+                    className="bg-fc-bg-lighter border border-bento-border rounded-xs px-2 py-1 text-fc-graphite text-xs focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent font-mono transition-colors"
                   >
                     <option value="d1-router-auto">d1-router-auto</option>
                     <option value="d1-router-cost">d1-router-cost</option>
@@ -701,7 +701,7 @@ export function PlaygroundPage() {
                   }}
                   rows={4}
                   placeholder="Type or paste prompt to analyze (e.g. code generation, greeting, architecture)..."
-                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-3 text-xs sm:text-sm text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 resize-y transition-colors font-sans leading-relaxed"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-3 text-xs sm:text-sm text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent resize-y transition-colors font-sans leading-relaxed"
                 />
                 <div className="absolute right-2.5 bottom-2.5 text-[10px] font-mono text-fc-muted pointer-events-none">
                   {prompt.length} chars • ~{Math.round(prompt.length / 4)} tokens

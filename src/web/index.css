@@ -103,6 +103,12 @@
   kbd {
     font-family: var(--font-mono);
   }
+
+  input:not([type='checkbox']):not([type='radio']):focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none border-bento-accent ring-1 ring-bento-accent;
+  }
 }
 
 /* Firecrawl signature buttons & components */

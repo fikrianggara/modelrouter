@@ -396,7 +396,7 @@ export function DecisionProviderModal({
                 value={endpoint}
                 onChange={(e) => setEndpoint(e.target.value)}
                 placeholder="http://localhost:11434/v1/systemone"
-                className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
+                className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
               />
             </div>
 
@@ -411,7 +411,7 @@ export function DecisionProviderModal({
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   placeholder="d1:latest"
-                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                 />
               </div>
 
@@ -427,7 +427,7 @@ export function DecisionProviderModal({
                   value={timeoutMs}
                   onChange={(e) => setTimeoutMs(Number(e.target.value))}
                   placeholder="10000"
-                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                 />
               </div>
             </div>
@@ -459,7 +459,7 @@ export function DecisionProviderModal({
                       ? 'sk-liq-...'
                       : 'Optional API key for authenticated proxies'
                   }
-                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 pr-9 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 pr-9 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-bento-accent focus:ring-1 focus:ring-bento-accent transition-colors"
                 />
                 <button
                   type="button"

@@ -759,7 +759,7 @@ export function PlaygroundPage() {
 
             {/* Streaming Output Sub-Panel (Zero-gap full-bleed bento) */}
             <div className="p-6 sm:p-8 flex-1 space-y-3.5 relative">
-              <div className="flex items-center justify-between border-b border-fc-border-faint pb-2.5">
+              <div className="flex items-center justify-between text-fc-muted">
                 <div className="flex items-center space-x-2 text-xs font-mono">
                   <Terminal className="w-3.5 h-3.5 text-heat-100" />
                   <span className="font-semibold text-fc-graphite">Execution Output</span>
@@ -845,7 +845,7 @@ export function PlaygroundPage() {
 
               {/* Interactive Decision Pipeline Node Graph */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
+                <div className="flex items-center justify-between text-fc-muted">
                   <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
                     <GitBranch className="w-3.5 h-3.5 text-heat-100" />
                     <span>Decision Flow Pipeline</span>
@@ -941,7 +941,7 @@ export function PlaygroundPage() {
 
             {/* Bottom Sub-Panel: Calibrated Complexity Spectrum & Capabilities */}
             <div className="p-6 sm:p-8 flex-1 space-y-4 relative">
-              <div className="flex items-center justify-between border-b border-fc-border-faint pb-2">
+              <div className="flex items-center justify-between text-fc-muted">
                 <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
                   <Gauge className="w-3.5 h-3.5 text-fc-graphite stat-icon" />
                   <span>Complexity Spectrum</span>
@@ -951,21 +951,21 @@ export function PlaygroundPage() {
                 </span>
               </div>
 
-              {/* Readout & Meter: Theme-aware bg-fc-bg-lighter border-fc-border-faint */}
-              <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint p-4 flex flex-col items-center justify-center space-y-2.5">
-                <div className="text-center space-y-0.5">
+              {/* Readout & Meter: Unnested, sits directly in panel like statistic cards */}
+              <div className="space-y-3">
+                <div className="space-y-1">
                   <div className="text-3xl font-bold font-mono tracking-tight text-fc-graphite stat-value">
                     {score.toFixed(2)}
-                    <span className="text-sm text-fc-muted font-sans font-normal ml-1">/ 5.0</span>
+                    <span className="text-sm text-fc-muted font-sans font-normal ml-1.5">/ 5.0</span>
                   </div>
-                  <div className="text-xs text-fc-muted font-medium">
+                  <div className="text-xs text-fc-muted font-mono">
                     {scoreStyle.tier}
                   </div>
                 </div>
 
                 {/* Calibrated Bar with Ticks */}
-                <div className="w-full space-y-1 pt-1">
-                  <div className="w-full h-2 rounded-fc-full bg-fc-surface border border-fc-border-faint overflow-hidden">
+                <div className="w-full space-y-1 pt-0.5">
+                  <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
                     <div
                       className="h-full rounded-fc-full transition-all duration-300 bg-fc-graphite"
                       style={{ width: `${scorePercent}%` }}

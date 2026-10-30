@@ -387,6 +387,7 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('Decision Model Provider');
       expect(bundleContent).toContain('BYOK');
       expect(bundleContent).toContain('Configure BYOK Decision Provider');
+      expect(bundleContent).toContain('d1:latest');
     });
 
     it('Built frontend assets contain Hero ASCII animation and Pipeline Flow Graph components (TKT-029)', async () => {
@@ -398,11 +399,8 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(jsBundle).toBeDefined();
 
       const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
-      // Verify Hero ASCII feature
-      expect(bundleContent).toContain('ASCII');
-      expect(bundleContent).toContain('flame');
-      expect(bundleContent).toContain('matrix');
-      expect(bundleContent).toContain('stream');
+      // Verify Hero ASCII feature (ambient ascii layer flame style like registry)
+      expect(bundleContent).toContain('fc-ascii-layer');
 
       // Verify Graph-based pipeline visualization
       expect(bundleContent).toContain('GRAPH TOPOLOGY');

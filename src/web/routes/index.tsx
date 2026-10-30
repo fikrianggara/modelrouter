@@ -15,6 +15,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { AsciiFlame } from '../components/AsciiFlame';
+import { ProceduralAsciiWave } from '../components/ProceduralAsciiWave';
 import { PipelineFlowGraph } from '../components/PipelineFlowGraph';
 
 export const Route = createFileRoute('/')({
@@ -154,19 +155,19 @@ export function DashboardPage() {
   const p3 = totalInDist > 0 ? Math.round(((dist['3.0-4.0'] + dist['4.0-5.0']) / totalInDist) * 100) : 25;
 
   return (
-    <div className="min-h-screen bg-fc-paper text-fc-graphite font-sans">
-      {/* Architectural Bento Grid Wrapper: 3 Columns [Gutter Kiri | Konten Utama 1200px | Gutter Kanan] */}
-      <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
+    <div className="min-h-screen bg-[#EAEAEA] dark:bg-[#0c0c0c] text-fc-graphite font-sans p-[1.5px] selection:bg-[#FF4F00] selection:text-white">
+      {/* Architectural Bento Grid Wrapper: 3 Columns [Gutter Kiri | Konten Utama 1180px | Gutter Kanan] */}
+      <div className="grid grid-cols-[1fr_minmax(0,1180px)_1fr] gap-[1.5px]">
 
-        {/* ================= BARIS 1: SPACER KOSONG TOP ================= */}
-        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+        {/* ================= BARIS 1: SPACER PENDEK TOP ================= */}
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
 
         {/* ================= BARIS 2: SECTION HEADER [ 01 / 04 ] ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-5 bg-[#FF4F00] rounded-r" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">01</strong> / 04 ]</span>
             <span>·</span>
@@ -178,17 +179,22 @@ export function DashboardPage() {
             LATENCY TARGET &lt;15ms
           </span>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
-        {/* ================= BARIS 3: HERO BENTO (Gap 0px) ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint grid grid-cols-1 lg:grid-cols-12">
-          {/* Hero Left: Headline & CTA (8 cols) */}
-          <div className="lg:col-span-8 p-8 sm:p-12 border-b lg:border-b-0 lg:border-r border-fc-border-faint flex flex-col justify-between relative group overflow-hidden">
-            {/* Ambient ASCII flame watermark matching registry model cards */}
-            <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
+        {/* ================= BARIS 3: HERO BENTO (Recessed Rounded Subgrid) ================= */}
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[1.5px]">
+          {/* Hero Left: Headline & CTA with Procedural Wave ASCII (8 cols) */}
+          <div className="lg:col-span-8 bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-8 sm:p-12 flex flex-col justify-between relative group overflow-hidden">
+            {/* Procedural Real-Time Mathematical Wave ASCII Canvas */}
+            <ProceduralAsciiWave opacity={0.65} />
 
             <div className="space-y-4 max-w-2xl relative z-10">
+              <div className="font-mono text-xs text-fc-muted mb-2 flex items-center gap-2.5">
+                <span className="text-fc-muted-soft">//</span>
+                <span className="bg-[#FF4F00] text-white px-1.5 py-0.5 rounded text-[10px] font-bold">&gt;_</span>
+                <span className="text-fc-graphite font-medium">Developer First</span>
+              </div>
               <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">
                 Fast, reliable, token-efficient <br />
                 <span className="text-heat-100 font-semibold">model routing</span>.
@@ -199,7 +205,7 @@ export function DashboardPage() {
             </div>
 
             {/* Action Controls & Ingress Tag */}
-            <div className="pt-8 flex flex-wrap items-center gap-3">
+            <div className="pt-8 flex flex-wrap items-center gap-3 relative z-10">
               <Link
                 to="/playground"
                 className="btn-heat-cta px-5 py-2.5 rounded-fc-6 text-sm font-medium inline-flex items-center space-x-2 shadow-fc-heat-btn"
@@ -222,10 +228,13 @@ export function DashboardPage() {
                 <span>npx -y modelrouter-cli@latest</span>
               </div>
             </div>
+
+            {/* Bottom Orange Line Accent */}
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Hero Right Bento Tile: Neural Engine Status (4 cols) */}
-          <div className="lg:col-span-4 p-8 sm:p-10 flex flex-col justify-between hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="lg:col-span-4 bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-8 sm:p-10 flex flex-col justify-between hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-mono text-fc-muted border-b border-fc-border-faint pb-3">
                 <span className="flex items-center space-x-1.5 text-heat-100 font-bold">
@@ -257,16 +266,16 @@ export function DashboardPage() {
             </div>
 
             {/* Hover Bottom Orange Line */}
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
-        {/* ================= BARIS 4: STAT METRICS BENTO (4 Cards, Gap 0px) ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* ================= BARIS 4: STAT METRICS BENTO (4 Cards, Gap 1.5px) ================= */}
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[1.5px]">
           {/* Card 1: Total Routed Requests */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Routed Requests</span>
               <Activity className="w-4 h-4 text-fc-graphite" />
@@ -279,11 +288,11 @@ export function DashboardPage() {
                 {stats?.totalTokens ? `${stats.totalTokens.toLocaleString()} tokens handled` : 'Zero egress buffer'}
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Card 2: Decision Latency */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 lg:border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Mean Decision Latency</span>
               <Clock className="w-4 h-4 text-fc-graphite" />
@@ -298,11 +307,11 @@ export function DashboardPage() {
                 <span>P95 &lt;30 ms SLA</span>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Card 3: Cost Savings */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Cost Saved vs Frontier</span>
               <Coins className="w-4 h-4 text-fc-graphite" />
@@ -316,11 +325,11 @@ export function DashboardPage() {
                 <span>{stats?.costReductionPercent ? `${stats.costReductionPercent}% saved` : '0% baseline'}</span>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Card 4: Active Fleet */}
-          <div className="p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Active Fleet</span>
               <Server className="w-4 h-4 text-fc-graphite" />
@@ -336,20 +345,20 @@ export function DashboardPage() {
                 Ollama • 9router • Cloud
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
         {/* ================= BARIS 5: SPACER KOSONG ================= */}
-        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
 
         {/* ================= BARIS 6: SECTION HEADER [ 02 / 04 ] ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-5 bg-[#FF4F00] rounded-r" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">02</strong> / 04 ]</span>
             <span>·</span>
@@ -381,13 +390,13 @@ export function DashboardPage() {
             </span>
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
         {/* ================= BARIS 7: PIPELINE STAGES BENTO ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint">
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="flex flex-col gap-[1.5px]">
           {/* Pipeline Intro Banner */}
-          <div className="p-8 sm:p-10 border-b border-fc-border-faint flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-8 sm:p-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1 max-w-2xl">
               <h2 className="text-2xl font-medium tracking-tight text-fc-graphite">
                 We handle the <span className="text-heat-100 font-semibold">hard stuff</span>.
@@ -404,7 +413,7 @@ export function DashboardPage() {
 
           {/* Interactive Graph-Based Flow Visualization */}
           {pipelineView === 'graph' && (
-            <div className="border-b border-fc-border-faint">
+            <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] overflow-hidden">
               <PipelineFlowGraph
                 activeStep={activeStep}
                 onSelectStep={setActiveStep}
@@ -414,24 +423,22 @@ export function DashboardPage() {
             </div>
           )}
 
-          {/* 5-Stage Bento Selector (0px gap, 1px borders) */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 border-b border-fc-border-faint">
-            {architectureSteps.map((s, idx) => {
+          {/* 5-Stage Bento Selector */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-[1.5px]">
+            {architectureSteps.map((s) => {
               const isSelected = activeStep === s.step;
               return (
                 <button
                   key={s.step}
                   onClick={() => setActiveStep(s.step)}
-                  className={`text-left p-5 sm:p-6 transition-colors cursor-pointer relative ${
-                    idx < 4 ? 'border-r border-fc-border-faint' : ''
-                  } ${
+                  className={`text-left p-5 sm:p-6 transition-colors cursor-pointer relative rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] overflow-hidden ${
                     isSelected
                       ? 'bg-white dark:bg-[#1C1C1C] text-fc-graphite'
-                      : 'bg-fc-paper hover:bg-white dark:hover:bg-[#1A1A1A] text-fc-muted'
+                      : 'bg-[#FAFAFA] dark:bg-[#161616] hover:bg-white dark:hover:bg-[#1A1A1A] text-fc-muted'
                   }`}
                 >
                   {isSelected && (
-                    <div className="absolute top-0 left-0 right-0 h-[2px] bg-heat-100" />
+                    <div className="absolute top-0 inset-x-0 h-[2px] bg-[#FF4F00]" />
                   )}
                   <div className="flex items-center justify-between mb-2">
                     <span
@@ -458,7 +465,7 @@ export function DashboardPage() {
             return (
               <div
                 key={s.step}
-                className="p-6 sm:p-8 bg-fc-bg-lighter flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs font-mono"
+                className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs font-mono"
               >
                 <div className="space-y-1.5 max-w-3xl">
                   <div className="flex items-center space-x-2">
@@ -484,17 +491,17 @@ export function DashboardPage() {
             );
           })}
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
         {/* ================= BARIS 8: SPACER KOSONG ================= */}
-        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-10 sm:h-12" />
 
         {/* ================= BARIS 9: SECTION HEADER [ 03 / 04 ] ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-[#FA5D19]" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-5 bg-[#FF4F00] rounded-r" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">03</strong> / 04 ]</span>
             <span>·</span>
@@ -506,15 +513,15 @@ export function DashboardPage() {
             POLLING: 4.0s
           </span>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
         {/* ================= BARIS 10: TELEMETRY BENTO (Complexity 4 cols + Live Feed 8 cols) ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint grid grid-cols-1 lg:grid-cols-12">
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[1.5px]">
           {/* Complexity Spectrum Column (4 cols) */}
-          <div className="lg:col-span-4 p-6 sm:p-8 border-b lg:border-b-0 lg:border-r border-fc-border-faint flex flex-col justify-between hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="lg:col-span-4 bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 flex flex-col justify-between hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div>
-              <div className="flex items-center justify-between border-b border-fc-border-faint pb-3 mb-5">
+              <div className="flex items-center justify-between pb-3 mb-5 text-fc-muted">
                 <h3 className="font-medium text-fc-graphite text-sm flex items-center space-x-2">
                   <Gauge className="w-4 h-4 text-heat-100" />
                   <span>Complexity Spectrum</span>
@@ -568,13 +575,13 @@ export function DashboardPage() {
               </span>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Live Decision Feed Column (8 cols) */}
-          <div className="lg:col-span-8 p-6 sm:p-8 flex flex-col justify-between hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group">
+          <div className="lg:col-span-8 bg-[#FAFAFA] dark:bg-[#161616] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] p-6 sm:p-8 flex flex-col justify-between hover:bg-white dark:hover:bg-[#1C1C1C] transition-colors relative group overflow-hidden">
             <div>
-              <div className="flex items-center justify-between border-b border-fc-border-faint pb-3 mb-4">
+              <div className="flex items-center justify-between pb-3 mb-4 text-fc-muted">
                 <div>
                   <h3 className="font-medium text-fc-graphite text-sm flex items-center space-x-2">
                     <Activity className="w-4 h-4 text-heat-100" />
@@ -660,15 +667,15 @@ export function DashboardPage() {
               <span className="text-fc-forest font-bold">● Stream Connected</span>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-[#FF4F00] opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08]" />
 
         {/* ================= BARIS 11: SPACER KOSONG BOTTOM ================= */}
-        <div className="border-b border-r border-fc-border-faint h-16 sm:h-20" />
-        <div className="border-b border-fc-border-faint h-16 sm:h-20" />
-        <div className="border-b border-l border-fc-border-faint h-16 sm:h-20" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-14 sm:h-20" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-14 sm:h-20" />
+        <div className="bg-[#F8F8F8] dark:bg-[#141414] rounded-[10px] border border-neutral-200/80 dark:border-white/[0.08] h-14 sm:h-20" />
       </div>
     </div>
   );

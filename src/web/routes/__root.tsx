@@ -106,7 +106,7 @@ function RootLayout() {
   return (
     <div className="min-h-screen bg-fc-paper text-fc-graphite flex flex-col font-sans transition-colors duration-150">
       {/* Architectural Announcement Bar with Full-Bleed 3-Column Grid */}
-      <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr] border-b border-fc-border-faint bg-fc-bg-lighter text-xs font-mono">
+      <div className="grid grid-cols-[1fr_minmax(0,1180px)_1fr] border-b border-fc-border-faint bg-fc-bg-lighter text-xs font-mono">
         <div className="border-r border-fc-border-faint" />
         <div className="py-2.5 px-4 flex items-center justify-center space-x-2 text-[12px]">
           <span className="px-1.5 py-0.5 rounded-fc-4 bg-heat-8 text-heat-100 font-bold border border-heat-16">
@@ -128,7 +128,7 @@ function RootLayout() {
 
       {/* Top Navbar with Full-Bleed 3-Column Grid */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-fc-surface/90 border-b border-fc-border-muted">
-        <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
+        <div className="grid grid-cols-[1fr_minmax(0,1180px)_1fr]">
           <div className="border-r border-fc-border-faint" />
           <div className="px-4 sm:px-6 h-14 flex items-center justify-between">
             {/* Brand & Engine Status */}
@@ -243,7 +243,7 @@ function RootLayout() {
 
       {/* Clean Blueprint Utility Footer with Full-Bleed 3-Column Grid */}
       <footer className="border-t border-fc-border-muted bg-fc-surface">
-        <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
+        <div className="grid grid-cols-[1fr_minmax(0,1180px)_1fr]">
           <div className="border-r border-fc-border-faint" />
           <div className="py-5 px-6 text-xs font-mono text-fc-muted">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">

@@ -466,5 +466,29 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('border-bento-accent');
       expect(bundleContent).toContain('Decision Model Provider');
     });
+
+    it('Built frontend assets enforce orange focus ring and 1px hairline border for inputs (TKT-037)', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const assetsDir = path.resolve(process.cwd(), 'dist/client/assets');
+      const files = fs.readdirSync(assetsDir);
+      const jsBundle = files.find((f: string) => f.endsWith('.js'));
+      const cssBundle = files.find((f: string) => f.endsWith('.css'));
+      expect(jsBundle).toBeDefined();
+      expect(cssBundle).toBeDefined();
+
+      const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
+      const cssContent = fs.readFileSync(path.join(assetsDir, cssBundle!), 'utf-8');
+
+      // Verify global input focus ring and 1px border rules in CSS
+      expect(cssContent).toContain('input:not([type=checkbox]):not([type=radio]):focus');
+      expect(cssContent).toContain('border-color:var(--fc-bento-accent)');
+      expect(cssContent).toContain('--tw-ring-color: var(--fc-bento-accent)');
+
+      // Verify utility classes in JS bundle
+      expect(bundleContent).toContain('focus:border-bento-accent');
+      expect(bundleContent).toContain('focus:ring-1');
+      expect(bundleContent).toContain('focus:ring-bento-accent');
+    });
   });
 });

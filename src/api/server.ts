@@ -8,7 +8,19 @@ import { config, AppConfig } from '../core/config';
 import { ModelRegistry, ModelSpec } from '../engine/registry';
 import { D1Client, D1EvaluationResult } from '../engine/d1-client';
 import { PolicyEngine, RoutingPolicy } from '../engine/policy-engine';
-import { CanonicalRequest, CanonicalMessage } from '../core/types';
+import {
+  CanonicalRequest,
+  CanonicalMessage,
+  DecisionProviderType,
+  DECISION_PRESETS,
+  DecisionProviderConfig,
+} from '../core/types';
+import {
+  loadDecisionProviderConfig,
+  saveDecisionProviderConfig,
+  maskApiKey,
+  UpdateDecisionProviderSchema,
+} from '../core/decision-config';
 import {
   createOpenAIToAnthropicTransform,
   createAnthropicToOpenAITransform,
@@ -19,6 +31,7 @@ export interface ServerOptions {
   registry?: ModelRegistry;
   d1Client?: D1Client;
   config?: AppConfig;
+  decisionConfigPath?: string;
 }
 
 export function loadRegistry(registryPath: string): ModelRegistry {
@@ -84,19 +97,44 @@ export function createApp(options?: ServerOptions): Hono {
   const appConfig = options?.config || config;
   const registry =
     options?.registry || loadRegistry(appConfig.REGISTRY_PATH);
-  const d1Client =
+  const decisionConfigPath = options?.decisionConfigPath || 'config/decision-provider.json';
+  const initialDecisionConfig = loadDecisionProviderConfig(decisionConfigPath, appConfig);
+  let d1Client: D1Client =
     options?.d1Client ||
-    new D1Client(
-      appConfig.D1_ENDPOINT,
-      appConfig.D1_MODEL,
-      appConfig.D1_TIMEOUT_MS
-    );
+    new D1Client({
+      provider: initialDecisionConfig.provider,
+      endpoint: initialDecisionConfig.endpoint,
+      model: initialDecisionConfig.model,
+      apiKey: initialDecisionConfig.apiKey,
+      timeoutMs: initialDecisionConfig.timeoutMs,
+    });
 
   const app = new Hono();
 
   app.use('*', cors());
 
   app.get('/health', (c) => c.json({ status: 'ok' }));
+
+  // Helper for per-request BYOK header overrides
+  function resolveClientForRequest(c: any): D1Client {
+    const providerHeader = c.req.header('x-decision-provider') as DecisionProviderType | undefined;
+    const apiKeyHeader = c.req.header('x-decision-api-key');
+    const endpointHeader = c.req.header('x-decision-endpoint');
+    const modelHeader = c.req.header('x-decision-model');
+
+    if (providerHeader || apiKeyHeader || endpointHeader || modelHeader) {
+      const provider = providerHeader || d1Client.provider;
+      const preset = DECISION_PRESETS[provider] || DECISION_PRESETS.ollama;
+      return new D1Client({
+        provider,
+        apiKey: apiKeyHeader !== undefined ? (apiKeyHeader || undefined) : d1Client.apiKey,
+        endpoint: endpointHeader || (providerHeader && providerHeader !== d1Client.provider ? preset.defaultEndpoint : d1Client.endpoint),
+        model: modelHeader || (providerHeader && providerHeader !== d1Client.provider ? preset.defaultModel : d1Client.model),
+        timeoutMs: d1Client.timeoutMs,
+      });
+    }
+    return d1Client;
+  }
 
   // 1. GET /v1/models - Return virtual and registered models
   app.get('/v1/models', (c) => {
@@ -123,20 +161,26 @@ export function createApp(options?: ServerOptions): Hono {
   async function routeRequest(
     canonical: CanonicalRequest,
     requestedModel?: string,
-    explicitPolicy?: string
+    explicitPolicy?: string,
+    clientOverride?: D1Client
   ): Promise<{
     evalResult: D1EvaluationResult;
     selectedModel: ModelSpec;
     latencyMs: string;
+    policy: RoutingPolicy;
+    candidatesCount: number;
+    poolSize: number;
+    provider: string;
   }> {
+    const activeClient = clientOverride || d1Client;
     const t0 = performance.now();
     const state = CanonicalRequest.extractState(canonical);
 
     let evalResult: D1EvaluationResult;
     try {
-      evalResult = await d1Client.evaluate(state);
+      evalResult = await activeClient.evaluate(state);
     } catch (err: any) {
-      evalResult = D1Client.fallbackEvaluate(state, err?.message);
+      evalResult = D1Client.fallbackEvaluate(state, err?.message, activeClient.provider);
     }
 
     const policy = parsePolicy(
@@ -177,7 +221,8 @@ export function createApp(options?: ServerOptions): Hono {
     }
 
     const latencyMs = (performance.now() - t0).toFixed(2);
-    return { evalResult, selectedModel, latencyMs, policy, candidatesCount, poolSize };
+    const provider = String(evalResult.provider || activeClient.provider || 'ollama');
+    return { evalResult, selectedModel, latencyMs, policy, candidatesCount, poolSize, provider };
   }
 
   // Web Dashboard & Playground API routes
@@ -255,6 +300,126 @@ export function createApp(options?: ServerOptions): Hono {
     }
   });
 
+  // BYOK Decision Provider Endpoints
+  app.get('/api/decision-provider', (c) => {
+    return c.json({
+      provider: d1Client.provider,
+      endpoint: d1Client.endpoint,
+      model: d1Client.model,
+      timeoutMs: d1Client.timeoutMs,
+      hasApiKey: Boolean(d1Client.apiKey && d1Client.apiKey.length > 0),
+      maskedApiKey: maskApiKey(d1Client.apiKey),
+      presets: DECISION_PRESETS,
+    });
+  });
+
+  app.put('/api/decision-provider', async (c) => {
+    try {
+      const body = await c.req.json();
+      const parsed = UpdateDecisionProviderSchema.parse(body);
+
+      const provider = parsed.provider;
+      const preset = DECISION_PRESETS[provider] || DECISION_PRESETS.ollama;
+      const endpoint = parsed.endpoint || preset.defaultEndpoint;
+      const model = parsed.model || preset.defaultModel;
+      const timeoutMs = parsed.timeoutMs ?? d1Client.timeoutMs ?? 10000;
+
+      let apiKey = d1Client.apiKey;
+      if (parsed.apiKey !== undefined) {
+        apiKey = parsed.apiKey.trim() || undefined;
+      }
+
+      const newConfig: DecisionProviderConfig = {
+        provider,
+        endpoint,
+        model,
+        apiKey,
+        timeoutMs,
+      };
+
+      d1Client = new D1Client(newConfig);
+
+      try {
+        saveDecisionProviderConfig(decisionConfigPath, newConfig);
+      } catch (err: any) {
+        console.warn('[BYOK] Could not persist decision provider config to file:', err?.message);
+      }
+
+      return c.json({
+        ok: true,
+        provider: d1Client.provider,
+        endpoint: d1Client.endpoint,
+        model: d1Client.model,
+        timeoutMs: d1Client.timeoutMs,
+        hasApiKey: Boolean(d1Client.apiKey && d1Client.apiKey.length > 0),
+        maskedApiKey: maskApiKey(d1Client.apiKey),
+      });
+    } catch (err: any) {
+      return c.json({ ok: false, error: err?.message || 'Invalid request' }, 400);
+    }
+  });
+
+  app.post('/api/decision-provider/test', async (c) => {
+    let body: any = {};
+    try {
+      body = await c.req.json();
+    } catch {}
+
+    const provider = (body.provider || d1Client.provider) as DecisionProviderType;
+    const preset = DECISION_PRESETS[provider] || DECISION_PRESETS.ollama;
+    const endpoint =
+      body.endpoint ||
+      (body.provider && body.provider !== d1Client.provider
+        ? preset.defaultEndpoint
+        : d1Client.endpoint);
+    const model =
+      body.model ||
+      (body.provider && body.provider !== d1Client.provider
+        ? preset.defaultModel
+        : d1Client.model);
+    const timeoutMs = body.timeoutMs ? Number(body.timeoutMs) : 5000;
+    const apiKey =
+      body.apiKey !== undefined
+        ? (body.apiKey ? String(body.apiKey).trim() : undefined)
+        : d1Client.apiKey;
+
+    const testClient = new D1Client({
+      provider,
+      endpoint,
+      model,
+      apiKey,
+      timeoutMs,
+    });
+
+    const t0 = performance.now();
+    const evalRes = await testClient.evaluate('ping test connectivity');
+    const latencyMs = Math.round((performance.now() - t0) * 10) / 10;
+
+    if (evalRes.isFallback) {
+      return c.json(
+        {
+          ok: false,
+          error: evalRes.fallbackReason || 'Connection test failed',
+          latencyMs,
+        },
+        400
+      );
+    }
+
+    return c.json({
+      ok: true,
+      latencyMs,
+      provider: testClient.provider,
+      endpoint: testClient.endpoint,
+      model: testClient.model,
+      sampleEvaluation: {
+        complexityScore: evalRes.complexityScore,
+        domain: evalRes.domain,
+        isFallback: false,
+      },
+    });
+  });
+
   app.post('/api/evaluate', async (c) => {
     let body: any = {};
     try {
@@ -270,7 +435,20 @@ export function createApp(options?: ServerOptions): Hono {
       stream: false,
     };
     try {
-      const result = await routeRequest(canonical, requestedModel, explicitPolicy);
+      const effectiveClient = resolveClientForRequest(c);
+      const result = await routeRequest(canonical, requestedModel, explicitPolicy, effectiveClient);
+
+      c.header('X-D1-Provider', result.provider);
+      c.header('X-D1-Complexity-Score', result.evalResult.complexityScore.toFixed(2));
+      c.header('X-D1-Domain', result.evalResult.domain);
+      c.header('X-D1-Selected-Model', result.selectedModel.id);
+      c.header('X-D1-Routing-Latency-Ms', result.latencyMs);
+      if (result.evalResult.isFallback) {
+        c.header('X-D1-Fallback', 'true');
+        if (result.evalResult.fallbackReason) {
+          c.header('X-D1-Fallback-Reason', result.evalResult.fallbackReason);
+        }
+      }
 
       // Record to telemetry
       telemetry.recordEvent({
@@ -281,10 +459,12 @@ export function createApp(options?: ServerOptions): Hono {
         latencyMs: parseFloat(result.latencyMs),
         policy: result.policy,
         isFallback: result.evalResult.isFallback,
+        provider: result.provider,
       });
 
       return c.json({
         ok: true,
+        provider: result.provider,
         complexityScore: result.evalResult.complexityScore,
         confidence: result.evalResult.confidence,
         domain: result.evalResult.domain,
@@ -314,7 +494,9 @@ export function createApp(options?: ServerOptions): Hono {
       disabledModels: allModels.length - activeModels.length,
       defaultPolicy: appConfig.DEFAULT_POLICY,
       targetLatencyMs: 30,
-      d1Endpoint: appConfig.D1_ENDPOINT,
+      d1Endpoint: d1Client.endpoint,
+      d1Model: d1Client.model,
+      d1Provider: d1Client.provider,
     });
   });
 
@@ -369,12 +551,15 @@ export function createApp(options?: ServerOptions): Hono {
       max_tokens: body.max_tokens,
     };
 
-    const { evalResult, selectedModel, latencyMs, policy } = await routeRequest(
+    const effectiveClient = resolveClientForRequest(c);
+    const { evalResult, selectedModel, latencyMs, policy, provider } = await routeRequest(
       canonical,
       body.model,
-      body.policy
+      body.policy,
+      effectiveClient
     );
 
+    c.header('X-D1-Provider', provider);
     c.header('X-D1-Complexity-Score', evalResult.complexityScore.toFixed(2));
     c.header('X-D1-Domain', evalResult.domain);
     c.header('X-D1-Selected-Model', selectedModel.id);
@@ -395,9 +580,11 @@ export function createApp(options?: ServerOptions): Hono {
       latencyMs: parseFloat(latencyMs),
       policy,
       isFallback: evalResult.isFallback,
+      provider,
     });
 
     const telemetryHeaders: Record<string, string> = {
+      'X-D1-Provider': provider,
       'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),
       'X-D1-Domain': evalResult.domain,
       'X-D1-Selected-Model': selectedModel.id,
@@ -595,12 +782,15 @@ export function createApp(options?: ServerOptions): Hono {
       max_tokens: body.max_tokens,
     };
 
-    const { evalResult, selectedModel, latencyMs, policy } = await routeRequest(
+    const effectiveClient = resolveClientForRequest(c);
+    const { evalResult, selectedModel, latencyMs, policy, provider } = await routeRequest(
       canonical,
       body.model,
-      body.policy
+      body.policy,
+      effectiveClient
     );
 
+    c.header('X-D1-Provider', provider);
     c.header('X-D1-Complexity-Score', evalResult.complexityScore.toFixed(2));
     c.header('X-D1-Domain', evalResult.domain);
     c.header('X-D1-Selected-Model', selectedModel.id);
@@ -621,9 +811,11 @@ export function createApp(options?: ServerOptions): Hono {
       latencyMs: parseFloat(latencyMs),
       policy,
       isFallback: evalResult.isFallback,
+      provider,
     });
 
     const telemetryHeaders: Record<string, string> = {
+      'X-D1-Provider': provider,
       'X-D1-Complexity-Score': evalResult.complexityScore.toFixed(2),
       'X-D1-Domain': evalResult.domain,
       'X-D1-Selected-Model': selectedModel.id,

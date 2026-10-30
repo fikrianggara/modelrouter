@@ -15,6 +15,7 @@ export interface TelemetryRequestItem {
   level: 'low' | 'med' | 'high';
   policy: string;
   isFallback: boolean;
+  provider?: string;
 }
 
 export interface TelemetryStats {
@@ -54,6 +55,7 @@ export interface TelemetryEventInput {
   isFallback?: boolean;
   promptTokens?: number;
   completionTokens?: number;
+  provider?: string;
 }
 
 export class TelemetryStore {
@@ -137,6 +139,7 @@ export class TelemetryStore {
       level,
       policy: input.policy,
       isFallback: Boolean(input.isFallback),
+      provider: input.provider || 'ollama',
     };
 
     this.recentRequests.unshift(item);

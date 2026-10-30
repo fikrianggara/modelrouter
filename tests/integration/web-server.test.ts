@@ -147,4 +147,170 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
     const textRegistry = await resRegistry.text();
     expect(textRegistry).toContain('ModelRouter');
   });
+
+  describe('BYOK Decision Provider API (TKT-022)', () => {
+    it('GET /api/decision-provider returns current configuration and presets without leaking raw key', async () => {
+      const res = await app.request('/api/decision-provider');
+      expect(res.status).toBe(200);
+      const data = await res.json();
+
+      expect(data).toHaveProperty('provider');
+      expect(data).toHaveProperty('endpoint');
+      expect(data).toHaveProperty('model');
+      expect(data).toHaveProperty('timeoutMs');
+      expect(data).toHaveProperty('hasApiKey');
+      expect(data).toHaveProperty('presets');
+      expect(data.presets.ollama).toBeDefined();
+      expect(data.presets.liquid).toBeDefined();
+      expect(data.presets.custom).toBeDefined();
+      expect(data).not.toHaveProperty('apiKey');
+    });
+
+    it('PUT /api/decision-provider updates configuration and masks API key', async () => {
+      const updatePayload = {
+        provider: 'liquid',
+        endpoint: 'https://api.liquid.ai/v1/systemone',
+        model: 'd1',
+        apiKey: 'sk-liq-secret-api-key-9988',
+        timeoutMs: 8000,
+      };
+
+      const res = await app.request('/api/decision-provider', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatePayload),
+      });
+
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.ok).toBe(true);
+      expect(data.provider).toBe('liquid');
+      expect(data.endpoint).toBe('https://api.liquid.ai/v1/systemone');
+      expect(data.model).toBe('d1');
+      expect(data.timeoutMs).toBe(8000);
+      expect(data.hasApiKey).toBe(true);
+      expect(data.maskedApiKey).toBe('sk-liq...9988');
+      expect(data).not.toHaveProperty('apiKey');
+
+      // Verify subsequent GET reflects changes
+      const getRes = await app.request('/api/decision-provider');
+      const getData = await getRes.json();
+      expect(getData.provider).toBe('liquid');
+      expect(getData.hasApiKey).toBe(true);
+      expect(getData.maskedApiKey).toBe('sk-liq...9988');
+    });
+
+    it('PUT /api/decision-provider rejects invalid provider with 400', async () => {
+      const res = await app.request('/api/decision-provider', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'unsupported-provider' }),
+      });
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.ok).toBe(false);
+    });
+
+    it('POST /api/decision-provider/test verifies connectivity and measures latency', async () => {
+      const originalFetch = globalThis.fetch;
+      try {
+        globalThis.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            answers: {
+              complexity: { score: 1.0 },
+              domain: { choice: 'general' },
+            },
+          }),
+        });
+
+        const res = await app.request('/api/decision-provider/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: 'liquid',
+            endpoint: 'https://api.liquid.ai/v1/systemone',
+            model: 'd1',
+            apiKey: 'sk-liq-test',
+            timeoutMs: 3000,
+          }),
+        });
+
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data.ok).toBe(true);
+        expect(typeof data.latencyMs).toBe('number');
+        expect(data.provider).toBe('liquid');
+        expect(data.sampleEvaluation.complexityScore).toBe(1.0);
+        expect(data.sampleEvaluation.isFallback).toBe(false);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('POST /api/decision-provider/test returns 400 when target endpoint fails authentication', async () => {
+      const originalFetch = globalThis.fetch;
+      try {
+        globalThis.fetch = vi.fn().mockResolvedValue({
+          ok: false,
+          status: 401,
+          statusText: 'Unauthorized',
+        });
+
+        const res = await app.request('/api/decision-provider/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: 'liquid',
+            endpoint: 'https://api.liquid.ai/v1/systemone',
+            apiKey: 'invalid-key',
+          }),
+        });
+
+        expect(res.status).toBe(400);
+        const data = await res.json();
+        expect(data.ok).toBe(false);
+        expect(data.error).toContain('401');
+        expect(data.error).toContain('Unauthorized');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('POST /api/evaluate reflects active provider and supports per-request overrides', async () => {
+      // 1. With active liquid provider
+      const res = await app.request('/api/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: 'Hello world' }),
+      });
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-d1-provider')).toBe('liquid');
+      const data = await res.json();
+      expect(data.provider).toBe('liquid');
+
+      // 2. With per-request override
+      const overrideRes = await app.request('/api/evaluate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Decision-Provider': 'custom',
+          'X-Decision-Endpoint': 'http://ephemeral-custom:8000/v1/systemone',
+        },
+        body: JSON.stringify({ prompt: 'Hello world' }),
+      });
+      expect(overrideRes.status).toBe(200);
+      expect(overrideRes.headers.get('x-d1-provider')).toBe('custom');
+      const overrideData = await overrideRes.json();
+      expect(overrideData.provider).toBe('custom');
+
+      // 3. Reset back to ollama default
+      await app.request('/api/decision-provider', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: 'ollama' }),
+      });
+    });
+  });
 });

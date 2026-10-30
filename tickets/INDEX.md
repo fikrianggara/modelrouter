@@ -35,4 +35,4 @@
 | TKT-033 | feature | medium | P1 | frontend | merged | jarvis | feature-TKT-033-implement-recessed-round | false | 2026-10-30 | 2026-10-30 | Implement Recessed Rounded Bento Grid and Procedural ASCII Animation |
 | TKT-034 | feature | small | P1 | frontend | merged | jarvis | feature-TKT-034-refine-bento-grid-to-1px | false | 2026-10-30 | 2026-10-30 | Refine bento grid to 1px gap, rounded-xs, and global CSS color tokens |
 | TKT-035 | feature | small | P1 | frontend | merged | jarvis | feature-TKT-035-apply-recessed-bento-gri | false | 2026-10-30 | 2026-10-30 | Apply recessed bento grid design system to playground and registry |
-| TKT-036 | feature | small | P1 | frontend | done | jarvis | feature-TKT-036-refactor-custom-decision | true | 2026-10-30 | 2026-10-30 | Refactor custom decision model modal design system and border |
+| TKT-036 | feature | small | P1 | frontend | merged | jarvis | feature-TKT-036-refactor-custom-decision | false | 2026-10-30 | 2026-10-30 | Refactor custom decision model modal design system and border |

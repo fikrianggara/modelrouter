@@ -32,3 +32,4 @@
 | TKT-030 | feature | small | P2 | frontend | merged | jarvis | feature-TKT-030-align-hero-ascii-with-re | false | 2026-10-30 | 2026-10-30 | Align Hero ASCII with Registry cards and streamline Navbar provider badge |
 | TKT-031 | feature | small | P2 | frontend | merged | jarvis | feature-TKT-031-align-playground-workben | false | 2026-10-30 | 2026-10-30 | Align Playground Workbench Ingress with Zero-Gap Bento Design System |
 | TKT-032 | feature | small | P2 | frontend | merged | jarvis | feature-TKT-032-remove-horizontal-sub-he | false | 2026-10-30 | 2026-10-30 | Remove horizontal sub-header dividers and unnest score card in Playground Workbench Ingress |
+| TKT-033 | feature | medium | P1 | frontend | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Implement Recessed Rounded Bento Grid and Procedural ASCII Animation |

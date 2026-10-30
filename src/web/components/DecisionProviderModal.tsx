@@ -241,7 +241,7 @@ export function DecisionProviderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="relative bg-fc-surface border border-fc-border-faint rounded-fc-12 max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+      <div className="relative bg-bento-tile border border-bento-border rounded-xs max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto group">
         {/* Firecrawl Blueprint Crosshair Accents */}
         <span className="corner-crosshair top-2 left-2 text-fc-muted/60 font-mono select-none">+</span>
         <span className="corner-crosshair top-2 right-2 text-fc-muted/60 font-mono select-none">+</span>
@@ -251,17 +251,17 @@ export function DecisionProviderModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-fc-border-faint pb-3">
           <div className="flex items-center space-x-2.5">
-            <div className="w-7 h-7 rounded-fc-6 bg-heat-8 text-heat-100 flex items-center justify-center border border-heat-16">
+            <div className="w-7 h-7 rounded-xs bg-heat-100 text-white flex items-center justify-center shadow-fc-heat-btn">
               <Cpu className="w-4 h-4" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-fc-graphite tracking-tight flex items-center space-x-2">
                 <span>Decision Model Provider</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-fc-bg-lighter border border-fc-border-faint text-heat-100 font-semibold">
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-xs bg-fc-bg-lighter border border-bento-border text-heat-100 font-semibold">
                   BYOK
                 </span>
               </h2>
-              <p className="text-[11px] text-fc-muted font-sans">
+              <p className="text-[11px] text-fc-body-soft font-sans">
                 Neural routing engine powered by Liquid AI d1
               </p>
             </div>
@@ -270,7 +270,7 @@ export function DecisionProviderModal({
             type="button"
             onClick={onClose}
             aria-label="Close modal"
-            className="p-1 rounded-fc-4 text-fc-muted hover:text-fc-graphite hover:bg-fc-bg-lighter transition-colors cursor-pointer"
+            className="p-1 rounded-xs text-fc-muted hover:text-fc-graphite hover:bg-fc-bg-lighter transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -278,9 +278,9 @@ export function DecisionProviderModal({
 
         {/* Success Alert */}
         {saveSuccess && (
-          <div className="p-2.5 rounded-fc-6 bg-fc-forest/10 border border-fc-forest/30 text-xs text-fc-forest flex items-center space-x-2 animate-in fade-in">
+          <div className="p-2.5 rounded-xs bg-fc-forest/10 border border-fc-forest/20 text-xs text-fc-forest flex items-center space-x-2 animate-in fade-in font-mono">
             <CheckCircle2 className="w-4 h-4 shrink-0" />
-            <span className="font-mono">
+            <span>
               Provider configuration updated: <strong className="font-bold">{provider}</strong> is now active.
             </span>
           </div>
@@ -288,7 +288,7 @@ export function DecisionProviderModal({
 
         {/* Error Alert */}
         {saveError && (
-          <div className="p-2.5 rounded-fc-6 bg-fc-crimson/10 border border-fc-crimson/30 text-xs text-fc-crimson flex items-center space-x-2 animate-in fade-in">
+          <div className="p-2.5 rounded-xs bg-fc-crimson/10 border border-fc-crimson/20 text-xs text-fc-crimson flex items-center space-x-2 animate-in fade-in font-mono">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{saveError}</span>
           </div>
@@ -305,10 +305,10 @@ export function DecisionProviderModal({
               <button
                 type="button"
                 onClick={() => handleSelectPreset('ollama')}
-                className={`p-2.5 rounded-fc-8 border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 ${
+                className={`p-2.5 rounded-xs border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 relative overflow-hidden ${
                   provider === 'ollama'
-                    ? 'border-heat-100 bg-heat-4 dark:bg-heat-8/30 ring-1 ring-heat-100'
-                    : 'border-fc-border-faint bg-fc-bg-lighter hover:border-fc-border-muted'
+                    ? 'border-bento-accent bg-heat-4 text-fc-graphite shadow-xs'
+                    : 'border-bento-border bg-fc-bg-lighter hover:border-fc-border-muted hover:bg-bento-tile-hover'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
@@ -316,23 +316,26 @@ export function DecisionProviderModal({
                     <Server className="w-3.5 h-3.5 text-heat-100" />
                     <span className="font-semibold text-fc-graphite text-xs">Ollama</span>
                   </div>
-                  <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-fc-forest/10 text-fc-forest border border-fc-forest/20">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-fc-forest/10 text-fc-forest border border-fc-forest/20">
                     Local
                   </span>
                 </div>
                 <div className="text-[11px] text-fc-muted leading-tight">
                   Local System One d1 inference
                 </div>
+                {provider === 'ollama' && (
+                  <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent" />
+                )}
               </button>
 
               {/* Liquid AI Preset */}
               <button
                 type="button"
                 onClick={() => handleSelectPreset('liquid')}
-                className={`p-2.5 rounded-fc-8 border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 ${
+                className={`p-2.5 rounded-xs border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 relative overflow-hidden ${
                   provider === 'liquid'
-                    ? 'border-heat-100 bg-heat-4 dark:bg-heat-8/30 ring-1 ring-heat-100'
-                    : 'border-fc-border-faint bg-fc-bg-lighter hover:border-fc-border-muted'
+                    ? 'border-bento-accent bg-heat-4 text-fc-graphite shadow-xs'
+                    : 'border-bento-border bg-fc-bg-lighter hover:border-fc-border-muted hover:bg-bento-tile-hover'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
@@ -340,23 +343,26 @@ export function DecisionProviderModal({
                     <Cloud className="w-3.5 h-3.5 text-heat-100" />
                     <span className="font-semibold text-fc-graphite text-xs">Liquid AI</span>
                   </div>
-                  <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-fc-bluetron/10 text-fc-bluetron border border-fc-bluetron/20">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-fc-bluetron/10 text-fc-bluetron border border-fc-bluetron/20">
                     Cloud
                   </span>
                 </div>
                 <div className="text-[11px] text-fc-muted leading-tight">
                   Managed Cloud API with BYOK
                 </div>
+                {provider === 'liquid' && (
+                  <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent" />
+                )}
               </button>
 
               {/* Custom Preset */}
               <button
                 type="button"
                 onClick={() => handleSelectPreset('custom')}
-                className={`p-2.5 rounded-fc-8 border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 ${
+                className={`p-2.5 rounded-xs border text-left transition-all cursor-pointer flex flex-col justify-between space-y-1.5 relative overflow-hidden ${
                   provider === 'custom'
-                    ? 'border-heat-100 bg-heat-4 dark:bg-heat-8/30 ring-1 ring-heat-100'
-                    : 'border-fc-border-faint bg-fc-bg-lighter hover:border-fc-border-muted'
+                    ? 'border-bento-accent bg-heat-4 text-fc-graphite shadow-xs'
+                    : 'border-bento-border bg-fc-bg-lighter hover:border-fc-border-muted hover:bg-bento-tile-hover'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
@@ -364,13 +370,16 @@ export function DecisionProviderModal({
                     <Sliders className="w-3.5 h-3.5 text-heat-100" />
                     <span className="font-semibold text-fc-graphite text-xs">Custom</span>
                   </div>
-                  <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-fc-amethyst/10 text-fc-amethyst border border-fc-amethyst/20">
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-xs bg-fc-amethyst/10 text-fc-amethyst border border-fc-amethyst/20">
                     Self-Host
                   </span>
                 </div>
                 <div className="text-[11px] text-fc-muted leading-tight">
                   Custom OpenAI-compatible URL
                 </div>
+                {provider === 'custom' && (
+                  <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent" />
+                )}
               </button>
             </div>
           </div>
@@ -387,7 +396,7 @@ export function DecisionProviderModal({
                 value={endpoint}
                 onChange={(e) => setEndpoint(e.target.value)}
                 placeholder="http://localhost:11434/v1/systemone"
-                className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
               />
             </div>
 
@@ -402,7 +411,7 @@ export function DecisionProviderModal({
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
                   placeholder="d1:latest"
-                  className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
                 />
               </div>
 
@@ -418,7 +427,7 @@ export function DecisionProviderModal({
                   value={timeoutMs}
                   onChange={(e) => setTimeoutMs(Number(e.target.value))}
                   placeholder="10000"
-                  className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
                 />
               </div>
             </div>
@@ -431,7 +440,7 @@ export function DecisionProviderModal({
                   {provider === 'liquid' && <span className="text-heat-100 ml-1">*</span>}
                 </label>
                 {hasApiKey && maskedApiKey && (
-                  <div className="flex items-center space-x-1 text-[10px] font-mono text-fc-forest bg-fc-forest/10 px-1.5 py-0.5 rounded border border-fc-forest/20">
+                  <div className="flex items-center space-x-1 text-[10px] font-mono text-fc-forest bg-fc-forest/10 px-1.5 py-0.5 rounded-xs border border-fc-forest/20">
                     <ShieldCheck className="w-3 h-3" />
                     <span>Saved: {maskedApiKey}</span>
                   </div>
@@ -450,19 +459,22 @@ export function DecisionProviderModal({
                       ? 'sk-liq-...'
                       : 'Optional API key for authenticated proxies'
                   }
-                  className="w-full bg-fc-paper border border-fc-border-faint rounded-fc-6 p-2 pr-9 text-fc-graphite font-mono text-xs focus:outline-none focus:border-heat-100"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-2 pr-9 text-fc-graphite font-mono text-xs placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowKey(!showKey)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-fc-muted hover:text-fc-graphite cursor-pointer"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
                   title={showKey ? 'Hide key' : 'Show key'}
                 >
                   {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 </button>
               </div>
-              <p className="text-[10px] font-mono text-fc-muted-soft">
-                Keys are stored encrypted on the server in <code>config/decision-provider.json</code>.
+              <p className="text-[10px] font-mono text-fc-muted-soft leading-normal">
+                Keys are stored encrypted on the server in{' '}
+                <code className="px-1 py-0.5 rounded-xs bg-fc-bg-lighter border border-bento-border text-fc-graphite">
+                  config/decision-provider.json
+                </code>.
               </p>
             </div>
           </div>
@@ -470,7 +482,7 @@ export function DecisionProviderModal({
           {/* Test Feedback Area */}
           {testResult && (
             <div
-              className={`p-2.5 rounded-fc-6 border text-xs flex items-center justify-between animate-in fade-in font-mono ${
+              className={`p-2.5 rounded-xs border text-xs flex items-center justify-between animate-in fade-in font-mono ${
                 testResult.ok
                   ? 'bg-fc-forest/10 border-fc-forest/30 text-fc-forest'
                   : 'bg-fc-crimson/10 border-fc-crimson/30 text-fc-crimson'
@@ -497,7 +509,7 @@ export function DecisionProviderModal({
               type="button"
               onClick={handleTestConnection}
               disabled={isTesting || isLoading}
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-fc-6 border border-fc-border-muted bg-fc-bg-lighter hover:bg-fc-surface text-fc-graphite text-xs font-mono font-medium transition-all cursor-pointer disabled:opacity-50"
+              className="btn-ghost-outline flex items-center space-x-1.5 px-3.5 py-2 rounded-xs text-fc-graphite text-xs font-mono font-medium transition-all cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isTesting ? 'animate-spin text-heat-100' : 'text-fc-muted'}`} />
               <span>{isTesting ? 'Testing Ping...' : 'Test Connection'}</span>
@@ -507,14 +519,14 @@ export function DecisionProviderModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3 py-1.5 rounded-fc-6 border border-fc-border-faint text-fc-muted hover:text-fc-graphite text-xs transition-colors cursor-pointer"
+                className="btn-ghost-outline px-4 py-2 rounded-xs text-fc-muted hover:text-fc-graphite text-xs font-sans transition-colors cursor-pointer"
               >
                 Close
               </button>
               <button
                 type="submit"
                 disabled={isSaving || isLoading}
-                className="btn-heat-primary px-4 py-1.5 rounded-fc-6 text-white text-xs font-semibold shadow-fc-heat-btn hover:brightness-105 transition-all cursor-pointer disabled:opacity-50"
+                className="btn-heat-cta px-5 py-2 rounded-xs text-xs font-medium shadow-fc-heat-btn cursor-pointer disabled:opacity-50"
               >
                 {isSaving ? 'Saving...' : 'Save & Apply'}
               </button>

@@ -422,5 +422,31 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('Decision Flow Pipeline');
       expect(bundleContent).toContain('Complexity Spectrum');
     });
+
+    it('Built frontend assets reflect Recessed Bento Grid Design System on Playground and Registry (TKT-035)', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const assetsDir = path.resolve(process.cwd(), 'dist/client/assets');
+      const files = fs.readdirSync(assetsDir);
+      const jsBundle = files.find((f: string) => f.endsWith('.js'));
+      const cssBundle = files.find((f: string) => f.endsWith('.css'));
+      expect(jsBundle).toBeDefined();
+      expect(cssBundle).toBeDefined();
+
+      const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
+      const cssContent = fs.readFileSync(path.join(assetsDir, cssBundle!), 'utf-8');
+
+      // Verify bento tokens in CSS
+      expect(cssContent).toContain('--fc-bento-canvas');
+      expect(cssContent).toContain('--fc-bento-tile');
+      expect(cssContent).toContain('--fc-bento-border');
+
+      // Verify bento styling classes present in bundle
+      expect(bundleContent).toContain('bg-bento-canvas');
+      expect(bundleContent).toContain('bg-bento-gutter');
+      expect(bundleContent).toContain('bg-bento-tile');
+      expect(bundleContent).toContain('rounded-xs');
+      expect(bundleContent).toContain('border-bento-border');
+    });
   });
 });

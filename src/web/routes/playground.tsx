@@ -466,17 +466,18 @@ export function PlaygroundPage() {
   const scoreStyle = getScoreColor(score);
 
   return (
-    <div className="min-h-screen bg-fc-paper text-fc-graphite font-sans">
-      <div className="grid grid-cols-[1fr_minmax(0,1200px)_1fr]">
-        {/* ================= BARIS 1: SPACER KOSONG TOP ================= */}
-        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+    <div className="min-h-screen bg-bento-canvas text-fc-graphite font-sans p-px selection:bg-bento-accent selection:text-white">
+      {/* Architectural Bento Grid Wrapper: 3 Columns [Gutter Kiri | Konten Utama 1180px | Gutter Kanan] */}
+      <div className="grid grid-cols-[1fr_minmax(0,1180px)_1fr] gap-px">
+        {/* ================= BARIS 1: SPACER PENDEK TOP ================= */}
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
 
         {/* ================= BARIS 2: SECTION HEADER [ 01 / 02 ] ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-heat-100" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="bg-bento-tile rounded-xs border border-bento-border py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-5 bg-bento-accent rounded-r-xs" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">01</strong> / 02 ]</span>
             <span>·</span>
@@ -488,12 +489,17 @@ export function PlaygroundPage() {
             LIQUID d1 NEURAL PASS
           </span>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
         {/* ================= BARIS 3: WORKBENCH HERO BANNER ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint p-8 sm:p-12 relative overflow-hidden">
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="bg-bento-tile rounded-xs border border-bento-border p-8 sm:p-12 relative overflow-hidden group">
           <div className="max-w-2xl relative z-10">
+            <div className="font-mono text-xs text-fc-muted mb-2 flex items-center gap-2.5">
+              <span className="text-fc-muted-soft">//</span>
+              <span className="bg-bento-accent text-white px-1.5 py-0.5 rounded-xs text-[10px] font-bold">&gt;_</span>
+              <span className="text-fc-graphite font-medium">Evaluation Lab</span>
+            </div>
             <h1 className="text-2xl sm:text-4xl font-medium tracking-tight text-fc-graphite mb-2">
               Decision Intelligence <span className="text-heat-100 font-semibold">Playground</span>.
             </h1>
@@ -501,14 +507,15 @@ export function PlaygroundPage() {
               Evaluate prompt complexity with Liquid d1, inspect candidate filtering, and observe streaming dispatch.
             </p>
           </div>
+          <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
-        {/* ================= BARIS 4: 4 STAT BENTO CELLS (Gap 0px) ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {/* ================= BARIS 4: 4 STAT BENTO CELLS (Gap 1px) ================= */}
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px">
           {/* Stat Cell 1: Calibrated Complexity Score */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-bento-tile-hover transition-colors relative group">
+          <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 hover:bg-bento-tile-hover transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Task Complexity</span>
               <Gauge className="w-4 h-4 text-fc-graphite" />
@@ -522,11 +529,11 @@ export function PlaygroundPage() {
                 {score < 2.0 ? 'Tier 1 · Local Engine' : score < 3.5 ? 'Tier 2 · Mid-Tier Engine' : 'Tier 3 · Frontier Engine'}
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Stat Cell 2: Decision Latency */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 lg:border-r border-fc-border-faint hover:bg-bento-tile-hover transition-colors relative group">
+          <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 hover:bg-bento-tile-hover transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Decision Latency</span>
               <Clock className="w-4 h-4 text-fc-graphite" />
@@ -541,11 +548,11 @@ export function PlaygroundPage() {
                 <span>Liquid d1 Neural Pass</span>
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Stat Cell 3: Target Execution Engine */}
-          <div className="p-6 sm:p-8 border-b sm:border-b-0 border-r border-fc-border-faint hover:bg-bento-tile-hover transition-colors relative group">
+          <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 hover:bg-bento-tile-hover transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Target Engine</span>
               <Cpu className="w-4 h-4 text-fc-graphite" />
@@ -558,11 +565,11 @@ export function PlaygroundPage() {
                 {evaluation?.selectedModel?.provider || 'ollama'} • ${evaluation?.selectedModel?.cost?.input_per_mtoken || 0}/1M
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
 
           {/* Stat Cell 4: Stream Execution Telemetry */}
-          <div className="p-6 sm:p-8 hover:bg-bento-tile-hover transition-colors relative group">
+          <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 hover:bg-bento-tile-hover transition-colors relative group overflow-hidden">
             <div className="flex items-center justify-between text-fc-muted mb-3">
               <span className="text-xs font-mono uppercase tracking-wider font-medium">Stream Telemetry</span>
               <Terminal className="w-4 h-4 text-fc-graphite" />
@@ -576,51 +583,48 @@ export function PlaygroundPage() {
                 {streamStats.tokensPerSec} tok/sec • {streamStats.elapsedMs} ms
               </div>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-heat-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
         {/* ================= BARIS 5: SPACER KOSONG ================= */}
-        <div className="border-b border-r border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-fc-border-faint h-10 sm:h-14" />
-        <div className="border-b border-l border-fc-border-faint h-10 sm:h-14" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-10 sm:h-12" />
 
         {/* ================= BARIS 6: SECTION HEADER [ 02 / 02 ] ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint py-5 px-6 sm:px-10 relative flex items-center justify-between">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-heat-100" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="bg-bento-tile rounded-xs border border-bento-border py-5 px-6 sm:px-10 relative flex items-center justify-between">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-5 bg-bento-accent rounded-r-xs" />
           <div className="font-mono text-xs tracking-widest uppercase text-fc-muted flex items-center gap-3">
             <span>[ <strong className="text-heat-100 font-bold">02</strong> / 02 ]</span>
             <span>·</span>
-            <span className="text-fc-graphite font-semibold">WORKBENCH & INGRESS</span>
+            <span className="text-fc-graphite font-semibold">WORKBENCH &amp; INGRESS</span>
             <span className="text-fc-muted-soft">//</span>
             <span>STREAMING DISPATCH</span>
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
-        {/* ================= BARIS 7: WORKBENCH DUAL-PANE GRID ================= */}
-        <div className="border-b border-r border-fc-border-faint" />
-        <div className="border-b border-fc-border-faint grid grid-cols-1 lg:grid-cols-12">
+        {/* ================= BARIS 7: WORKBENCH DUAL-PANE BENTO ================= */}
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-px">
           {/* Left Column: Prompt Input & Stream Output (7 Cols) */}
-          <div className="lg:col-span-7 border-b lg:border-b-0 lg:border-r border-fc-border-faint flex flex-col relative">
-            <span className="corner-crosshair top-1 left-1.5">+</span>
-            <span className="corner-crosshair top-1 right-1.5">+</span>
-
-            {/* Prompt Editor Sub-Panel (Zero-gap full-bleed bento) */}
-            <div className="p-6 sm:p-8 border-b border-fc-border-faint space-y-4 relative">
+          <div className="lg:col-span-7 flex flex-col gap-px">
+            {/* Prompt Editor Sub-Panel (Bento Tile) */}
+            <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 space-y-4 relative group">
               {/* Top Toolbar */}
               <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
                 {/* Policy Segmented Control */}
                 <div className="flex items-center space-x-1.5">
                   <span className="text-fc-muted font-medium">Policy:</span>
-                  <div className="flex bg-fc-bg-lighter p-0.5 rounded-fc-6 border border-fc-border-faint font-mono text-[11px]">
+                  <div className="flex bg-fc-bg-lighter p-0.5 rounded-xs border border-bento-border font-mono text-[11px]">
                     {(['balanced', 'cost_optimized', 'quality_max', 'local_first'] as const).map((p) => (
                       <button
                         key={p}
                         onClick={() => setPolicy(p)}
-                        className={`px-2.5 py-0.5 rounded-fc-4 transition-all cursor-pointer ${
+                        className={`px-2.5 py-0.5 rounded-xs transition-all cursor-pointer ${
                           policy === p
                             ? 'bg-heat-100 text-white font-medium shadow-xs'
                             : 'text-fc-muted hover:text-fc-graphite'
@@ -649,7 +653,7 @@ export function PlaygroundPage() {
                       else if (e.target.value === 'd1-router-local') setPolicy('local_first');
                       else if (e.target.value === 'd1-router-auto') setPolicy('balanced');
                     }}
-                    className="bg-fc-bg-lighter border border-fc-border-muted rounded-fc-6 px-2 py-1 text-fc-graphite text-xs focus:outline-none focus:border-heat-100 font-mono"
+                    className="bg-fc-bg-lighter border border-bento-border rounded-xs px-2 py-1 text-fc-graphite text-xs focus:outline-none focus:border-heat-100 font-mono"
                   >
                     <option value="d1-router-auto">d1-router-auto</option>
                     <option value="d1-router-cost">d1-router-cost</option>
@@ -697,7 +701,7 @@ export function PlaygroundPage() {
                   }}
                   rows={4}
                   placeholder="Type or paste prompt to analyze (e.g. code generation, greeting, architecture)..."
-                  className="w-full bg-fc-bg-lighter border border-fc-border-muted rounded-fc-6 p-3 text-xs sm:text-sm text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 resize-y transition-colors font-sans leading-relaxed"
+                  className="w-full bg-fc-bg-lighter border border-bento-border rounded-xs p-3 text-xs sm:text-sm text-fc-graphite placeholder-fc-muted-soft focus:outline-none focus:border-heat-100 resize-y transition-colors font-sans leading-relaxed"
                 />
                 <div className="absolute right-2.5 bottom-2.5 text-[10px] font-mono text-fc-muted pointer-events-none">
                   {prompt.length} chars • ~{Math.round(prompt.length / 4)} tokens
@@ -707,14 +711,14 @@ export function PlaygroundPage() {
               {/* Execute Buttons */}
               <div className="flex items-center justify-between pt-0.5">
                 <div className="text-[11px] text-fc-muted font-mono hidden sm:block">
-                  Press <kbd className="px-1.5 py-0.5 rounded-fc-4 bg-fc-bg-lighter border border-fc-border-faint text-fc-body">⌘+Enter</kbd> to execute
+                  Press <kbd className="px-1.5 py-0.5 rounded-xs bg-fc-bg-lighter border border-bento-border text-fc-body">⌘+Enter</kbd> to execute
                 </div>
 
                 <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
                   <button
                     onClick={() => handleEvaluate()}
                     disabled={isEvaluating || !prompt.trim()}
-                    className="btn-ghost-outline px-3.5 py-2 rounded-fc-6 disabled:opacity-50 text-fc-graphite font-medium text-xs flex items-center space-x-1.5 cursor-pointer"
+                    className="btn-ghost-outline px-3.5 py-2 rounded-xs disabled:opacity-50 text-fc-graphite font-medium text-xs flex items-center space-x-1.5 cursor-pointer"
                   >
                     <Gauge className="w-3.5 h-3.5 text-heat-100" />
                     <span>{isEvaluating ? 'Evaluating...' : 'Score Prompt'}</span>
@@ -723,7 +727,7 @@ export function PlaygroundPage() {
                   <button
                     onClick={handleSendPrompt}
                     disabled={isGenerating || !prompt.trim()}
-                    className="btn-heat-primary px-4 py-2 rounded-fc-6 disabled:opacity-50 font-medium text-xs flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
+                    className="btn-heat-primary px-4 py-2 rounded-xs disabled:opacity-50 font-medium text-xs flex items-center space-x-1.5 cursor-pointer shadow-fc-heat-btn"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isGenerating ? 'Streaming...' : 'Route & Execute'}</span>
@@ -741,7 +745,7 @@ export function PlaygroundPage() {
                       setPrompt(p.prompt);
                       handleEvaluate(p.prompt);
                     }}
-                    className="px-2 py-0.5 rounded-fc-4 text-[11px] font-mono bg-fc-bg-lighter hover:bg-fc-surface border border-fc-border-faint text-fc-graphite transition-colors cursor-pointer"
+                    className="px-2 py-0.5 rounded-xs text-[11px] font-mono bg-fc-bg-lighter hover:bg-fc-surface border border-bento-border text-fc-graphite transition-colors cursor-pointer"
                   >
                     {p.label}
                   </button>
@@ -750,15 +754,16 @@ export function PlaygroundPage() {
 
               {/* Upstream Notice Banner (if any) */}
               {upstreamNotice && (
-                <div className="p-3 rounded-fc-6 bg-heat-4 border border-heat-20 text-xs text-heat-100 flex items-center space-x-2 transition-all">
+                <div className="p-3 rounded-xs bg-heat-4 border border-heat-20 text-xs text-heat-100 flex items-center space-x-2 transition-all">
                   <Info className="w-4 h-4 text-heat-100 shrink-0" />
                   <span>{upstreamNotice}</span>
                 </div>
               )}
+              <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
-            {/* Streaming Output Sub-Panel (Zero-gap full-bleed bento) */}
-            <div className="p-6 sm:p-8 flex-1 space-y-3.5 relative">
+            {/* Streaming Output Sub-Panel (Bento Tile) */}
+            <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 flex-1 space-y-3.5 relative group">
               <div className="flex items-center justify-between text-fc-muted">
                 <div className="flex items-center space-x-2 text-xs font-mono">
                   <Terminal className="w-3.5 h-3.5 text-heat-100" />
@@ -781,7 +786,7 @@ export function PlaygroundPage() {
                   {chatResponse && (
                     <button
                       onClick={copyToClipboard}
-                      className="p-1 rounded-fc-4 hover:bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
+                      className="p-1 rounded-xs hover:bg-fc-bg-lighter text-fc-muted hover:text-fc-graphite transition-colors cursor-pointer"
                       title="Copy output"
                     >
                       {copied ? <Check className="w-3 h-3 text-fc-forest" /> : <Copy className="w-3 h-3" />}
@@ -793,7 +798,7 @@ export function PlaygroundPage() {
               {/* Output Text View */}
               <div
                 ref={chatOutputRef}
-                className="min-h-[220px] max-h-[380px] overflow-y-auto rounded-fc-6 bg-fc-bg-lighter border border-fc-border-muted p-3.5 text-xs font-mono text-fc-graphite whitespace-pre-wrap leading-relaxed select-text transition-colors"
+                className="min-h-[220px] max-h-[380px] overflow-y-auto rounded-xs bg-fc-bg-lighter border border-bento-border p-3.5 text-xs font-mono text-fc-graphite whitespace-pre-wrap leading-relaxed select-text transition-colors"
               >
                 {chatResponse ? (
                   <span>{chatResponse}</span>
@@ -811,18 +816,17 @@ export function PlaygroundPage() {
                   </span>
                 )}
               </div>
+              <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
 
           {/* Right Column: Decision Intelligence Console (5 Cols) */}
-          <div className="lg:col-span-5 flex flex-col relative">
-            {/* Top Sub-Panel: Alerts & Decision Pipeline Flow */}
-            <div className="p-6 sm:p-8 border-b border-fc-border-faint space-y-4 relative">
-              <span className="corner-crosshair top-1 right-1.5">+</span>
-
+          <div className="lg:col-span-5 flex flex-col gap-px">
+            {/* Top Sub-Panel: Alerts & Decision Pipeline Flow (Bento Tile) */}
+            <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 space-y-4 relative group">
               {/* Decision Fallback / Status Alert */}
               {Boolean(evaluation?.isFallback || evaluation?.fallbackReason) ? (
-                <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-muted p-3.5 text-xs text-fc-graphite flex items-start space-x-2.5">
+                <div className="rounded-xs bg-fc-bg-lighter border border-bento-border p-3.5 text-xs text-fc-graphite flex items-start space-x-2.5">
                   <AlertTriangle className="w-4 h-4 text-fc-graphite shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <div className="font-semibold text-fc-graphite text-xs">
@@ -835,7 +839,7 @@ export function PlaygroundPage() {
                   </div>
                 </div>
               ) : evaluation ? (
-                <div className="rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint p-2.5 text-xs text-fc-graphite flex items-center space-x-2">
+                <div className="rounded-xs bg-fc-bg-lighter border border-bento-border p-2.5 text-xs text-fc-graphite flex items-center space-x-2">
                   <CheckCircle2 className="w-3.5 h-3.5 text-fc-graphite shrink-0" />
                   <span className="font-mono text-[11px]">
                     Liquid d1 Neural Forward Pass: <strong>{evaluation.routingLatencyMs || 14} ms</strong>
@@ -862,10 +866,10 @@ export function PlaygroundPage() {
                 {showGraph && (
                   <div className="space-y-1.5 pt-0.5 font-mono text-xs">
                     {/* Node 1: Ingestion */}
-                    <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1">
+                    <div className="p-3 rounded-xs bg-fc-bg-lighter border border-bento-border space-y-1">
                       <div className="flex items-center justify-between text-fc-muted">
                         <span className="font-medium text-fc-graphite">1. Prompt State Ingestion</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-fc-4 bg-fc-surface border border-fc-border-faint text-fc-graphite">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-fc-surface border border-bento-border text-fc-graphite">
                           ~{Math.round(prompt.length / 4)} tokens
                         </span>
                       </div>
@@ -879,10 +883,10 @@ export function PlaygroundPage() {
                     </div>
 
                     {/* Node 2: D1 System One Evaluation */}
-                    <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1">
+                    <div className="p-3 rounded-xs bg-fc-bg-lighter border border-bento-border space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-fc-graphite">2. Liquid d1 Evaluation</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-fc-4 bg-fc-surface text-fc-graphite font-bold border border-fc-border-faint">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-fc-surface text-fc-graphite font-bold border border-bento-border">
                           Score: {score.toFixed(2)}
                         </span>
                       </div>
@@ -899,10 +903,10 @@ export function PlaygroundPage() {
                     </div>
 
                     {/* Node 3: Policy Engine */}
-                    <div className="p-3 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint space-y-1">
+                    <div className="p-3 rounded-xs bg-fc-bg-lighter border border-bento-border space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-fc-graphite">3. Policy Engine Resolution</span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-fc-4 bg-fc-surface text-fc-graphite font-bold border border-fc-border-faint uppercase">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-xs bg-fc-surface text-fc-graphite font-bold border border-bento-border uppercase">
                           {policy}
                         </span>
                       </div>
@@ -916,13 +920,13 @@ export function PlaygroundPage() {
                     </div>
 
                     {/* Node 4: Selected Target Model */}
-                    <div className="p-3 rounded-fc-6 bg-heat-4 border border-heat-40 text-fc-graphite space-y-1">
+                    <div className="p-3 rounded-xs bg-heat-4 border border-heat-40 text-fc-graphite space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-fc-graphite flex items-center space-x-1.5">
                           <Sparkles className="w-3 h-3 text-heat-100" />
                           <span>4. Target Engine Selected</span>
                         </span>
-                        <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-fc-4 bg-fc-surface border border-heat-40 text-heat-100">
+                        <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-xs bg-fc-surface border border-heat-40 text-heat-100">
                           {evaluation?.selectedModel?.provider || 'ollama'}
                         </span>
                       </div>
@@ -937,10 +941,11 @@ export function PlaygroundPage() {
                   </div>
                 )}
               </div>
+              <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
-            {/* Bottom Sub-Panel: Calibrated Complexity Spectrum & Capabilities */}
-            <div className="p-6 sm:p-8 flex-1 space-y-4 relative">
+            {/* Bottom Sub-Panel: Calibrated Complexity Spectrum & Capabilities (Bento Tile) */}
+            <div className="bg-bento-tile rounded-xs border border-bento-border p-6 sm:p-8 flex-1 space-y-4 relative group">
               <div className="flex items-center justify-between text-fc-muted">
                 <h2 className="font-medium text-fc-graphite text-xs flex items-center space-x-1.5 uppercase tracking-wider font-mono">
                   <Gauge className="w-3.5 h-3.5 text-fc-graphite stat-icon" />
@@ -965,7 +970,7 @@ export function PlaygroundPage() {
 
                 {/* Calibrated Bar with Ticks */}
                 <div className="w-full space-y-1 pt-0.5">
-                  <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-fc-border-faint overflow-hidden">
+                  <div className="w-full h-2 rounded-fc-full bg-fc-bg-lighter border border-bento-border overflow-hidden">
                     <div
                       className="h-full rounded-fc-full transition-all duration-300 bg-fc-graphite"
                       style={{ width: `${scorePercent}%` }}
@@ -981,36 +986,37 @@ export function PlaygroundPage() {
 
               {/* Classified Capabilities */}
               <div className="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
-                <div className="p-2.5 rounded-fc-6 bg-fc-bg-lighter border border-fc-border-faint text-fc-graphite">
+                <div className="p-2.5 rounded-xs bg-fc-bg-lighter border border-bento-border text-fc-graphite">
                   <div className="text-fc-muted text-[10px]">Domain</div>
                   <div className="font-bold">{evaluation?.domain || 'general'}</div>
                 </div>
-                <div className={`p-2.5 rounded-fc-6 border text-[11px] font-mono ${
+                <div className={`p-2.5 rounded-xs border text-[11px] font-mono ${
                   evaluation?.requiresTools
                     ? 'bg-fc-bg-lighter border-fc-border-loud text-fc-graphite font-bold'
-                    : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted'
+                    : 'bg-fc-bg-lighter border-bento-border text-fc-muted'
                 }`}>
                   <div className="text-fc-muted text-[10px]">Tools</div>
                   <div>{evaluation?.requiresTools ? 'Required' : 'None'}</div>
                 </div>
-                <div className={`p-2.5 rounded-fc-6 border text-[11px] font-mono ${
+                <div className={`p-2.5 rounded-xs border text-[11px] font-mono ${
                   evaluation?.requiresVision
                     ? 'bg-fc-bg-lighter border-fc-border-loud text-fc-graphite font-bold'
-                    : 'bg-fc-bg-lighter border-fc-border-faint text-fc-muted'
+                    : 'bg-fc-bg-lighter border-bento-border text-fc-muted'
                 }`}>
                   <div className="text-fc-muted text-[10px]">Vision</div>
                   <div>{evaluation?.requiresVision ? 'Required' : 'None'}</div>
                 </div>
               </div>
+              <div className="absolute bottom-0 inset-x-0 h-[2px] bg-bento-accent opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </div>
-        <div className="border-b border-l border-fc-border-faint" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border" />
 
         {/* ================= BARIS 8: SPACER KOSONG BOTTOM ================= */}
-        <div className="border-b border-r border-fc-border-faint h-16 sm:h-20" />
-        <div className="border-b border-fc-border-faint h-16 sm:h-20" />
-        <div className="border-b border-l border-fc-border-faint h-16 sm:h-20" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-16 sm:h-20" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-16 sm:h-20" />
+        <div className="bg-bento-gutter rounded-xs border border-bento-border h-16 sm:h-20" />
       </div>
     </div>
   );

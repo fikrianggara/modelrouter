@@ -30,10 +30,12 @@ function RootLayout() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [providerInfo, setProviderInfo] = useState<{
     provider: string;
+    model?: string;
     status: 'online' | 'offline' | 'connecting';
     latencyMs?: number;
   }>({
     provider: 'ollama',
+    model: 'd1:latest',
     status: 'connecting',
     latencyMs: 49,
   });
@@ -61,6 +63,7 @@ function RootLayout() {
           const data = await res.json();
           setProviderInfo((prev) => ({
             provider: data.provider || 'ollama',
+            model: data.model || 'd1:latest',
             status: 'online',
             latencyMs: prev.latencyMs && prev.latencyMs > 0 ? prev.latencyMs : (latency || 49),
           }));
@@ -93,6 +96,7 @@ function RootLayout() {
   }) => {
     setProviderInfo({
       provider: newConfig.provider,
+      model: newConfig.model,
       status: 'online',
       latencyMs: newConfig.latencyMs ?? 49,
     });
@@ -149,13 +153,7 @@ function RootLayout() {
                   type="button"
                   onClick={() => setIsSettingsModalOpen(true)}
                   title="Configure BYOK Decision Provider"
-                  className={`px-2.5 py-1 rounded-fc-full text-[11px] font-mono border flex items-center space-x-1.5 transition-all cursor-pointer group ${
-                    providerInfo.status === 'online'
-                      ? 'bg-fc-forest/10 text-fc-forest border-fc-forest/20 hover:border-fc-forest/50'
-                      : providerInfo.status === 'offline'
-                      ? 'bg-fc-crimson/10 text-fc-crimson border-fc-crimson/20 hover:border-fc-crimson/50'
-                      : 'bg-fc-bg-lighter text-fc-muted border-fc-border-faint hover:border-fc-border-muted'
-                  }`}
+                  className="px-2.5 py-1 rounded-fc-full text-[11px] font-mono border border-fc-border-faint bg-fc-bg-lighter text-fc-graphite hover:border-fc-border-muted flex items-center space-x-1.5 transition-all cursor-pointer group"
                 >
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
@@ -167,13 +165,9 @@ function RootLayout() {
                     }`}
                   />
                   <span>
-                    {providerInfo.status === 'online'
-                      ? `${providerInfo.provider} · ${providerInfo.latencyMs ?? 49}ms · d1:online`
-                      : providerInfo.status === 'offline'
-                      ? `${providerInfo.provider} · d1:offline`
-                      : 'd1:connecting'}
+                    {providerInfo.provider} · {providerInfo.model || 'd1:latest'}
                   </span>
-                  <Settings className="w-3 h-3 text-current opacity-60 group-hover:opacity-100 transition-opacity ml-0.5" />
+                  <Settings className="w-3 h-3 text-fc-muted opacity-60 group-hover:opacity-100 transition-opacity ml-0.5" />
                 </button>
               </div>
             </div>

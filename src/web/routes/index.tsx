@@ -64,7 +64,6 @@ export function DashboardPage() {
   const [activeStep, setActiveStep] = useState<number>(2);
   const [stats, setStats] = useState<TelemetryStats | null>(null);
   const [recentRequests, setRecentRequests] = useState<RecentRequest[]>([]);
-  const [heroAsciiMode, setHeroAsciiMode] = useState<'flame' | 'matrix' | 'stream'>('flame');
   const [pipelineView, setPipelineView] = useState<'graph' | 'stages'>('graph');
 
   const fetchDashboardData = async () => {
@@ -186,47 +185,8 @@ export function DashboardPage() {
         <div className="border-b border-fc-border-faint grid grid-cols-1 lg:grid-cols-12">
           {/* Hero Left: Headline & CTA (8 cols) */}
           <div className="lg:col-span-8 p-8 sm:p-12 border-b lg:border-b-0 lg:border-r border-fc-border-faint flex flex-col justify-between relative group overflow-hidden">
-            {/* Hero ASCII Animation (Position absolute — zero layout shift) */}
-            <div className="absolute right-4 top-4 sm:right-8 sm:top-6 z-10 pointer-events-auto select-none hidden md:flex flex-col items-end gap-1.5">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-fc-4 bg-fc-paper/90 dark:bg-[#181818]/90 backdrop-blur-xs border border-fc-border-faint text-[10px] font-mono text-fc-muted shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-heat-100 animate-pulse" />
-                <span className="text-fc-graphite font-semibold">ASCII</span>
-                <span className="text-fc-muted-soft">//</span>
-                <span className="text-heat-100 uppercase font-bold">{heroAsciiMode}</span>
-                <div className="flex items-center gap-1 ml-1.5 border-l border-fc-border-faint pl-1.5">
-                  <button
-                    onClick={() => setHeroAsciiMode('flame')}
-                    className={`px-1.5 py-0.5 rounded text-[9px] cursor-pointer transition-colors ${
-                      heroAsciiMode === 'flame' ? 'bg-heat-100 text-white font-bold' : 'hover:text-fc-graphite'
-                    }`}
-                    title="ASCII flame animation"
-                  >
-                    FLM
-                  </button>
-                  <button
-                    onClick={() => setHeroAsciiMode('matrix')}
-                    className={`px-1.5 py-0.5 rounded text-[9px] cursor-pointer transition-colors ${
-                      heroAsciiMode === 'matrix' ? 'bg-heat-100 text-white font-bold' : 'hover:text-fc-graphite'
-                    }`}
-                    title="ASCII matrix animation"
-                  >
-                    MTX
-                  </button>
-                  <button
-                    onClick={() => setHeroAsciiMode('stream')}
-                    className={`px-1.5 py-0.5 rounded text-[9px] cursor-pointer transition-colors ${
-                      heroAsciiMode === 'stream' ? 'bg-heat-100 text-white font-bold' : 'hover:text-fc-graphite'
-                    }`}
-                    title="ASCII stream ticker"
-                  >
-                    STR
-                  </button>
-                </div>
-              </div>
-              <div className="p-2 rounded-fc-4 bg-fc-paper/60 dark:bg-[#141414]/60 border border-fc-border-faint/60 pointer-events-none">
-                <AsciiFlame variant={heroAsciiMode} opacity={0.65} className="text-heat-100" />
-              </div>
-            </div>
+            {/* Ambient ASCII flame watermark matching registry model cards */}
+            <AsciiFlame className="fc-ascii-layer" opacity={0.16} />
 
             <div className="space-y-4 max-w-2xl relative z-10">
               <h1 className="text-3xl sm:text-5xl font-medium tracking-tight text-fc-graphite leading-[1.12]">

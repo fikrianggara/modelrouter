@@ -21,7 +21,7 @@
 | TKT-019 | bug | small | P2 | — | merged | jarvis | bug-TKT-019-fix-registry-text-overfl | false | 2026-10-29 | 2026-10-29 | Fix Registry Text Overflow, Restore Progress Bars, Theme-Aware Complexity Card, and Clean Pipeline Spacing |
 | TKT-020 | feature | medium | P1 | frontend | merged | jarvis | feature-TKT-020-implement-architectural | false | 2026-10-29 | 2026-10-29 | Implement Architectural Bento Grid with Full-Bleed 3-Column Layout |
 | TKT-021 | feature | medium | P1 | byok | merged | jarvis | feature-TKT-021-byok-decision-provider-c | false | 2026-10-30 | 2026-10-30 | BYOK Decision Provider Core Config, D1Client Multi-Provider & Auth Headers |
-| TKT-022 | feature | medium | P1 | byok | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Decision Provider API Endpoints, Runtime Switching, and Per-Request Header Overrides |
+| TKT-022 | feature | medium | P1 | byok | ongoing | jarvis | feature-TKT-022-decision-provider-api-en | false | 2026-10-30 | 2026-10-30 | Decision Provider API Endpoints, Runtime Switching, and Per-Request Header Overrides |
 | TKT-023 | feature | medium | P1 | byok | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Decision Provider Settings Modal, BYOK Key Management, and Navbar Status in Web UI |
 | TKT-024 | bug | medium | P0 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Remediate API Key Exfiltration, Restrict api_key_env Allowlist, and Enforce Atomic Persistence (VULN-01, VULN-07) |
 | TKT-025 | bug | medium | P1 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Implement Admin Auth Guard for /api/*, Restrict CORS, and Bind Localhost Default (VULN-02, VULN-03, VULN-08) |

@@ -28,3 +28,4 @@
 | TKT-026 | bug | medium | P2 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Redact Telemetry Prompts, Enforce Upstream Timeouts, and Add Body Limit Middleware (VULN-05, VULN-06) |
 | TKT-027 | bug | medium | P0 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Remediate Decision API Key Exfiltration, Prevent SSRF in BYOK Test & Header Override, and Enforce Safe Persistence (VULN-10, VULN-11, VULN-12) |
 | TKT-028 | bug | medium | P1 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Implement SSRF IP Subnet Validator for Outbound Endpoints and Update Vulnerable Dependencies (VULN-04, VULN-09) |
+| TKT-029 | feature | medium | P1 | frontend | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Hero ASCII animation and graph-based pipeline visualization |

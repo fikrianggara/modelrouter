@@ -19,6 +19,7 @@ htmlcov/
 # Environment Variables & Secrets
 .env
 .env.local
+config/decision-provider.json
 *.lock
 
 # IDE & Editor

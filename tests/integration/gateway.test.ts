@@ -535,4 +535,80 @@ describe('Hono Gateway Integration Tests (TKT-008)', () => {
       expect(json.error).toBeDefined();
     });
   });
+
+  describe('BYOK Per-Request Header Overrides and X-D1-Provider Audit Header', () => {
+    it('POST /v1/chat/completions includes X-D1-Provider response audit header', async () => {
+      const payload = {
+        model: 'd1-router-auto',
+        messages: [{ role: 'user', content: 'Audit header test' }],
+      };
+
+      const res = await app.request('/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-d1-provider')).toBeDefined();
+    });
+
+    it('POST /v1/chat/completions applies per-request X-Decision-* header overrides', async () => {
+      const payload = {
+        model: 'd1-router-auto',
+        messages: [{ role: 'user', content: 'Testing BYOK request headers' }],
+      };
+
+      const res = await app.request('/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Decision-Provider': 'liquid',
+          'X-Decision-Api-Key': 'sk-liq-per-req-token-xyz',
+          'X-Decision-Endpoint': 'https://custom-d1.liquid.ai/v1/systemone',
+          'X-Decision-Model': 'd1-custom',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-d1-provider')).toBe('liquid');
+
+      // Verify that D1 evaluation call used the overridden endpoint and Bearer token
+      const d1Call = capturedUpstreamRequests.find((req) => req.url.includes('/v1/systemone'));
+      expect(d1Call).toBeDefined();
+      expect(d1Call?.url).toBe('https://custom-d1.liquid.ai/v1/systemone');
+      expect(d1Call?.headers?.['Authorization'] || (d1Call?.headers as any)?.Authorization).toBe(
+        'Bearer sk-liq-per-req-token-xyz'
+      );
+    });
+
+    it('POST /v1/messages applies per-request X-Decision-* header overrides', async () => {
+      const payload = {
+        model: 'd1-router-auto',
+        messages: [{ role: 'user', content: 'Testing Anthropic messages BYOK override' }],
+        max_tokens: 100,
+      };
+
+      const res = await app.request('/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Decision-Provider': 'custom',
+          'X-Decision-Endpoint': 'http://custom-host:8080/v1/systemone',
+          'X-Decision-Api-Key': 'sk-custom-header-key',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.headers.get('x-d1-provider')).toBe('custom');
+
+      const d1Call = capturedUpstreamRequests.find((req) => req.url.includes('custom-host'));
+      expect(d1Call).toBeDefined();
+      expect(d1Call?.headers?.['Authorization'] || (d1Call?.headers as any)?.Authorization).toBe(
+        'Bearer sk-custom-header-key'
+      );
+    });
+  });
 });

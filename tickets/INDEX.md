@@ -20,3 +20,6 @@
 | TKT-018 | feature | small | P2 | — | merged | jarvis | feature-TKT-018-refactor-hero-flame-comp | false | 2026-10-29 | 2026-10-29 | Refactor Hero Flame, Complexity Colors, Registry UI Density, and Remove Filler Spacers |
 | TKT-019 | bug | small | P2 | — | merged | jarvis | bug-TKT-019-fix-registry-text-overfl | false | 2026-10-29 | 2026-10-29 | Fix Registry Text Overflow, Restore Progress Bars, Theme-Aware Complexity Card, and Clean Pipeline Spacing |
 | TKT-020 | feature | medium | P1 | frontend | merged | jarvis | feature-TKT-020-implement-architectural | false | 2026-10-29 | 2026-10-29 | Implement Architectural Bento Grid with Full-Bleed 3-Column Layout |
+| TKT-021 | feature | medium | P1 | byok | backlog | null | null | false | 2026-10-30 | 2026-10-30 | BYOK Decision Provider Core Config, D1Client Multi-Provider & Auth Headers |
+| TKT-022 | feature | medium | P1 | byok | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Decision Provider API Endpoints, Runtime Switching, and Per-Request Header Overrides |
+| TKT-023 | feature | medium | P1 | byok | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Decision Provider Settings Modal, BYOK Key Management, and Navbar Status in Web UI |

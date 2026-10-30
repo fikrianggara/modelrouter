@@ -15,6 +15,14 @@ export default {
         'fc-container': '1112px',
       },
       colors: {
+        bento: {
+          canvas: 'var(--fc-bento-canvas)',
+          gutter: 'var(--fc-bento-gutter)',
+          tile: 'var(--fc-bento-tile)',
+          'tile-hover': 'var(--fc-bento-tile-hover)',
+          border: 'var(--fc-bento-border)',
+          accent: 'var(--fc-bento-accent)',
+        },
         heat: {
           4: '#fa5d190a',
           8: '#fa5d1914',
@@ -55,6 +63,7 @@ export default {
         },
       },
       borderRadius: {
+        'xs': '2px',
         'fc-4': '4px',
         'fc-6': '6px',
         'fc-8': '8px',

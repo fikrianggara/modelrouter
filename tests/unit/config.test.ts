@@ -15,6 +15,11 @@ describe('App Config', () => {
     expect(config.OPENAI_API_KEY).toBeUndefined();
     expect(config.ANTHROPIC_API_KEY).toBeUndefined();
     expect(config.OPENROUTER_API_KEY).toBeUndefined();
+    expect(config.DECISION_PROVIDER).toBe('ollama');
+    expect(config.DECISION_API_KEY).toBeUndefined();
+    expect(config.DECISION_ENDPOINT).toBeUndefined();
+    expect(config.DECISION_MODEL).toBeUndefined();
+    expect(config.DECISION_TIMEOUT_MS).toBe(10000);
   });
 
   it('should parse and coerce custom environment overrides', () => {
@@ -24,6 +29,11 @@ describe('App Config', () => {
       D1_ENDPOINT: 'http://ai-server:11434/v1/systemone',
       D1_MODEL: 'd1:fast',
       D1_TIMEOUT_MS: '300',
+      DECISION_PROVIDER: 'liquid',
+      DECISION_API_KEY: 'sk-liq-testkey',
+      DECISION_ENDPOINT: 'https://api.liquid.ai/v1/systemone',
+      DECISION_MODEL: 'd1',
+      DECISION_TIMEOUT_MS: '5000',
       DEFAULT_POLICY: 'cost_optimized',
       FALLBACK_MODEL_ID: 'gpt-4o-mini',
       REGISTRY_PATH: 'custom/path/registry.yaml',
@@ -38,12 +48,29 @@ describe('App Config', () => {
     expect(config.D1_ENDPOINT).toBe('http://ai-server:11434/v1/systemone');
     expect(config.D1_MODEL).toBe('d1:fast');
     expect(config.D1_TIMEOUT_MS).toBe(300);
+    expect(config.DECISION_PROVIDER).toBe('liquid');
+    expect(config.DECISION_API_KEY).toBe('sk-liq-testkey');
+    expect(config.DECISION_ENDPOINT).toBe('https://api.liquid.ai/v1/systemone');
+    expect(config.DECISION_MODEL).toBe('d1');
+    expect(config.DECISION_TIMEOUT_MS).toBe(5000);
     expect(config.DEFAULT_POLICY).toBe('cost_optimized');
     expect(config.FALLBACK_MODEL_ID).toBe('gpt-4o-mini');
     expect(config.REGISTRY_PATH).toBe('custom/path/registry.yaml');
     expect(config.OPENAI_API_KEY).toBe('sk-openai-key');
     expect(config.ANTHROPIC_API_KEY).toBe('sk-ant-key');
     expect(config.OPENROUTER_API_KEY).toBe('sk-or-key');
+  });
+
+  it('should support all allowed decision providers', () => {
+    const providers = ['ollama', 'liquid', 'custom'] as const;
+    for (const provider of providers) {
+      const config = loadConfig({ DECISION_PROVIDER: provider });
+      expect(config.DECISION_PROVIDER).toBe(provider);
+    }
+  });
+
+  it('should throw validation error on invalid DECISION_PROVIDER', () => {
+    expect(() => loadConfig({ DECISION_PROVIDER: 'invalid_provider' as any })).toThrow();
   });
 
   it('should support all allowed routing policies', () => {

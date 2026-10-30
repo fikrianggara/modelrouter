@@ -25,6 +25,34 @@ describe('D1Client', () => {
       expect(client.endpoint).toBe('http://custom-d1:8000/v1/systemone');
       expect(client.model).toBe('d1-fast:latest');
       expect(client.timeoutMs).toBe(250);
+      expect(client.provider).toBe('ollama');
+    });
+
+    it('should initialize with options object for BYOK liquid preset', () => {
+      const client = new D1Client({
+        provider: 'liquid',
+        apiKey: 'sk-liq-key-123',
+      });
+      expect(client.provider).toBe('liquid');
+      expect(client.endpoint).toBe('https://api.liquid.ai/v1/systemone');
+      expect(client.model).toBe('d1');
+      expect(client.timeoutMs).toBe(10000);
+      expect(client.apiKey).toBe('sk-liq-key-123');
+    });
+
+    it('should initialize with custom endpoint and model via options object', () => {
+      const client = new D1Client({
+        provider: 'custom',
+        endpoint: 'https://custom.ai/v1/systemone',
+        model: 'd1-custom',
+        timeoutMs: 5000,
+        apiKey: 'custom-key',
+      });
+      expect(client.provider).toBe('custom');
+      expect(client.endpoint).toBe('https://custom.ai/v1/systemone');
+      expect(client.model).toBe('d1-custom');
+      expect(client.timeoutMs).toBe(5000);
+      expect(client.apiKey).toBe('custom-key');
     });
   });
 
@@ -436,6 +464,105 @@ Can you optimize this implementation?
       const result = D1Client.fallbackEvaluate('Hello world');
       expect(result.isFallback).toBe(true);
       expect(result.domain).toBe('general');
+    });
+  });
+
+  describe('BYOK authentication headers and provider metadata', () => {
+    it('should inject Authorization Bearer header when apiKey is supplied', async () => {
+      let capturedHeaders: any;
+      global.fetch = vi.fn().mockImplementation((_url, options) => {
+        capturedHeaders = options?.headers;
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            answers: {
+              complexity: { score: 3.1 },
+              domain: { choice: 'coding' },
+            },
+          }),
+        });
+      });
+
+      const client = new D1Client({
+        provider: 'liquid',
+        apiKey: 'sk-liq-secret-token-xyz',
+      });
+
+      const result = await client.evaluate('Write code');
+      expect(capturedHeaders).toBeDefined();
+      expect(capturedHeaders['Authorization']).toBe('Bearer sk-liq-secret-token-xyz');
+      expect(capturedHeaders['Content-Type']).toBe('application/json');
+      expect(result.provider).toBe('liquid');
+      expect(result.isFallback).toBe(false);
+    });
+
+    it('should not include Authorization header when apiKey is not supplied', async () => {
+      let capturedHeaders: any;
+      global.fetch = vi.fn().mockImplementation((_url, options) => {
+        capturedHeaders = options?.headers;
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            answers: {
+              complexity: { score: 2.0 },
+              domain: { choice: 'general' },
+            },
+          }),
+        });
+      });
+
+      const client = new D1Client({ provider: 'ollama' });
+      const result = await client.evaluate('Hello');
+      expect(capturedHeaders['Authorization']).toBeUndefined();
+      expect(result.provider).toBe('ollama');
+    });
+
+    it('should gracefully fallback when cloud provider returns 401 Unauthorized', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 401,
+        statusText: 'Unauthorized',
+      });
+
+      const client = new D1Client({
+        provider: 'liquid',
+        apiKey: 'invalid-key',
+      });
+
+      const result = await client.evaluate('Write a quicksort function in Python');
+      expect(result.isFallback).toBe(true);
+      expect(result.provider).toBe('liquid');
+      expect(result.fallbackReason).toContain('401');
+      expect(result.fallbackReason).toContain('Unauthorized');
+      expect(result.domain).toBe('coding');
+    });
+
+    it('should gracefully fallback when cloud provider returns 403 Forbidden', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+      });
+
+      const client = new D1Client({
+        provider: 'liquid',
+        apiKey: 'forbidden-key',
+      });
+
+      const result = await client.evaluate('Explain physics');
+      expect(result.isFallback).toBe(true);
+      expect(result.provider).toBe('liquid');
+      expect(result.fallbackReason).toContain('403');
+      expect(result.fallbackReason).toContain('Forbidden');
+    });
+
+    it('should include provider metadata in fallbackEvaluate', () => {
+      const result = D1Client.fallbackEvaluate('Hello', 'test error', 'liquid');
+      expect(result.isFallback).toBe(true);
+      expect(result.provider).toBe('liquid');
+      expect(result.fallbackReason).toBe('test error');
     });
   });
 });

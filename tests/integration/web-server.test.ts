@@ -448,5 +448,23 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('rounded-xs');
       expect(bundleContent).toContain('border-bento-border');
     });
+
+    it('Built frontend assets reflect DecisionProviderModal bento design system and 1px border (TKT-036)', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const assetsDir = path.resolve(process.cwd(), 'dist/client/assets');
+      const files = fs.readdirSync(assetsDir);
+      const jsBundle = files.find((f: string) => f.endsWith('.js'));
+      expect(jsBundle).toBeDefined();
+
+      const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
+
+      // Verify selected provider thick ring in decision modal is removed
+      expect(bundleContent).not.toContain('dark:bg-heat-8/30 ring-1 ring-heat-100');
+
+      // Verify 1px bento accent border and bento modal classes
+      expect(bundleContent).toContain('border-bento-accent');
+      expect(bundleContent).toContain('Decision Model Provider');
+    });
   });
 });

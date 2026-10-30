@@ -333,22 +333,38 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
     });
 
     it('Live connection test roundtrip returns latencyMs for UI feedback', async () => {
-      const testRes = await app.request('/api/decision-provider/test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          provider: 'ollama',
-          endpoint: 'http://localhost:11434/v1/systemone',
-          model: 'd1:latest',
-        }),
-      });
+      const originalFetch = globalThis.fetch;
+      try {
+        globalThis.fetch = vi.fn().mockResolvedValue({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            answers: {
+              complexity: { score: 1.0 },
+              domain: { choice: 'general' },
+            },
+          }),
+        });
 
-      expect(testRes.status).toBe(200);
-      const testData = await testRes.json();
-      expect(testData.ok).toBe(true);
-      expect(typeof testData.latencyMs).toBe('number');
-      expect(testData.latencyMs).toBeGreaterThanOrEqual(0);
-      expect(testData.provider).toBe('ollama');
+        const testRes = await app.request('/api/decision-provider/test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: 'ollama',
+            endpoint: 'http://localhost:11434/v1/systemone',
+            model: 'd1:latest',
+          }),
+        });
+
+        expect(testRes.status).toBe(200);
+        const testData = await testRes.json();
+        expect(testData.ok).toBe(true);
+        expect(typeof testData.latencyMs).toBe('number');
+        expect(testData.latencyMs).toBeGreaterThanOrEqual(0);
+        expect(testData.provider).toBe('ollama');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
     });
 
     it('Built frontend assets contain DecisionProviderModal and Navbar status pill components', async () => {
@@ -371,6 +387,28 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('Decision Model Provider');
       expect(bundleContent).toContain('BYOK');
       expect(bundleContent).toContain('Configure BYOK Decision Provider');
+    });
+
+    it('Built frontend assets contain Hero ASCII animation and Pipeline Flow Graph components (TKT-029)', async () => {
+      const fs = await import('fs');
+      const path = await import('path');
+      const assetsDir = path.resolve(process.cwd(), 'dist/client/assets');
+      const files = fs.readdirSync(assetsDir);
+      const jsBundle = files.find((f: string) => f.endsWith('.js'));
+      expect(jsBundle).toBeDefined();
+
+      const bundleContent = fs.readFileSync(path.join(assetsDir, jsBundle!), 'utf-8');
+      // Verify Hero ASCII feature
+      expect(bundleContent).toContain('ASCII');
+      expect(bundleContent).toContain('flame');
+      expect(bundleContent).toContain('matrix');
+      expect(bundleContent).toContain('stream');
+
+      // Verify Graph-based pipeline visualization
+      expect(bundleContent).toContain('GRAPH TOPOLOGY');
+      expect(bundleContent).toContain('react-flow');
+      expect(bundleContent).toContain('Client Ingress');
+      expect(bundleContent).toContain('Policy Resolution');
     });
   });
 });

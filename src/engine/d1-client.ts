@@ -1,3 +1,5 @@
+import { DecisionProviderType, DECISION_PRESETS } from '../core/types';
+
 export interface D1ScoreQuestion {
   type: 'score';
   instructions: string;
@@ -29,6 +31,14 @@ export interface SystemOnePayload {
   questions: SystemOneQuestions;
 }
 
+export interface D1ClientOptions {
+  endpoint?: string;
+  model?: string;
+  timeoutMs?: number;
+  apiKey?: string;
+  provider?: DecisionProviderType;
+}
+
 export interface D1EvaluationResult {
   complexityScore: number;
   domain: 'coding' | 'reasoning' | 'tools' | 'general' | string;
@@ -47,15 +57,40 @@ export interface D1EvaluationResult {
   };
   isFallback: boolean;
   fallbackReason?: string;
+  provider?: DecisionProviderType | string;
   rawAnswers?: Record<string, any>;
 }
 
 export class D1Client {
+  public endpoint: string;
+  public model: string;
+  public timeoutMs: number;
+  public apiKey?: string;
+  public provider: DecisionProviderType;
+
   constructor(
-    public endpoint: string = 'http://localhost:11434/v1/systemone',
-    public model: string = 'd1:latest',
-    public timeoutMs: number = 10000
-  ) {}
+    endpointOrOptions?: string | D1ClientOptions,
+    model?: string,
+    timeoutMs?: number,
+    apiKey?: string,
+    provider?: DecisionProviderType
+  ) {
+    if (typeof endpointOrOptions === 'object' && endpointOrOptions !== null) {
+      this.provider = endpointOrOptions.provider || 'ollama';
+      const preset = DECISION_PRESETS[this.provider] || DECISION_PRESETS.ollama;
+      this.endpoint = endpointOrOptions.endpoint || preset.defaultEndpoint;
+      this.model = endpointOrOptions.model || preset.defaultModel;
+      this.timeoutMs = endpointOrOptions.timeoutMs ?? 10000;
+      this.apiKey = endpointOrOptions.apiKey;
+    } else {
+      this.provider = provider || 'ollama';
+      const preset = DECISION_PRESETS[this.provider] || DECISION_PRESETS.ollama;
+      this.endpoint = endpointOrOptions || preset.defaultEndpoint;
+      this.model = model || preset.defaultModel;
+      this.timeoutMs = timeoutMs ?? 10000;
+      this.apiKey = apiKey;
+    }
+  }
 
   /**
    * Constructs the payload conforming to the /v1/systemone specification.
@@ -105,7 +140,7 @@ export class D1Client {
   /**
    * Parses the /v1/systemone response object into a strongly-typed D1EvaluationResult.
    */
-  static parseResponse(data: any): D1EvaluationResult {
+  static parseResponse(data: any, provider?: DecisionProviderType): D1EvaluationResult {
     const answers = data?.answers || {};
     const complexityAns = answers.complexity || {};
     const domainAns = answers.domain || {};
@@ -153,19 +188,24 @@ export class D1Client {
         requires_vision: visionProbability,
       },
       isFallback: false,
+      provider: provider || 'ollama',
       rawAnswers: answers,
     };
   }
 
   parseResponse(data: any): D1EvaluationResult {
-    return D1Client.parseResponse(data);
+    return D1Client.parseResponse(data, this.provider);
   }
 
   /**
    * Deterministic rule-based heuristic fallback if the /v1/systemone endpoint is unreachable,
    * times out, or returns a non-200 error.
    */
-  static fallbackEvaluate(state: string, reason?: string): D1EvaluationResult {
+  static fallbackEvaluate(
+    state: string,
+    reason?: string,
+    provider?: DecisionProviderType
+  ): D1EvaluationResult {
     const trimmed = (state || '').trim();
 
     // 1. Vision requirement detection
@@ -306,11 +346,12 @@ export class D1Client {
       visionProbability,
       isFallback: true,
       fallbackReason: reason || 'heuristic_fallback',
+      provider: provider || 'ollama',
     };
   }
 
   fallbackEvaluate(state: string, reason?: string): D1EvaluationResult {
-    return D1Client.fallbackEvaluate(state, reason);
+    return D1Client.fallbackEvaluate(state, reason, this.provider);
   }
 
   /**
@@ -320,9 +361,10 @@ export class D1Client {
    */
   async evaluate(
     state: string,
-    options?: { timeoutMs?: number; signal?: AbortSignal }
+    options?: { timeoutMs?: number; signal?: AbortSignal; apiKey?: string }
   ): Promise<D1EvaluationResult> {
     const timeoutMs = options?.timeoutMs ?? this.timeoutMs;
+    const apiKey = options?.apiKey ?? this.apiKey;
     const controller = new AbortController();
     let timedOut = false;
 
@@ -340,15 +382,25 @@ export class D1Client {
 
     try {
       const payload = this.buildPayload(state);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (apiKey) {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+      }
+
       const res = await fetch(this.endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         signal: controller.signal,
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
-        throw new Error(`D1 endpoint returned HTTP ${res.status}: ${res.statusText}`);
+        const statusText =
+          res.statusText ||
+          (res.status === 401 ? 'Unauthorized' : res.status === 403 ? 'Forbidden' : 'Error');
+        throw new Error(`D1 endpoint returned HTTP ${res.status}: ${statusText}`);
       }
 
       const data = await res.json();

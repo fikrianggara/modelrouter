@@ -40,6 +40,44 @@ export interface CanonicalRequest {
   extra_params?: Record<string, any>;
 }
 
+export type DecisionProviderType = 'ollama' | 'liquid' | 'custom';
+
+export interface DecisionProviderPreset {
+  name: string;
+  defaultEndpoint: string;
+  defaultModel: string;
+  requiresKey: boolean;
+}
+
+export const DECISION_PRESETS: Record<DecisionProviderType, DecisionProviderPreset> = {
+  ollama: {
+    name: 'Ollama (Local)',
+    defaultEndpoint: 'http://localhost:11434/v1/systemone',
+    defaultModel: 'd1:latest',
+    requiresKey: false,
+  },
+  liquid: {
+    name: 'Liquid AI (Cloud)',
+    defaultEndpoint: 'https://api.liquid.ai/v1/systemone',
+    defaultModel: 'd1',
+    requiresKey: true,
+  },
+  custom: {
+    name: 'Custom System One Endpoint',
+    defaultEndpoint: 'http://localhost:11434/v1/systemone',
+    defaultModel: 'd1:latest',
+    requiresKey: false,
+  },
+};
+
+export interface DecisionProviderConfig {
+  provider: DecisionProviderType;
+  endpoint: string;
+  model: string;
+  apiKey?: string;
+  timeoutMs: number;
+}
+
 export const CanonicalRequest = {
   extractState(req: CanonicalRequest, maxChars: number = 4000): string {
     const lines: string[] = [];

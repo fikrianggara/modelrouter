@@ -31,3 +31,7 @@ htmlcov/
 # Logs
 logs/
 *.log
+
+# Private Documentation
+docs/private/
+docs/.private/

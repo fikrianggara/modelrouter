@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { ProceduralAsciiWave } from './ProceduralAsciiWave';
 
 const FLAME_FRAMES = [
   `  .  .  :  .  *  #  @  #  *  .  :  .
@@ -56,7 +57,7 @@ const STREAM_FRAMES = [
 interface AsciiFlameProps {
   className?: string;
   opacity?: number;
-  variant?: 'flame' | 'matrix' | 'stream';
+  variant?: 'flame' | 'matrix' | 'stream' | 'wave';
   repeatRows?: number;
   repeatCols?: number;
 }
@@ -68,6 +69,10 @@ export function AsciiFlame({
   repeatRows = 1,
   repeatCols = 1,
 }: AsciiFlameProps) {
+  if (variant === 'wave') {
+    return <ProceduralAsciiWave className={className} opacity={opacity} />;
+  }
+
   const [frameIndex, setFrameIndex] = useState(0);
 
   const frames =

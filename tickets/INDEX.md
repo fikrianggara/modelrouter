@@ -29,4 +29,4 @@
 | TKT-027 | bug | medium | P0 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Remediate Decision API Key Exfiltration, Prevent SSRF in BYOK Test & Header Override, and Enforce Safe Persistence (VULN-10, VULN-11, VULN-12) |
 | TKT-028 | bug | medium | P1 | security | backlog | null | null | false | 2026-10-30 | 2026-10-30 | Implement SSRF IP Subnet Validator for Outbound Endpoints and Update Vulnerable Dependencies (VULN-04, VULN-09) |
 | TKT-029 | feature | medium | P1 | frontend | merged | jarvis | feature-TKT-029-hero-ascii-animation-and | false | 2026-10-30 | 2026-10-30 | Hero ASCII animation and graph-based pipeline visualization |
-| TKT-030 | feature | small | P2 | frontend | done | jarvis | feature-TKT-030-align-hero-ascii-with-re | true | 2026-10-30 | 2026-10-30 | Align Hero ASCII with Registry cards and streamline Navbar provider badge |
+| TKT-030 | feature | small | P2 | frontend | merged | jarvis | feature-TKT-030-align-hero-ascii-with-re | false | 2026-10-30 | 2026-10-30 | Align Hero ASCII with Registry cards and streamline Navbar provider badge |

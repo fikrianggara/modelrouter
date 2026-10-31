@@ -61,6 +61,28 @@ describe('TelemetryStore', () => {
 
     const recent = store.getRecentRequests();
     expect(recent.length).toBe(50);
-    expect(recent[0].promptSnippet).toContain('Prompt 59');
+    // VULN-05: Raw prompt text is redacted
+    expect(recent[0].promptSnippet).not.toContain('Prompt 59');
+    expect(recent[0].promptSnippet).toContain('sha256:');
+    expect(recent[0].promptSnippet).toContain('coding');
+  });
+
+  it('should redact sensitive prompt text and PII from telemetry items (TKT-026 / VULN-05)', () => {
+    const sensitivePrompt = 'My secret password is P@ssw0rd123! and my SSN is 000-12-3456';
+    store.recordEvent({
+      prompt: sensitivePrompt,
+      score: 3.2,
+      domain: 'finance',
+      selectedModel: { id: 'cloud-coder' },
+      latencyMs: 15,
+      policy: 'balanced',
+    });
+
+    const recent = store.getRecentRequests();
+    expect(recent[0].promptSnippet).not.toContain('P@ssw0rd123!');
+    expect(recent[0].promptSnippet).not.toContain('000-12-3456');
+    expect(recent[0].promptSnippet).toContain('[finance]');
+    expect(recent[0].promptSnippet).toContain(`${sensitivePrompt.length} chars`);
+    expect(recent[0].promptSnippet).toMatch(/sha256:[a-f0-9]{8}/);
   });
 });

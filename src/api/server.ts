@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { bodyLimit } from 'hono/body-limit';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import fs from 'fs';
@@ -110,6 +111,17 @@ export function createApp(options?: ServerOptions): Hono {
     });
 
   const app = new Hono();
+
+  // VULN-06: Body limit middleware (10MB) to prevent heap exhaustion DoS
+  app.use(
+    '*',
+    bodyLimit({
+      maxSize: 10 * 1024 * 1024,
+      onError: (c) => {
+        return c.json({ ok: false, error: 'Payload Too Large: maximum body size is 10MB' }, 413);
+      },
+    })
+  );
 
   // VULN-03: Restrict CORS to local/trusted origins
   app.use(
@@ -672,7 +684,7 @@ export function createApp(options?: ServerOptions): Hono {
         method: 'POST',
         headers: upstreamHeaders,
         body: JSON.stringify(upstreamBody),
-        signal: c.req.raw.signal,
+        signal: AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(60000)]),
       });
 
       if (!upstreamRes.ok) {
@@ -756,7 +768,7 @@ export function createApp(options?: ServerOptions): Hono {
       method: 'POST',
       headers: upstreamHeaders,
       body: JSON.stringify(upstreamBody),
-      signal: c.req.raw.signal,
+      signal: AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(60000)]),
     });
 
     if (!upstreamRes.ok) {
@@ -892,7 +904,7 @@ export function createApp(options?: ServerOptions): Hono {
         method: 'POST',
         headers: upstreamHeaders,
         body: JSON.stringify(upstreamBody),
-        signal: c.req.raw.signal,
+        signal: AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(60000)]),
       });
 
       if (!upstreamRes.ok) {
@@ -947,7 +959,7 @@ export function createApp(options?: ServerOptions): Hono {
       method: 'POST',
       headers: upstreamHeaders,
       body: JSON.stringify(upstreamBody),
-      signal: c.req.raw.signal,
+      signal: AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(60000)]),
     });
 
     if (!upstreamRes.ok) {

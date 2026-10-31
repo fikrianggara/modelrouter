@@ -611,4 +611,19 @@ describe('Hono Gateway Integration Tests (TKT-008)', () => {
       );
     });
   });
+
+  describe('Security & Resilience (TKT-026 / VULN-06)', () => {
+    it('rejects requests exceeding 10MB body limit with 413 Payload Too Large', async () => {
+      const hugeBody = 'a'.repeat(11 * 1024 * 1024);
+      const res = await app.request('/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: hugeBody,
+      });
+
+      expect(res.status).toBe(413);
+      const data = await res.json();
+      expect(data.error).toContain('Payload Too Large');
+    });
+  });
 });

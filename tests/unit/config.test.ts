@@ -5,7 +5,8 @@ describe('App Config', () => {
   it('should load default configuration values when empty object is passed', () => {
     const config = loadConfig({});
     expect(config.PORT).toBe(8100);
-    expect(config.HOST).toBe('0.0.0.0');
+    expect(config.HOST).toBe('127.0.0.1');
+    expect(config.ADMIN_API_KEY).toBeUndefined();
     expect(config.D1_ENDPOINT).toBe('http://localhost:11434/v1/systemone');
     expect(config.D1_MODEL).toBe('d1:latest');
     expect(config.D1_TIMEOUT_MS).toBe(10000);

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { app } from '../../src/api/server';
+import { app, createApp } from '../../src/api/server';
+import { loadConfig } from '../../src/core/config';
 
 describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, () => {
   it('GET /api/registry returns all registered models with capabilities and tags', async () => {
@@ -489,6 +490,74 @@ describe('Web Dashboard & API Integration Tests (TKT-009)', { timeout: 15000 }, 
       expect(bundleContent).toContain('focus:border-bento-accent');
       expect(bundleContent).toContain('focus:ring-1');
       expect(bundleContent).toContain('focus:ring-bento-accent');
+    });
+
+    it('enforces ADMIN_API_KEY auth guard and restricts CORS (TKT-025 / VULN-02, VULN-03, VULN-08)', async () => {
+      const securedConfig = loadConfig({
+        ADMIN_API_KEY: 'test-admin-secret-key-xyz',
+        REGISTRY_PATH: 'config/registry.yaml',
+      });
+      const securedApp = createApp({ config: securedConfig });
+
+      const newModel = {
+        id: 'test-auth-model',
+        display_name: 'Test Auth Model',
+        provider: 'custom',
+        upstream_model: 'custom-v1',
+        base_url: 'http://localhost:9000/v1',
+        complexity_range: [1.0, 3.0],
+        tags: ['test'],
+        capabilities: { tools: true, vision: false, max_context: 4096, streaming: true },
+        cost: { input_per_mtoken: 0, output_per_mtoken: 0 },
+        enabled: true,
+      };
+
+      // 1. Unauthenticated POST /api/registry/model -> 401
+      const unauthPost = await securedApp.request('/api/registry/model', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newModel),
+      });
+      expect(unauthPost.status).toBe(401);
+
+      // 2. Authenticated POST /api/registry/model -> 200
+      const authPost = await securedApp.request('/api/registry/model', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer test-admin-secret-key-xyz',
+        },
+        body: JSON.stringify(newModel),
+      });
+      expect(authPost.status).toBe(200);
+
+      // 3. Unauthenticated PUT /api/registry/model/:id -> 401
+      const unauthPut = await securedApp.request('/api/registry/model/test-auth-model', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ display_name: 'Hacked Model' }),
+      });
+      expect(unauthPut.status).toBe(401);
+
+      // 4. Authenticated DELETE /api/registry/model/:id -> 200
+      const authDelete = await securedApp.request('/api/registry/model/test-auth-model', {
+        method: 'DELETE',
+        headers: {
+          Authorization: 'Bearer test-admin-secret-key-xyz',
+        },
+      });
+      expect(authDelete.status).toBe(200);
+
+      // 5. CORS check: local origin allowed, evil origin disallowed
+      const localCors = await securedApp.request('/api/registry', {
+        headers: { Origin: 'http://localhost:5173' },
+      });
+      expect(localCors.headers.get('access-control-allow-origin')).toBe('http://localhost:5173');
+
+      const evilCors = await securedApp.request('/api/registry', {
+        headers: { Origin: 'https://attacker.evil.com' },
+      });
+      expect(evilCors.headers.get('access-control-allow-origin')).toBeNull();
     });
   });
 });

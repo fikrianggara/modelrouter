@@ -115,6 +115,20 @@ export function createApp(options?: ServerOptions): Hono {
 
   app.get('/health', (c) => c.json({ status: 'ok' }));
 
+  // Middleware protecting administrative routes when ADMIN_API_KEY is configured
+  const adminAuthGuard = async (c: any, next: any) => {
+    if (appConfig.ADMIN_API_KEY && appConfig.ADMIN_API_KEY.trim().length > 0) {
+      const authHeader = c.req.header('authorization') || c.req.header('Authorization');
+      const token = authHeader?.startsWith('Bearer ')
+        ? authHeader.slice(7).trim()
+        : undefined;
+      if (!token || token !== appConfig.ADMIN_API_KEY) {
+        return c.json({ ok: false, error: 'Unauthorized: Invalid or missing admin API key' }, 401);
+      }
+    }
+    await next();
+  };
+
   // Helper for per-request BYOK header overrides
   function resolveClientForRequest(c: any): D1Client {
     const providerHeader = c.req.header('x-decision-provider') as DecisionProviderType | undefined;
@@ -125,9 +139,20 @@ export function createApp(options?: ServerOptions): Hono {
     if (providerHeader || apiKeyHeader || endpointHeader || modelHeader) {
       const provider = providerHeader || d1Client.provider;
       const preset = DECISION_PRESETS[provider] || DECISION_PRESETS.ollama;
+
+      // VULN-10: If caller overrides endpoint without explicit apiKey, do not inherit host key
+      let effectiveApiKey: string | undefined;
+      if (apiKeyHeader !== undefined) {
+        effectiveApiKey = apiKeyHeader || undefined;
+      } else if (endpointHeader && endpointHeader !== d1Client.endpoint) {
+        effectiveApiKey = undefined;
+      } else {
+        effectiveApiKey = d1Client.apiKey;
+      }
+
       return new D1Client({
         provider,
-        apiKey: apiKeyHeader !== undefined ? (apiKeyHeader || undefined) : d1Client.apiKey,
+        apiKey: effectiveApiKey,
         endpoint: endpointHeader || (providerHeader && providerHeader !== d1Client.provider ? preset.defaultEndpoint : d1Client.endpoint),
         model: modelHeader || (providerHeader && providerHeader !== d1Client.provider ? preset.defaultModel : d1Client.model),
         timeoutMs: d1Client.timeoutMs,
@@ -313,7 +338,7 @@ export function createApp(options?: ServerOptions): Hono {
     });
   });
 
-  app.put('/api/decision-provider', async (c) => {
+  app.put('/api/decision-provider', adminAuthGuard, async (c) => {
     try {
       const body = await c.req.json();
       const parsed = UpdateDecisionProviderSchema.parse(body);
@@ -359,7 +384,7 @@ export function createApp(options?: ServerOptions): Hono {
     }
   });
 
-  app.post('/api/decision-provider/test', async (c) => {
+  app.post('/api/decision-provider/test', adminAuthGuard, async (c) => {
     let body: any = {};
     try {
       body = await c.req.json();
@@ -378,10 +403,11 @@ export function createApp(options?: ServerOptions): Hono {
         ? preset.defaultModel
         : d1Client.model);
     const timeoutMs = body.timeoutMs ? Number(body.timeoutMs) : 5000;
+    // VULN-10: Do not inherit host API key when custom endpoint is provided without explicit apiKey
     const apiKey =
       body.apiKey !== undefined
         ? (body.apiKey ? String(body.apiKey).trim() : undefined)
-        : d1Client.apiKey;
+        : (body.endpoint && body.endpoint !== d1Client.endpoint ? undefined : d1Client.apiKey);
 
     const testClient = new D1Client({
       provider,

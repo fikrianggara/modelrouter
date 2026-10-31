@@ -64,5 +64,26 @@ export function saveDecisionProviderConfig(
 ): void {
   const resolved = path.isAbsolute(filePath) ? filePath : path.resolve(process.cwd(), filePath);
   fs.mkdirSync(path.dirname(resolved), { recursive: true });
-  fs.writeFileSync(resolved, JSON.stringify(configToSave, null, 2), 'utf-8');
+  const tmpPath = `${resolved}.tmp.${Date.now()}`;
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(configToSave, null, 2), {
+      encoding: 'utf-8',
+      mode: 0o600,
+    });
+    try {
+      fs.chmodSync(tmpPath, 0o600);
+    } catch {
+      // Ignore chmod error on non-POSIX filesystems
+    }
+    fs.renameSync(tmpPath, resolved);
+  } catch (err) {
+    if (fs.existsSync(tmpPath)) {
+      try {
+        fs.unlinkSync(tmpPath);
+      } catch {
+        // ignore cleanup error
+      }
+    }
+    throw err;
+  }
 }

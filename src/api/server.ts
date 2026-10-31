@@ -27,6 +27,7 @@ import {
   createAnthropicToOpenAITransform,
 } from '../adapters/sse-transcoder';
 import { telemetry } from '../core/telemetry';
+import { validateOutboundUrl } from '../core/security';
 
 export interface ServerOptions {
   registry?: ModelRegistry;
@@ -430,6 +431,11 @@ export function createApp(options?: ServerOptions): Hono {
       (body.provider && body.provider !== d1Client.provider
         ? preset.defaultEndpoint
         : d1Client.endpoint);
+
+    const validation = validateOutboundUrl(endpoint);
+    if (!validation.ok) {
+      return c.json({ ok: false, error: `SSRF validation failed: ${validation.reason}` }, 400);
+    }
     const model =
       body.model ||
       (body.provider && body.provider !== d1Client.provider

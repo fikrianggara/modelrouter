@@ -72,6 +72,7 @@ describe('Decision Provider Security API Integration Tests (TKT-027 / VULN-10, V
       body: JSON.stringify({
         provider: 'ollama',
         endpoint: 'http://localhost:11434/v1/systemone',
+        timeoutMs: 150,
       }),
     });
     expect(authTest.status).not.toBe(401);

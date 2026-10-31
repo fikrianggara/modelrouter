@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export interface TelemetryRequestItem {
   id: string;
   time: string;
@@ -119,14 +121,17 @@ export class TelemetryStore {
     const level: 'low' | 'med' | 'high' =
       input.score < 2.0 ? 'low' : input.score < 3.5 ? 'med' : 'high';
 
+    // VULN-05: Redact raw prompt text to prevent PII/credential leakage in telemetry
+    const promptHash = crypto.createHash('sha256').update(input.prompt || '').digest('hex').slice(0, 8);
+    const domain = input.domain || 'general';
+    const charLen = input.prompt ? input.prompt.length : 0;
+    const promptSnippet = `[${domain}] ${charLen} chars (sha256:${promptHash})`;
+
     const item: TelemetryRequestItem = {
       id: input.id || `req_${Math.random().toString(36).slice(2, 9)}`,
       time: 'Just now',
       timestamp: Date.now(),
-      promptSnippet:
-        input.prompt.length > 80
-          ? `${input.prompt.slice(0, 80)}...`
-          : input.prompt || 'Empty prompt',
+      promptSnippet,
       score: input.score,
       domain: input.domain,
       model: modelName,

@@ -20,6 +20,7 @@ export default defineConfig({
     port: 8100,
   },
   build: {
+    target: 'esnext',
     outDir: 'dist/client',
     emptyOutDir: true,
   },

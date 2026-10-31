@@ -1,6 +1,7 @@
 import fs from 'fs';
 import YAML from 'yaml';
 import { z } from 'zod';
+import { isSafeEgressUrl } from '../core/security';
 
 export const ModelCapabilitiesSchema = z.object({
   tools: z.boolean().default(true),
@@ -45,11 +46,12 @@ export const ModelSpecSchema = z.object({
   base_url: z.string().url().refine(val => {
     try {
       const u = new URL(val);
-      return u.protocol === 'http:' || u.protocol === 'https:';
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return false;
+      return isSafeEgressUrl(val);
     } catch {
       return false;
     }
-  }, { message: 'base_url must use http or https protocol' }),
+  }, { message: 'base_url must be a valid http or https URL and cannot target disallowed private/loopback/metadata destinations' }),
   api_key_env: z.preprocess(
     val => (val === '' ? null : val),
     ApiKeyEnvSchema.nullable().optional()

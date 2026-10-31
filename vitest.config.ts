@@ -5,5 +5,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['tests/**/*.test.ts'],
+    env: {
+      ALLOW_PRIVATE_EGRESS: 'true',
+    },
   },
 });

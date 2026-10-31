@@ -1,6 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import path from 'path';
-import { ModelRegistry, ModelSpecSchema } from '../../src/engine/registry';
+import fs from 'fs';
+import os from 'os';
+import { ModelRegistry, ModelSpecSchema, ALLOWED_API_KEY_ENVS } from '../../src/engine/registry';
 
 const sampleYaml = `
 version: "1.0"
@@ -276,6 +278,117 @@ models:
       expect(deleted).toBe(true);
       expect(editableReg.getModel('new-model')).toBeUndefined();
       expect(editableReg.models.length).toBe(3);
+    });
+  });
+
+  describe('Security & Integrity (TKT-024 / VULN-01, VULN-07)', () => {
+    const validBaseSpec = {
+      id: 'sec-model',
+      display_name: 'Sec Model',
+      provider: 'custom' as const,
+      upstream_model: 'custom-v1',
+      base_url: 'https://api.example.com/v1',
+      complexity_range: [1.0, 3.0] as [number, number],
+      tags: ['security'],
+      capabilities: { tools: true, vision: false, max_context: 4096, streaming: true },
+      cost: { input_per_mtoken: 0, output_per_mtoken: 0 },
+      enabled: true,
+    };
+
+    it('should reject arbitrary api_key_env outside allowlist', () => {
+      expect(() => {
+        ModelSpecSchema.parse({
+          ...validBaseSpec,
+          api_key_env: 'AWS_SECRET_ACCESS_KEY',
+        });
+      }).toThrow();
+
+      expect(() => {
+        ModelSpecSchema.parse({
+          ...validBaseSpec,
+          api_key_env: 'DATABASE_PASSWORD',
+        });
+      }).toThrow();
+    });
+
+    it('should allow valid api_key_env from allowlist or null/empty', () => {
+      for (const envKey of ALLOWED_API_KEY_ENVS) {
+        const parsed = ModelSpecSchema.parse({
+          ...validBaseSpec,
+          api_key_env: envKey,
+        });
+        expect(parsed.api_key_env).toBe(envKey);
+      }
+
+      const parsedNull = ModelSpecSchema.parse({
+        ...validBaseSpec,
+        api_key_env: null,
+      });
+      expect(parsedNull.api_key_env).toBeNull();
+
+      const parsedEmpty = ModelSpecSchema.parse({
+        ...validBaseSpec,
+        api_key_env: '',
+      });
+      expect(parsedEmpty.api_key_env).toBeNull();
+    });
+
+    it('should validate base_url requiring http: or https: protocol', () => {
+      expect(() => {
+        ModelSpecSchema.parse({
+          ...validBaseSpec,
+          base_url: 'ftp://example.com/v1',
+        });
+      }).toThrow();
+
+      expect(() => {
+        ModelSpecSchema.parse({
+          ...validBaseSpec,
+          base_url: 'not-a-valid-url',
+        });
+      }).toThrow();
+
+      const httpParsed = ModelSpecSchema.parse({
+        ...validBaseSpec,
+        base_url: 'http://localhost:8000/v1',
+      });
+      expect(httpParsed.base_url).toBe('http://localhost:8000/v1');
+
+      const httpsParsed = ModelSpecSchema.parse({
+        ...validBaseSpec,
+        base_url: 'https://api.openai.com/v1',
+      });
+      expect(httpsParsed.base_url).toBe('https://api.openai.com/v1');
+    });
+
+    it('should perform atomic write in saveToFile and not corrupt file on failure', () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mr-registry-test-'));
+      const targetFile = path.join(tmpDir, 'registry.yaml');
+
+      const originalContent = 'version: "1.0"\nmodels: []\n';
+      fs.writeFileSync(targetFile, originalContent, 'utf-8');
+
+      const reg = ModelRegistry.fromYaml(sampleYaml);
+      reg.saveToFile(targetFile);
+
+      // Verify file was written and is valid YAML
+      const savedReg = ModelRegistry.fromFile(targetFile);
+      expect(savedReg.models.length).toBe(3);
+
+      // Verify failure during rename leaves target file untouched
+      const renameSpy = vi.spyOn(fs, 'renameSync').mockImplementationOnce(() => {
+        throw new Error('Simulated disk I/O error during rename');
+      });
+
+      expect(() => reg.saveToFile(targetFile)).toThrow('Simulated disk I/O error');
+      renameSpy.mockRestore();
+
+      // Original file still intact and readable
+      const intactReg = ModelRegistry.fromFile(targetFile);
+      expect(intactReg.models.length).toBe(3);
+
+      // Clean up tmp directory
+      fs.rmSync(tmpDir, { recursive: true, force: true });
     });
   });
 });

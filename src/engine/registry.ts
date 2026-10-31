@@ -29,13 +29,31 @@ export const ModelProviderSchema = z.enum([
 
 export type ModelProvider = z.infer<typeof ModelProviderSchema>;
 
+export const ALLOWED_API_KEY_ENVS = [
+  'OPENAI_API_KEY',
+  'ANTHROPIC_API_KEY',
+  'OPENROUTER_API_KEY',
+] as const;
+
+export const ApiKeyEnvSchema = z.enum(ALLOWED_API_KEY_ENVS);
+
 export const ModelSpecSchema = z.object({
   id: z.string(),
   display_name: z.string().optional().default(''),
   provider: ModelProviderSchema,
   upstream_model: z.string(),
-  base_url: z.string(),
-  api_key_env: z.string().nullable().optional(),
+  base_url: z.string().url().refine(val => {
+    try {
+      const u = new URL(val);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, { message: 'base_url must use http or https protocol' }),
+  api_key_env: z.preprocess(
+    val => (val === '' ? null : val),
+    ApiKeyEnvSchema.nullable().optional()
+  ),
   complexity_range: z.tuple([z.number(), z.number()]),
   tags: z.array(z.string()).default([]),
   capabilities: ModelCapabilitiesSchema.default({}),
@@ -154,6 +172,19 @@ export class ModelRegistry {
       models: this.models,
     };
     const yamlString = YAML.stringify(config);
-    fs.writeFileSync(filePath, yamlString, 'utf-8');
+    const tmpPath = `${filePath}.tmp.${Date.now()}`;
+    try {
+      fs.writeFileSync(tmpPath, yamlString, 'utf-8');
+      fs.renameSync(tmpPath, filePath);
+    } catch (err) {
+      if (fs.existsSync(tmpPath)) {
+        try {
+          fs.unlinkSync(tmpPath);
+        } catch {
+          // ignore cleanup failure
+        }
+      }
+      throw err;
+    }
   }
 }

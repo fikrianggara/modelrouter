@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const ConfigSchema = z.object({
   PORT: z.coerce.number().default(8100),
   HOST: z.string().default('0.0.0.0'),
+  ADMIN_API_KEY: z.string().optional(),
   D1_ENDPOINT: z.string().default('http://localhost:11434/v1/systemone'),
   D1_MODEL: z.string().default('d1:latest'),
   D1_TIMEOUT_MS: z.coerce.number().default(10000),

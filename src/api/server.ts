@@ -111,7 +111,28 @@ export function createApp(options?: ServerOptions): Hono {
 
   const app = new Hono();
 
-  app.use('*', cors());
+  // VULN-03: Restrict CORS to local/trusted origins
+  app.use(
+    '*',
+    cors({
+      origin: (origin) => {
+        if (!origin) return '*';
+        if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+          return origin;
+        }
+        return null;
+      },
+      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowHeaders: [
+        'Content-Type',
+        'Authorization',
+        'x-decision-provider',
+        'x-decision-api-key',
+        'x-decision-endpoint',
+        'x-decision-model',
+      ],
+    })
+  );
 
   app.get('/health', (c) => c.json({ status: 'ok' }));
 
@@ -257,7 +278,7 @@ export function createApp(options?: ServerOptions): Hono {
     });
   });
 
-  app.post('/api/registry/model', async (c) => {
+  app.post('/api/registry/model', adminAuthGuard, async (c) => {
     try {
       const body = await c.req.json();
       registry.addModel(body);
@@ -272,7 +293,7 @@ export function createApp(options?: ServerOptions): Hono {
     }
   });
 
-  app.put('/api/registry/model/:id', async (c) => {
+  app.put('/api/registry/model/:id', adminAuthGuard, async (c) => {
     try {
       const id = c.req.param('id');
       const body = await c.req.json();
@@ -288,7 +309,7 @@ export function createApp(options?: ServerOptions): Hono {
     }
   });
 
-  app.delete('/api/registry/model/:id', (c) => {
+  app.delete('/api/registry/model/:id', adminAuthGuard, (c) => {
     try {
       const id = c.req.param('id');
       const deleted = registry.deleteModel(id);
@@ -306,7 +327,7 @@ export function createApp(options?: ServerOptions): Hono {
     }
   });
 
-  app.patch('/api/registry/model/:id/toggle', async (c) => {
+  app.patch('/api/registry/model/:id/toggle', adminAuthGuard, async (c) => {
     try {
       const id = c.req.param('id');
       let body: any = {};
